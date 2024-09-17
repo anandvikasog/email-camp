@@ -165,7 +165,7 @@ export function SignUpForm(): JSX.Element {
                               type={type}
                               placeholder={placeholder}
                               onChange={handleFileChange}
-                              className={`w-full p-2 border rounded ${isDarkMode ? 'bg-[#202938] border-[#121929]' : 'bg-white'}`}
+                              className={`w-full p-2 border rounded-lg ${isDarkMode ? 'bg-[#202938] border-[#121929]' : 'bg-white'}`}
                               required={required}
                             />
                           )}
@@ -176,7 +176,7 @@ export function SignUpForm(): JSX.Element {
                           type={type}
                           {...register(id as keyof Values)}
                           placeholder={placeholder}
-                          className={`w-full p-2 border rounded ${isDarkMode ? 'bg-[#202938] border-[#121929]' : 'bg-white'}`}
+                          className={`w-full p-2 border rounded-lg ${isDarkMode ? 'bg-[#202938] border-[#121929]' : 'bg-white'}`}
                           required={required}
                         />
                       )}

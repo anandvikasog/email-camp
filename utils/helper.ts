@@ -5,7 +5,7 @@ import { decode } from 'next-auth/jwt';
 import User from '~/models/user';
 import { paths } from '@/paths';
 import { redirect } from 'next/navigation';
-import { v2 as cloudinary } from "cloudinary";
+import { v2 as cloudinary } from 'cloudinary';
 
 // This will encrypt givien data (object) using JWT - return encrypted string
 export const encryptText = async (data: object) => {
@@ -91,7 +91,7 @@ const options: any = {
   use_filename: true,
   unique_filename: false,
   overwrite: true,
-  resource_type: "auto",
+  resource_type: 'auto',
 };
 
 // upload image to cloudinary
