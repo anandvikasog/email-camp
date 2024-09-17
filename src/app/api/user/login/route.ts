@@ -3,7 +3,6 @@ import dbConnect from '~/db/db';
 import User from '~/models/user';
 import { comparePassword, encryptText } from '~/utils/helper';
 
-
 export async function POST(req: NextRequest) {
   try {
     await dbConnect();

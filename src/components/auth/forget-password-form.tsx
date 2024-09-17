@@ -12,6 +12,7 @@ import { forgetPasswordSchema } from '@/lib/validationSchema';
 import { useDarkMode } from '../../contexts/DarkModeContext';
 import Link from 'next/link';
 import SpinnerLoader from '../common/spinner-loader';
+import Image from 'next/image';
 
 type Values = zod.infer<typeof forgetPasswordSchema>;
 
@@ -53,7 +54,12 @@ export function ForgetPasswordForm(): JSX.Element {
           }`}
         >
           <div className="flex flex-col items-center justify-center space-y-6 w-[30vw] p-4">
-            <img src="/lock-icon.png" alt="Lock Icon" className="w-20 h-20" />
+            <Image
+              src="/lock-icon.png"
+              alt="Lock Icon"
+              height={20}
+              width={20}
+            />
             <h1 className="text-2xl font-bold">FPassword reset link is sent</h1>
             <p className="text-gray-600 text-center">{targetEmail}</p>
           </div>
@@ -66,7 +72,12 @@ export function ForgetPasswordForm(): JSX.Element {
             }`}
           >
             <div className="flex flex-col items-center justify-center space-y-6 w-[30vw] p-4">
-              <img src="/lock-icon.png" alt="Lock Icon" className="w-20 h-20" />
+              <Image
+                src="/lock-icon.png"
+                alt="Lock Icon"
+                height={20}
+                width={20}
+              />
               <h1 className="text-2xl font-bold">Forgot your password?</h1>
               <p className="text-gray-600 text-center">
                 Please enter the email address associated with your account and

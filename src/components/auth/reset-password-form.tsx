@@ -13,6 +13,7 @@ import SpinnerLoader from '../common/spinner-loader';
 import { useDarkMode } from '@/contexts/DarkModeContext';
 import Link from 'next/link';
 import { MdKeyboardArrowLeft } from 'react-icons/md';
+import Image from 'next/image';
 
 type Values = zod.infer<typeof resetPasswordSchema>;
 
@@ -59,7 +60,7 @@ export function ResetPasswordForm({ token }: { token: string }) {
         }`}
       >
         <div className="flex flex-col items-center justify-center space-y-6 w-[30vw] p-4">
-          <img src="/lock-icon.png" alt="Lock Icon" className="w-20 h-20" />
+          <Image src="/lock-icon.png" alt="Lock Icon" height={20} width={20} />
           <h1 className="text-2xl font-bold">Reset your password?</h1>
           <p className="text-gray-600 text-center">
             Please enter new password.

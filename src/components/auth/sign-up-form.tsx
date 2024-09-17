@@ -78,7 +78,6 @@ export function SignUpForm(): JSX.Element {
     }
   }, [data, router]);
 
-
   const fields = [
     {
       id: 'firstName',

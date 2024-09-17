@@ -14,7 +14,7 @@ const AddAuthData = ({ userData }: { userData: any }) => {
     if (!userData.planPurchased) {
       router.push(paths.private.payment);
     }
-  }, [userData, dispatch]);
+  }, [userData, dispatch, router]);
   return <></>;
 };
 
