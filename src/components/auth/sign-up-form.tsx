@@ -53,10 +53,8 @@ export function SignUpForm(): JSX.Element {
   }, [data]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    console.log('hii');
-    // e.preventDefault();
     const file = e.target.files?.[0];
-    console.log(file);
+
     if (file) {
       setValue('profilePicture', file); // Update the form value with the selected file
     }
@@ -155,35 +153,6 @@ export function SignUpForm(): JSX.Element {
                 >
                   <h2 className="font-bold">Register with your email id</h2>
 
-                  {/* {fields.map(({ id, type, placeholder, required }) => (
-                    <div key={id}>
-                      {type === 'file' ? (
-                        <input
-                          id={id}
-                          type={type}
-                          placeholder={placeholder}
-                          onChange={handleFileChange}
-                          className={`w-full p-2 border rounded ${isDarkMode ? 'bg-[#202938] border-[#121929]' : 'bg-white'}`}
-                          required={required}
-                        />
-                      ) : (
-                        <input
-                          id={id}
-                          type={type}
-                          {...register(id as keyof Values)}
-                          placeholder={placeholder}
-                          className={`w-full p-2 border rounded ${isDarkMode ? 'bg-[#202938] border-[#121929]' : 'bg-white'}`}
-                          required={required}
-                        />
-                      )}
-                      {errors[id as keyof Values] && (
-                        <span className="text-xs text-red-600">
-                          {errors[id as keyof Values]?.message}
-                        </span>
-                      )}
-                    </div>
-                  ))} */}
-
                   {fields.map(({ id, type, placeholder, required }) => (
                     <div key={id}>
                       {type === 'file' ? (
@@ -195,13 +164,7 @@ export function SignUpForm(): JSX.Element {
                               id={id}
                               type={type}
                               placeholder={placeholder}
-                              onChange={(e) => {
-                                const file = e.target.files?.[0];
-                                console.log(file);
-                                if (file) {
-                                  setValue('profilePicture', file);
-                                }
-                              }}
+                              onChange={handleFileChange}
                               className={`w-full p-2 border rounded ${isDarkMode ? 'bg-[#202938] border-[#121929]' : 'bg-white'}`}
                               required={required}
                             />

@@ -9,7 +9,8 @@
     "lint": "next lint",
     "lint:fix": "next lint --fix",
     "format": "prettier --write .",
-    "prepare": "husky install"
+    "prepare": "husky install",
+    "test": "echo \"tests\""
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.0",
