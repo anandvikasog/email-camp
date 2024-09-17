@@ -1,7 +1,7 @@
-"use client";
+'use client';
 
-import React, { ReactNode, JSX, useState, useEffect, Fragment } from "react";
-import useEnhancedEffect from "@mui/utils/useEnhancedEffect";
+import React, { ReactNode, JSX, useState, useEffect, Fragment } from 'react';
+import useEnhancedEffect from '@mui/utils/useEnhancedEffect';
 
 export interface NoSsrProps {
   children?: ReactNode;

@@ -1,12 +1,12 @@
-import * as React from "react";
-import type { Metadata } from "next";
+import * as React from 'react';
+import type { Metadata } from 'next';
 
-import { config } from "@/config";
-import { ResetPasswordForm } from "@/components/auth/reset-password-form";
-import { redirect } from "next/navigation";
-import { paths } from "@/paths";
-import { verifyForgetPassword } from "@/lib/actions/auth";
-import { Layout } from "@/components/auth/layout";
+import { config } from '@/config';
+import { ResetPasswordForm } from '@/components/auth/reset-password-form';
+import { redirect } from 'next/navigation';
+import { paths } from '@/paths';
+import { verifyForgetPassword } from '@/lib/actions/auth';
+import { Layout } from '@/components/auth/layout';
 
 export const metadata = {
   title: `Reset password | ${config.site.name}`,
@@ -24,7 +24,11 @@ const Page = async ({ searchParams }: { searchParams: { code: string } }) => {
   if (!verifyResponse.status) {
     redirect(paths.common.home);
   }
-  return <Layout><ResetPasswordForm token={searchParams.code} /></Layout>;
+  return (
+    <Layout>
+      <ResetPasswordForm token={searchParams.code} />
+    </Layout>
+  );
 };
 
 export default Page;

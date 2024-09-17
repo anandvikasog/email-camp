@@ -1,7 +1,7 @@
-import { NextRequest, NextResponse } from "next/server";
-import dbConnect from "~/db/db";
-import User from "~/models/user";
-import { decryptText } from "~/utils/helper";
+import { NextRequest, NextResponse } from 'next/server';
+import dbConnect from '~/db/db';
+import User from '~/models/user';
+import { decryptText } from '~/utils/helper';
 
 export async function POST(req: NextRequest) {
   try {
@@ -35,7 +35,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ status: true }, { status: 200 });
   } catch (e) {
     return NextResponse.json(
-      { status: false, message: "Something went wrong." },
+      { status: false, message: 'Something went wrong.' },
       { status: 500 }
     );
   }

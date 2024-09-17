@@ -1,8 +1,8 @@
-import { NextRequest, NextResponse } from "next/server";
-import dbConnect from "~/db/db";
-import User from "~/models/user";
-import { userResetPasswordLinkMail } from "~/utils/emailHandler/emailHandler";
-import { encryptText } from "~/utils/helper";
+import { NextRequest, NextResponse } from 'next/server';
+import dbConnect from '~/db/db';
+import User from '~/models/user';
+import { userResetPasswordLinkMail } from '~/utils/emailHandler/emailHandler';
+import { encryptText } from '~/utils/helper';
 
 export async function POST(req: NextRequest) {
   try {
@@ -12,7 +12,7 @@ export async function POST(req: NextRequest) {
 
     if (!email) {
       return NextResponse.json(
-        { status: false, message: "Please provide email." },
+        { status: false, message: 'Please provide email.' },
         { status: 400 }
       );
     }
@@ -23,7 +23,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json(
         {
           status: false,
-          message: "Email not registered.",
+          message: 'Email not registered.',
         },
         { status: 400 }
       );
@@ -32,7 +32,7 @@ export async function POST(req: NextRequest) {
     // Checking email is verified or not
     if (!user.emailVerified) {
       return NextResponse.json(
-        { status: false, message: "Please verify your email first." },
+        { status: false, message: 'Please verify your email first.' },
         { status: 400 }
       );
     }
@@ -42,7 +42,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json(
         {
           status: false,
-          message: "Reset password link is already sent.",
+          message: 'Reset password link is already sent.',
         },
         { status: 400 }
       );
@@ -57,14 +57,14 @@ export async function POST(req: NextRequest) {
     return NextResponse.json(
       {
         status: true,
-        message: "Reset password link is sent on your email ID.",
+        message: 'Reset password link is sent on your email ID.',
         email,
       },
       { status: 200 }
     );
   } catch (e) {
     return NextResponse.json(
-      { status: false, message: "Something went wrong." },
+      { status: false, message: 'Something went wrong.' },
       { status: 500 }
     );
   }

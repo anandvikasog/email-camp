@@ -1,8 +1,8 @@
-"use client";
+'use client';
 
-import { logIn } from "@/store/Features/auth/authSlice";
-import React, { useEffect } from "react";
-import { useDispatch } from "react-redux";
+import { logIn } from '@/store/Features/auth/authSlice';
+import React, { useEffect } from 'react';
+import { useDispatch } from 'react-redux';
 
 const AddAuthData = ({ userData }: { userData: any }) => {
   const dispatch = useDispatch();

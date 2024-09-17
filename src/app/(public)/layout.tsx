@@ -1,8 +1,8 @@
-import { authOptions } from "@/lib/nextAuth/authOptions";
-import { paths } from "@/paths";
-import { getServerSession } from "next-auth";
-import { redirect } from "next/navigation";
-import React from "react";
+import { authOptions } from '@/lib/nextAuth/authOptions';
+import { paths } from '@/paths';
+import { getServerSession } from 'next-auth';
+import { redirect } from 'next/navigation';
+import React from 'react';
 // import { redirect } from "next/navigation";
 
 // import { paths } from "@/paths";

@@ -1,6 +1,6 @@
-import * as React from "react";
-import type { Metadata } from "next";
-import { config } from "@/config";
+import * as React from 'react';
+import type { Metadata } from 'next';
+import { config } from '@/config';
 
 export const metadata = {
   title: `Terms | ${config.site.name}`,
