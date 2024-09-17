@@ -41,20 +41,7 @@ export function SignUpForm(): JSX.Element {
   const { isDarkMode, toggleDarkMode } = useDarkMode();
 
   const onSubmit = async (data: Values) => {
-    console.log('hlw');
-    // console.log('dat' + JSON.stringify(data));
-    // Handle file upload with FormData
-    const formData = new FormData();
-    formData.append('firstName', data.firstName);
-    // formData.append('lastName', data?.lastName);
-    formData.append('email', data.email);
-    formData.append('password', data.password);
-    // formData.append('mobile', data.mobile);
-    if (data.profilePicture) {
-      formData.append('profilePicture', data.profilePicture);
-    }
-    console.log('dat' + JSON.stringify(formData));
-    // createUser(data);
+    createUser(data);
   };
 
   useEffect(() => {

@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+import mongoose from 'mongoose';
 const { Schema } = mongoose;
 
 const mailLogSchema: any = new Schema(
@@ -19,5 +19,5 @@ const mailLogSchema: any = new Schema(
   { timestamps: true }
 );
 const MailLog =
-  mongoose.models.MailLog || mongoose.model("MailLog", mailLogSchema);
+  mongoose.models.MailLog || mongoose.model('MailLog', mailLogSchema);
 export default MailLog;
