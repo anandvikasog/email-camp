@@ -215,7 +215,7 @@ export function SignUpForm(): JSX.Element {
                               trigger('profilePicture');
                             }
                           }}
-                          className={`w-full p-2 border rounded ${isDarkMode ? 'bg-[#202938] border-[#121929]' : 'bg-white'}`}
+                          className={`w-full p-2 border rounded-lg ${isDarkMode ? 'bg-[#202938] border-[#121929]' : 'bg-white'}`}
                           required={required}
                         />
                       )}

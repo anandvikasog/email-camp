@@ -15,6 +15,7 @@ import Link from 'next/link';
 import { signInCardData } from './data';
 
 import { AuthSidePanel } from './auth-left-panel';
+import SpinnerLoader from '../common/spinner-loader';
 
 type Values = zod.infer<typeof signInSchema>;
 
@@ -24,7 +25,7 @@ const defaultValues = {
 } satisfies Values;
 
 export function SignInForm(): React.JSX.Element {
-  const [loginUser, { data }] = useLoginUserMutation<any>();
+  const [loginUser, { data, isLoading }] = useLoginUserMutation<any>();
   const router = useRouter();
   const { handleSubmit, register } = useForm<Values>({
     defaultValues,
@@ -107,7 +108,7 @@ export function SignInForm(): React.JSX.Element {
               type="email"
               {...register('email')}
               placeholder="Enter your email"
-              className={`w-full p-2 border rounded ${
+              className={`w-full p-2 border rounded-lg ${
                 isDarkMode ? 'bg-[#202938] border-[#121929]' : 'bg-white'
               }`}
               required
@@ -118,7 +119,7 @@ export function SignInForm(): React.JSX.Element {
               type="password"
               {...register('password')}
               placeholder="Enter your password"
-              className={`w-full p-2 border rounded ${
+              className={`w-full p-2 border rounded-lg ${
                 isDarkMode ? 'bg-[#202938] border-[#121929]' : 'bg-white'
               }`}
               required
@@ -128,15 +129,18 @@ export function SignInForm(): React.JSX.Element {
                 <input type="checkbox" />
                 <span className="ml-2 text-sm text-gray-600">Remember Me?</span>
               </label>
-              <a href="#" className="text-sm text-[#f26387] hover:underline">
+              <Link
+                href={paths.public.forgetPassword}
+                className="text-sm text-[#f26387] hover:underline"
+              >
                 Forget Password?
-              </a>
+              </Link>
             </div>
             <button
               type="submit"
               className="w-full py-2 px-4 bg-[#6950e9] text-white rounded"
             >
-              Sign In
+              {isLoading ? <SpinnerLoader /> : 'Sign In'}
             </button>
           </form>
         </div>

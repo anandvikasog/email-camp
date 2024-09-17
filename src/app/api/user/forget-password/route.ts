@@ -30,12 +30,12 @@ export async function POST(req: NextRequest) {
     }
 
     // Checking email is verified or not
-    if (!user.emailVerified) {
-      return NextResponse.json(
-        { status: false, message: 'Please verify your email first.' },
-        { status: 400 }
-      );
-    }
+    // if (!user.emailVerified) {
+    //   return NextResponse.json(
+    //     { status: false, message: 'Please verify your email first.' },
+    //     { status: 400 }
+    //   );
+    // }
 
     // If "resetPasswordToken" already exists, that means , reset password is already requested before
     if (user.resetPasswordToken) {
