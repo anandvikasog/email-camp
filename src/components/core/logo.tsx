@@ -1,16 +1,16 @@
-"use client";
+'use client';
 
-import React, { JSX } from "react";
-import { Box } from "@mui/material";
-import { useColorScheme } from "@mui/material/styles";
+import React, { JSX } from 'react';
+import { Box } from '@mui/material';
+import { useColorScheme } from '@mui/material/styles';
 
-import { NoSsr } from "@/components/core/no-ssr";
-import { AlignCenter } from "../styled/styled";
+import { NoSsr } from '@/components/core/no-ssr';
+import { AlignCenter } from '../styled/styled';
 
 const HEIGHT = 50;
 const WIDTH = 50;
 
-type Color = "dark" | "light";
+type Color = 'dark' | 'light';
 
 export interface LogoProps {
   color?: Color;
@@ -20,7 +20,7 @@ export interface LogoProps {
 }
 
 export function Logo({
-  color = "dark",
+  color = 'dark',
   emblem,
   height = HEIGHT,
   width = WIDTH,
@@ -29,11 +29,11 @@ export function Logo({
 
   if (emblem) {
     url =
-      color === "light"
-        ? "/assets/logo-emblem.png"
-        : "/assets/logo-emblem--dark.png";
+      color === 'light'
+        ? '/assets/logo-emblem.png'
+        : '/assets/logo-emblem--dark.png';
   } else {
-    url = color === "light" ? "/assets/logo.png" : "/assets/logo--dark.png";
+    url = color === 'light' ? '/assets/logo.png' : '/assets/logo--dark.png';
   }
 
   return (
@@ -52,14 +52,14 @@ export interface DynamicLogoProps {
 }
 
 export function DynamicLogo({
-  colorDark = "light",
-  colorLight = "dark",
+  colorDark = 'light',
+  colorLight = 'dark',
   height = HEIGHT,
   width = WIDTH,
   ...props
 }: DynamicLogoProps): JSX.Element {
   const { colorScheme } = useColorScheme();
-  const color = colorScheme === "dark" ? colorDark : colorLight;
+  const color = colorScheme === 'dark' ? colorDark : colorLight;
 
   return (
     <NoSsr

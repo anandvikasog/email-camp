@@ -1,5 +1,5 @@
-"use client";
-import React, { createContext, useContext, useState, ReactNode } from "react";
+'use client';
+import React, { createContext, useContext, useState, ReactNode } from 'react';
 
 interface DarkModeContextType {
   isDarkMode: boolean;
@@ -29,7 +29,7 @@ export const DarkModeProvider: React.FC<{ children: ReactNode }> = ({
 export const useDarkMode = () => {
   const context = useContext(DarkModeContext);
   if (!context) {
-    throw new Error("useDarkMode must be used within a DarkModeProvider");
+    throw new Error('useDarkMode must be used within a DarkModeProvider');
   }
   return context;
 };

@@ -1,13 +1,13 @@
-"use client";
+'use client';
 
-import React, { JSX, ReactNode, useState, Fragment } from "react";
-import { useServerInsertedHTML } from "next/navigation";
-import createCache from "@emotion/cache";
+import React, { JSX, ReactNode, useState, Fragment } from 'react';
+import { useServerInsertedHTML } from 'next/navigation';
+import createCache from '@emotion/cache';
 import type {
   EmotionCache,
   Options as OptionsOfCreateCache,
-} from "@emotion/cache";
-import { CacheProvider as DefaultCacheProvider } from "@emotion/react";
+} from '@emotion/cache';
+import { CacheProvider as DefaultCacheProvider } from '@emotion/react';
 
 interface Registry {
   cache: EmotionCache;
@@ -15,7 +15,7 @@ interface Registry {
 }
 
 export interface NextAppDirEmotionCacheProviderProps {
-  options: Omit<OptionsOfCreateCache, "insertionPoint">;
+  options: Omit<OptionsOfCreateCache, 'insertionPoint'>;
   CacheProvider?: () => JSX.Element | null;
   children: ReactNode;
 }
@@ -55,7 +55,7 @@ export default function NextAppDirEmotionCacheProvider(
       return null;
     }
 
-    let styles = "";
+    let styles = '';
     let dataEmotionAttribute = registry.cache.key;
 
     const globals: { name: string; style: string }[] = [];
@@ -63,7 +63,7 @@ export default function NextAppDirEmotionCacheProvider(
     inserted.forEach(({ name, isGlobal }) => {
       const style = registry.cache.inserted[name];
 
-      if (typeof style !== "boolean") {
+      if (typeof style !== 'boolean') {
         if (isGlobal) {
           globals.push({ name, style });
         } else {

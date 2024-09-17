@@ -1,7 +1,7 @@
-import { NextRequest, NextResponse } from "next/server";
-import dbConnect from "~/db/db";
-import User from "~/models/user";
-import { comparePassword, encryptText } from "~/utils/helper";
+import { NextRequest, NextResponse } from 'next/server';
+import dbConnect from '~/db/db';
+import User from '~/models/user';
+import { comparePassword, encryptText } from '~/utils/helper';
 
 export async function POST(req: NextRequest) {
   try {
@@ -12,7 +12,7 @@ export async function POST(req: NextRequest) {
     // Login failed
     if (!email || !password) {
       return NextResponse.json(
-        { status: false, message: "Please provide email and password." },
+        { status: false, message: 'Please provide email and password.' },
         { status: 400 }
       );
     }
@@ -24,7 +24,7 @@ export async function POST(req: NextRequest) {
     // Login failed
     if (!user) {
       return NextResponse.json(
-        { status: false, message: "Incorrect email or password." },
+        { status: false, message: 'Incorrect email or password.' },
         { status: 404 }
       );
     }
@@ -32,7 +32,7 @@ export async function POST(req: NextRequest) {
     // Login failed
     if (!user.emailVerified) {
       return NextResponse.json(
-        { status: false, message: "Please verify your email first." },
+        { status: false, message: 'Please verify your email first.' },
         { status: 400 }
       );
     }
@@ -42,7 +42,7 @@ export async function POST(req: NextRequest) {
     // Login failed
     if (!isPasswordVerified) {
       return NextResponse.json(
-        { status: false, message: "Incorrect email or password." },
+        { status: false, message: 'Incorrect email or password.' },
         { status: 404 }
       );
     }
@@ -54,7 +54,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json(
       {
         status: true,
-        message: "Logged in successfully.",
+        message: 'Logged in successfully.',
         token,
         data: {
           _id,
@@ -65,7 +65,7 @@ export async function POST(req: NextRequest) {
     );
   } catch (e) {
     return NextResponse.json(
-      { status: false, message: "Something went wrong." },
+      { status: false, message: 'Something went wrong.' },
       { status: 500 }
     );
   }

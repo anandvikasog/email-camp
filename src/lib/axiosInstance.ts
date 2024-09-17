@@ -1,8 +1,8 @@
-import axios, { AxiosInstance } from "axios";
+import axios, { AxiosInstance } from 'axios';
 
 const axiosParams = {
   baseURL:
-    process.env.NODE_ENV === "development"
+    process.env.NODE_ENV === 'development'
       ? process.env.NEXT_PUBLIC_API_URL
       : process.env.NEXT_PUBLIC_API_URL,
 };

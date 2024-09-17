@@ -1,7 +1,7 @@
-import { NextRequest, NextResponse } from "next/server";
-import dbConnect from "~/db/db";
-import User from "~/models/user";
-import { decryptText, hashPassword } from "~/utils/helper";
+import { NextRequest, NextResponse } from 'next/server';
+import dbConnect from '~/db/db';
+import User from '~/models/user';
+import { decryptText, hashPassword } from '~/utils/helper';
 
 export async function POST(req: NextRequest) {
   try {
@@ -11,7 +11,7 @@ export async function POST(req: NextRequest) {
 
     if (!password || !token) {
       return NextResponse.json(
-        { status: false, message: "Please provide required data." },
+        { status: false, message: 'Please provide required data.' },
         { status: 400 }
       );
     }
@@ -19,7 +19,7 @@ export async function POST(req: NextRequest) {
     const tokenData: any = await decryptText(token);
     if (!tokenData || !tokenData?.id) {
       return NextResponse.json(
-        { status: false, message: "Unauthorized" },
+        { status: false, message: 'Unauthorized' },
         { status: 401 }
       );
     }
@@ -31,7 +31,7 @@ export async function POST(req: NextRequest) {
 
     if (!user) {
       return NextResponse.json(
-        { status: false, message: "User not found" },
+        { status: false, message: 'User not found' },
         { status: 404 }
       );
     }
@@ -46,13 +46,13 @@ export async function POST(req: NextRequest) {
     return NextResponse.json(
       {
         status: true,
-        message: "Password changed successfully.",
+        message: 'Password changed successfully.',
       },
       { status: 200 }
     );
   } catch (e) {
     return NextResponse.json(
-      { status: false, message: "Something went wrong." },
+      { status: false, message: 'Something went wrong.' },
       { status: 500 }
     );
   }
