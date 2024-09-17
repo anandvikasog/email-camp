@@ -20,8 +20,6 @@ export default async function RootLayout({
 
   let verifySessionRes: any = await verifySession();
 
-  // console.log("verifySessionRes ===", verifySessionRes)
-
   verifySessionRes = JSON.parse(verifySessionRes);
   if (!verifySessionRes.status) {
     redirect(paths.public.signIn);

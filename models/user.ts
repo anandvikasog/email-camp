@@ -10,7 +10,6 @@ const userSchema: any = new Schema(
     },
     lastName: {
       type: String,
-      required: true,
     },
     email: {
       type: String,
@@ -36,11 +35,9 @@ const userSchema: any = new Schema(
     },
     mobile: {
       type: String,
-      required: true,
     },
     profilePicture: {
       type: String,
-      required: false,
     },
     emailVerified: {
       type: Boolean,

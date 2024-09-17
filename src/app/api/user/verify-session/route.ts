@@ -17,7 +17,13 @@ export async function POST(req: NextRequest) {
         status: true,
         data: {
           _id: isValid._id,
+          firstName: isValid.firstName,
+          lastName: isValid.lastName,
           email: isValid.email,
+          mobile: isValid.mobile,
+          profilePicture: isValid.profilePicture,
+          emailVerified: isValid.emailVerified,
+          planPurchased: isValid.planPurchased,
         },
       },
       { status: 200 }

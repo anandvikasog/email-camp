@@ -21,8 +21,18 @@ export default function Page(): React.JSX.Element {
   };
 
   return (
-    <div>
-      Private Dashboard <br /> <button onClick={handleSignOut}>Logout</button>
+    <div className="flex justify-center mt-5">
+      <div className="flex flex-col gap-y-4 w-[500px]">
+        <div>Dashboard</div>
+
+        <button
+          type="submit"
+          className="w-full py-2 px-4 bg-[#6950e9] text-white rounded"
+          onClick={handleSignOut}
+        >
+          Logout
+        </button>
+      </div>
     </div>
   );
 }

@@ -23,13 +23,7 @@ export async function POST(req: NextRequest) {
       profilePicture: '',
     };
 
-    if (
-      !reqData.email ||
-      !reqData.password ||
-      !reqData.firstName ||
-      !reqData.lastName ||
-      !reqData.mobile
-    ) {
+    if (!reqData.email || !reqData.password || !reqData.firstName) {
       return NextResponse.json(
         { message: 'Please provide all the required data.' },
         { status: 400 }
@@ -48,32 +42,35 @@ export async function POST(req: NextRequest) {
     // Hashing password
     reqData.password = await hashPassword(reqData.password as string);
 
-    const avatar = multipartData.get('avatar');
-    if (avatar) {
-      const buffer = await getFileBuffer(avatar);
+    const profilePicture = multipartData.get('profilePicture');
+    if (profilePicture) {
+      const buffer = await getFileBuffer(profilePicture);
 
       // Saving image in cloudinary
-      const avatarUrl = await uploadImageToCloudinary(
+      const profilePictureUrl = await uploadImageToCloudinary(
         buffer,
         `avatar_${Date.now()}`
       );
-      if (avatarUrl) {
-        reqData.profilePicture = avatarUrl as string;
+      if (profilePictureUrl) {
+        reqData.profilePicture = profilePictureUrl as string;
       }
     }
 
     const newUser = new User(reqData);
     await newUser.save();
-    const linkToken = await encryptText({ id: newUser._id });
+    const token = await encryptText({ id: newUser._id });
 
     // Verification mail
-    await userEmailVerificationMail(newUser.email, linkToken);
+    await userEmailVerificationMail(newUser.email, token);
+
+    // Login Success
     return NextResponse.json(
       {
         status: true,
-        message:
-          'User created, email verification link is sent on registered email ID.',
+        message: 'Registered successfully.',
+        token,
         data: {
+          _id: newUser._id,
           firstName: newUser.firstName,
           lastName: newUser.lastName,
           email: newUser.email,
