@@ -4,6 +4,14 @@ const { Schema } = mongoose;
 
 const userSchema: any = new Schema(
   {
+    firstName: {
+      type: String,
+      required: true,
+    },
+    lastName: {
+      type: String,
+      required: true,
+    },
     email: {
       type: String,
       required: true,
@@ -26,7 +34,19 @@ const userSchema: any = new Schema(
       default: 'credential',
       required: true,
     },
+    mobile: {
+      type: String,
+      required: true,
+    },
+    profilePicture: {
+      type: String,
+      required: false,
+    },
     emailVerified: {
+      type: Boolean,
+      default: false,
+    },
+    planPurchased: {
       type: Boolean,
       default: false,
     },

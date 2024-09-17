@@ -42,6 +42,12 @@ export const authApiSlice = apiSlice.injectEndpoints({
         body: payload,
       }),
     }),
+    buyPlan: builder.mutation({
+      query: () => ({
+        url: apiPaths.user.buyPlan,
+        method: 'POST',
+      }),
+    }),
   }),
 });
 
@@ -51,4 +57,5 @@ export const {
   useSocialLoginUserMutation,
   useForgetPasswordMutation,
   useResetPasswordMutation,
+  useBuyPlanMutation,
 } = authApiSlice;
