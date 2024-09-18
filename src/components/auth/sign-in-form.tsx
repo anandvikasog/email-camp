@@ -16,6 +16,7 @@ import { signInCardData } from './data';
 
 import { AuthSidePanel } from './auth-left-panel';
 import SpinnerLoader from '../common/spinner-loader';
+import { ToggleButton } from '../common/toggle-button';
 
 type Values = zod.infer<typeof signInSchema>;
 
@@ -64,29 +65,7 @@ export function SignInForm(): React.JSX.Element {
         }`}
       >
         <div className="w-3/5">
-          <label
-            htmlFor="darkModeToggle"
-            className="flex items-center cursor-pointer absolute top-2 right-2"
-          >
-            <span
-              className={`w-12 h-6 flex items-center bg-gray-300 rounded-full p-1 ${
-                isDarkMode ? 'bg-[#6950e9]' : ''
-              }`}
-            >
-              <span
-                className={`w-5 h-5 bg-white rounded-full shadow-md transform transition-transform ${
-                  isDarkMode ? 'translate-x-5' : 'translate-x-0'
-                }`}
-              />
-            </span>
-            <input
-              type="checkbox"
-              id="darkModeToggle"
-              className="sr-only"
-              checked={isDarkMode}
-              onChange={toggleDarkMode}
-            />
-          </label>
+          {/* <ToggleButton isChecked={isDarkMode} onChange={toggleDarkMode} /> */}
 
           <div className="py-4">
             <h3 className="text-2xl font-semibold py-2">Sign In</h3>

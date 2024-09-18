@@ -41,19 +41,6 @@ export function ResetPasswordForm({ token }: { token: string }) {
 
   return (
     <div>
-      {/* <form onSubmit={handleSubmit(onSubmit)}>
-        <input
-          id="password"
-          type="password"
-          {...register('password')}
-          placeholder="New Password"
-          className="w-full p-2 border rounded"
-          required
-        />
-        <button disabled={isLoading} type="submit">
-          {isLoading ? <SpinnerLoader /> : 'Submit'}
-        </button>
-      </form> */}
       <div
         className={`flex items-center justify-center h-screen ${
           isDarkMode ? 'bg-[#111828] text-white' : 'bg-white text-black'

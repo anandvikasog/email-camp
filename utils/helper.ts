@@ -9,7 +9,9 @@ import { v2 as cloudinary } from 'cloudinary';
 
 // This will encrypt givien data (object) using JWT - return encrypted string
 export const encryptText = async (data: object) => {
-  const token = jwt.sign(data, process.env.NEXT_PUBLIC_JWT_KEY || '');
+  const token = jwt.sign(data, process.env.NEXT_PUBLIC_JWT_KEY || '', {
+    expiresIn: '1d',
+  });
   return token;
 };
 

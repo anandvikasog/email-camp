@@ -29,12 +29,22 @@ export const signInSchema = zod.object({
 
 export const signUpSchema = zod.object({
   firstName: zod.string().min(1, 'First name is required'),
-  lastName: zod.string().min(1, 'Last name is required').optional(),
+  lastName: zod
+    .string()
+    .min(2, 'Last name must be at least 2 characters')
+    .max(20, 'Last name must be at most 20 characters')
+    .optional()
+    .or(zod.literal('')), // Allow empty string as optional
   email: emailValidation,
   password: passwordValidation,
-  mobile: zod.string().min(10, 'Invalid mobile number').optional(),
+  mobile: zod
+    .string()
+    .optional()
+    .refine((value) => value === undefined || /^[0-9]{10}$/.test(value), {
+      message: 'Mobile number must be exactly 10 digits',
+    }),
   profilePicture: zod
-    .instanceof(File) // Ensure the profile picture is a file object
+    .instanceof(File, { message: 'Profile picture is required' }) // Ensure the profile picture is a file object
     .refine(
       (file) => file.size >= MIN_FILE_SIZE && file.size <= MAX_FILE_SIZE,
       `Profile picture must be between 10 KB and 2 MB`
