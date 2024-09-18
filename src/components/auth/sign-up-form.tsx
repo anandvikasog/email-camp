@@ -18,6 +18,7 @@ import SpinnerLoader from '../common/spinner-loader';
 import { useRouter } from 'next/navigation';
 import { toast } from 'react-toastify';
 import { signIn } from 'next-auth/react';
+import Image from 'next/image';
 import { ToggleButton } from '../common/toggle-button';
 
 type Values = zod.infer<typeof signUpSchema>;
@@ -176,23 +177,21 @@ export function SignUpForm(): JSX.Element {
                           {/* Image Input as the Preview */}
                           <label htmlFor={id} className="cursor-pointer">
                             {imageSrc ? (
-                              <img
+                              <Image
                                 src={imageSrc}
                                 alt="Profile Preview"
                                 className="inline-block h-14 w-14 rounded-full"
+                                width={56} // Adjust width as needed
+                                height={56}
                               />
                             ) : (
-                              <div
-                                className={`flex h-14 w-14 rounded-full items-center justify-center ${
-                                  isDarkMode
-                                    ? 'bg-[#202938] border-[#121929]'
-                                    : 'bg-gray-200 '
-                                }`}
-                              >
-                                <span className="text-xs text-gray-500  px-2">
-                                  Click to upload
-                                </span>
-                              </div>
+                              <Image
+                                src="/images/defaultImage.png" // Use the correct path to the image here
+                                alt="Default Profile"
+                                className="h-14 w-14 rounded-full"
+                                width={56} // Adjust width as needed
+                                height={56}
+                              />
                             )}
                           </label>
 
