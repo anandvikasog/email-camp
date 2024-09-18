@@ -77,7 +77,7 @@ export async function POST(req: NextRequest) {
           mobile: newUser.mobile,
           profilePicture: newUser.profilePicture,
           emailVerified: newUser.emailVerified,
-          planPurchased: newUser.planPurchased,
+          subscription: newUser.subscription,
         },
       },
       { status: 200 }

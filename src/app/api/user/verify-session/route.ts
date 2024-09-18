@@ -23,7 +23,7 @@ export async function POST(req: NextRequest) {
           mobile: isValid.mobile,
           profilePicture: isValid.profilePicture,
           emailVerified: isValid.emailVerified,
-          planPurchased: isValid.planPurchased,
+          subscription: isValid.subscription,
         },
       },
       { status: 200 }

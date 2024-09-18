@@ -3,7 +3,12 @@ import { createSlice } from '@reduxjs/toolkit';
 const initialState = {
   loggedIn: false,
   email: '',
-  id: '',
+  emailVerified: false,
+  firstName: '',
+  lastName: '',
+  mobile: '',
+  profilePicture: '',
+  _id: '',
 };
 
 export const authSlice = createSlice({
@@ -18,7 +23,12 @@ export const authSlice = createSlice({
     logIn: (state, action) => {
       state.loggedIn = true;
       state.email = action.payload?.email || '';
-      state.id = action.payload?.id || '';
+      state.emailVerified = action.payload?.emailVerified || '';
+      state.firstName = action.payload?.firstName || '';
+      state.lastName = action.payload?.lastName || '';
+      state.mobile = action.payload?.mobile || '';
+      state.profilePicture = action.payload?.profilePicture || '';
+      state._id = action.payload?._id || '';
     },
     updateData: (state, action) => {
       return { ...state, ...action.payload };
