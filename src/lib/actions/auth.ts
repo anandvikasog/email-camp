@@ -3,6 +3,7 @@
 import { cookies } from 'next/headers';
 import axiosInstance from '../axiosInstance';
 import { apiPaths } from '@/paths';
+import { getSessionCookieName } from '~/utils/helper';
 
 export const verifyEmail = async ({ code }: { code: string }) => {
   try {
@@ -17,7 +18,7 @@ export const verifyEmail = async ({ code }: { code: string }) => {
 
 export const verifySession = async () => {
   try {
-    const sessionCookie: any = cookies().get('next-auth.session-token');
+    const sessionCookie: any = cookies().get(getSessionCookieName());
 
     const res = await axiosInstance.post(apiPaths.user.verifySession, {
       sessionToken: sessionCookie.value,

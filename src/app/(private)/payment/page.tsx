@@ -105,8 +105,8 @@ const CheckoutForm = () => {
         className="mb-4 p-2 border rounded"
       >
         <option value="">Select a Plan</option>
-        <option value="prod_Qs13dHtpYqMRQm">Pro Plan</option>
-        <option value="prod_Qs0x75usumiOsN">Free Plan</option>
+        <option value="price_1Q0NHLJ2wTXXDiPXWNdd7MA0">Pro Plan</option>
+        <option value="price_1Q0GvDJ2wTXXDiPX0nnWJDat">Free Plan</option>
       </select>
 
       <div className="flex flex-col gap-y-2">

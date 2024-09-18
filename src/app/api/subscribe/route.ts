@@ -7,6 +7,8 @@ import { NextRequest, NextResponse } from 'next/server';
 export async function POST(req: NextRequest) {
   try {
     const data = await req.json();
+
+    console.log('data', data);
     const { email, paymentMethodId, userId, priceId } = data;
 
     await dbConnect();
@@ -63,6 +65,7 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ subscription }, { status: 200 });
   } catch (e) {
+    console.log('error == ', e);
     return NextResponse.json(
       { status: false, message: 'Something went wrong.' },
       { status: 500 }

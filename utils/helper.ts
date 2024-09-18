@@ -7,6 +7,13 @@ import { paths } from '@/paths';
 import { redirect } from 'next/navigation';
 import { v2 as cloudinary } from 'cloudinary';
 
+// this will return session cookie name as per dev/prod mode
+export const getSessionCookieName = () => {
+  return process.env.NODE_ENV === 'development'
+    ? 'next-auth.session-token'
+    : '__Secure-next-auth.session-token';
+};
+
 // This will encrypt givien data (object) using JWT - return encrypted string
 export const encryptText = async (data: object) => {
   const token = jwt.sign(data, process.env.NEXT_PUBLIC_JWT_KEY || '', {
@@ -66,16 +73,16 @@ export const validateSession = async (sessionToken: string) => {
 
 // This will check weather the user has session or not - return user data or false
 export const validateUser = async () => {
-  const sessionToken: any = cookies().get('next-auth.session-token');
+  const sessionToken: any = cookies().get(getSessionCookieName());
   if (!sessionToken || !sessionToken?.value) {
-    cookies().delete('next-auth.session-token');
+    cookies().delete(getSessionCookieName());
     redirect(paths.public.signIn);
   }
 
   const isValid = await validateSession(sessionToken.value);
 
   if (!isValid) {
-    cookies().delete('next-auth.session-token');
+    cookies().delete(getSessionCookieName());
     redirect(paths.public.signIn);
   }
 
