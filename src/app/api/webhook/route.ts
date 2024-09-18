@@ -88,7 +88,7 @@ export async function POST(req: NextRequest) {
         console.warn(`Unhandled event type ${event.type}`);
     }
 
-    console.log('wobhook success :)');
+    console.log('wobhook success 🙂');
 
     // Login Success
     return NextResponse.json({ received: true }, { status: 200 });
