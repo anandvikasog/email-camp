@@ -18,6 +18,7 @@ import SpinnerLoader from '../common/spinner-loader';
 import { useRouter } from 'next/navigation';
 import { toast } from 'react-toastify';
 import { signIn } from 'next-auth/react';
+import { ToggleButton } from '../common/toggle-button';
 
 type Values = zod.infer<typeof signUpSchema>;
 
@@ -34,6 +35,7 @@ export function SignUpForm(): JSX.Element {
   const router = useRouter();
 
   const [createUser, { data, isLoading }] = useCreateUserMutation<any>();
+  const [imageSrc, setImageSrc] = useState<string | null>(null); // State for storing image preview
   const {
     control,
     handleSubmit,
@@ -41,7 +43,11 @@ export function SignUpForm(): JSX.Element {
     setValue,
     trigger,
     formState: { errors },
-  } = useForm<Values>({ defaultValues, resolver: zodResolver(signUpSchema) });
+  } = useForm<Values>({
+    defaultValues,
+    mode: 'onTouched',
+    resolver: zodResolver(signUpSchema),
+  });
   const { isDarkMode, toggleDarkMode } = useDarkMode();
 
   const onSubmit = async (data: Values) => {
@@ -78,6 +84,20 @@ export function SignUpForm(): JSX.Element {
     }
   }, [data, router]);
 
+  // Handle image upload and preview
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = () => {
+        setValue('profilePicture', file);
+        trigger('profilePicture');
+        setImageSrc(reader.result as string); // Set image URL for preview
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   const fields = [
     {
       id: 'firstName',
@@ -88,7 +108,7 @@ export function SignUpForm(): JSX.Element {
     { id: 'lastName', type: 'text', placeholder: 'Last Name', required: false },
     {
       id: 'email',
-      type: 'email',
+      type: 'text',
       placeholder: 'Enter your email',
       required: true,
     },
@@ -123,29 +143,7 @@ export function SignUpForm(): JSX.Element {
           }`}
         >
           <div className="w-3/5">
-            <label
-              htmlFor="darkModeToggle"
-              className="flex items-center cursor-pointer absolute top-2 right-2"
-            >
-              <span
-                className={`w-12 h-6 flex items-center bg-gray-300 rounded-full p-1 ${
-                  isDarkMode ? 'bg-[#6950e9]' : ''
-                }`}
-              >
-                <span
-                  className={`w-5 h-5 bg-white rounded-full shadow-md transform transition-transform ${
-                    isDarkMode ? 'translate-x-5' : 'translate-x-0'
-                  }`}
-                />
-              </span>
-              <input
-                type="checkbox"
-                id="darkModeToggle"
-                className="sr-only"
-                checked={isDarkMode}
-                onChange={toggleDarkMode}
-              />
-            </label>
+            {/* <ToggleButton isChecked={isDarkMode} onChange={toggleDarkMode} /> */}
 
             <div className="py-4">
               <h3 className="text-2xl font-semibold py-2">
@@ -167,35 +165,6 @@ export function SignUpForm(): JSX.Element {
             >
               <h2 className="font-bold">Register with your email id</h2>
 
-              {/* {fields.map(({ id, type, placeholder, required }) => (
-                    <div key={id}>
-                      {type === 'file' ? (
-                        <input
-                          id={id}
-                          type={type}
-                          placeholder={placeholder}
-                          onChange={handleFileChange}
-                          className={`w-full p-2 border rounded ${isDarkMode ? 'bg-[#202938] border-[#121929]' : 'bg-white'}`}
-                          required={required}
-                        />
-                      ) : (
-                        <input
-                          id={id}
-                          type={type}
-                          {...register(id as keyof Values)}
-                          placeholder={placeholder}
-                          className={`w-full p-2 border rounded ${isDarkMode ? 'bg-[#202938] border-[#121929]' : 'bg-white'}`}
-                          required={required}
-                        />
-                      )}
-                      {errors[id as keyof Values] && (
-                        <span className="text-xs text-red-600">
-                          {errors[id as keyof Values]?.message}
-                        </span>
-                      )}
-                    </div>
-                  ))} */}
-
               {fields.map(({ id, type, placeholder, required }) => (
                 <div key={id}>
                   {type === 'file' ? (
@@ -203,20 +172,39 @@ export function SignUpForm(): JSX.Element {
                       name={id as keyof Values}
                       control={control}
                       render={({ field }) => (
-                        <input
-                          id={id}
-                          type={type}
-                          placeholder={placeholder}
-                          onChange={(e) => {
-                            const file = e.target.files?.[0];
-                            if (file) {
-                              setValue('profilePicture', file);
-                              trigger('profilePicture');
-                            }
-                          }}
-                          className={`w-full p-2 border rounded-lg ${isDarkMode ? 'bg-[#202938] border-[#121929]' : 'bg-white'}`}
-                          required={required}
-                        />
+                        <div className="flex flex-col items-center">
+                          {/* Image Input as the Preview */}
+                          <label htmlFor={id} className="cursor-pointer">
+                            {imageSrc ? (
+                              <img
+                                src={imageSrc}
+                                alt="Profile Preview"
+                                className="inline-block h-14 w-14 rounded-full"
+                              />
+                            ) : (
+                              <div
+                                className={`flex h-14 w-14 rounded-full items-center justify-center ${
+                                  isDarkMode
+                                    ? 'bg-[#202938] border-[#121929]'
+                                    : 'bg-gray-200 '
+                                }`}
+                              >
+                                <span className="text-xs text-gray-500  px-2">
+                                  Click to upload
+                                </span>
+                              </div>
+                            )}
+                          </label>
+
+                          {/* Hidden File Input */}
+                          <input
+                            id={id}
+                            type={type}
+                            accept="image/*"
+                            onChange={handleImageChange}
+                            className="hidden"
+                          />
+                        </div>
                       )}
                     />
                   ) : (
@@ -226,7 +214,6 @@ export function SignUpForm(): JSX.Element {
                       {...register(id as keyof Values)}
                       placeholder={placeholder}
                       className={`w-full p-2 border rounded ${isDarkMode ? 'bg-[#202938] border-[#121929]' : 'bg-white'}`}
-                      required={required}
                     />
                   )}
                   {errors[id as keyof Values] && (
