@@ -9,14 +9,14 @@ export async function POST(req: NextRequest) {
     // Validation
     let user = await validateUser();
 
-    user = await User.findByIdAndUpdate(user._id, { planPurchased: true });
+    user = await User.findByIdAndUpdate(user._id, { subscription: 'abc' });
 
     return NextResponse.json(
       {
         message: 'Purchased successfully.',
         status: true,
         data: {
-          planPurchased: true,
+          subscription: 'abc',
         },
       },
       { status: 200 }

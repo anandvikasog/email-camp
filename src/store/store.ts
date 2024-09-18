@@ -14,4 +14,8 @@ export const store = configureStore({
     getDefaultMiddleware({}).concat([apiSlice.middleware]),
 });
 
+export type StoreType = typeof store;
+export type AppDispatch = typeof store.dispatch;
+export type RootState = ReturnType<typeof rootReducer>;
+
 setupListeners(store.dispatch);

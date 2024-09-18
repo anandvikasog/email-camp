@@ -43,12 +43,15 @@ const userSchema: any = new Schema(
       type: Boolean,
       default: false,
     },
-    planPurchased: {
-      type: Boolean,
-      default: false,
-    },
     resetPasswordToken: {
       type: String,
+    },
+    stripeCustomerId: {
+      type: String,
+    },
+    subscription: {
+      type: Schema.ObjectId,
+      ref: 'Subscription',
     },
   },
   { timestamps: true }

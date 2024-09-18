@@ -55,7 +55,7 @@ export async function POST(req: NextRequest) {
           mobile: user.mobile,
           profilePicture: user.profilePicture,
           emailVerified: user.emailVerified,
-          planPurchased: user.planPurchased,
+          subscription: user.subscription,
         },
       },
       { status: 200 }
