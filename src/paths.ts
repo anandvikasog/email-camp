@@ -9,6 +9,7 @@ export const paths = {
   private: {
     dashboard: '/dashboard',
     payment: '/payment',
+    account: '/account',
   },
   common: {
     home: '/',
