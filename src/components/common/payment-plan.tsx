@@ -34,7 +34,6 @@ interface Tier {
 
 const frequencies: Frequency[] = [
   { value: 'monthly', label: 'Monthly', priceSuffix: '/month' },
-  { value: 'annually', label: 'Annually', priceSuffix: '/year' },
 ];
 
 const tiers: Tier[] = [
@@ -91,25 +90,7 @@ export default function Page() {
           Choose an affordable plan that’s packed with the best features for
           engaging your audience, creating customer loyalty, and driving sales.
         </p>
-        <div className="mt-16 flex justify-center">
-          <fieldset aria-label="Payment frequency">
-            <RadioGroup
-              value={frequency}
-              onChange={setFrequency}
-              className="grid grid-cols-2 gap-x-1 rounded-full p-1 text-center text-xs font-semibold leading-5 ring-1 ring-inset ring-gray-200"
-            >
-              {frequencies.map((option) => (
-                <Radio
-                  key={option.value}
-                  value={option}
-                  className="cursor-pointer rounded-full px-2.5 py-1 text-gray-500 data-[checked]:bg-indigo-600 data-[checked]:text-white"
-                >
-                  {option.label}
-                </Radio>
-              ))}
-            </RadioGroup>
-          </fieldset>
-        </div>
+
         <div className="isolate mx-auto mt-10 grid max-w-md grid-cols-1 gap-16 lg:mx-0 lg:max-w-[50vw] lg:grid-cols-2">
           {tiers.map((tier) => (
             <div
