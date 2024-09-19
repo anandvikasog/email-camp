@@ -7,7 +7,7 @@ import jwt from 'jsonwebtoken';
 
 const verifyResetToken = async (token: string) => {
   try {
-    const decoded = jwt.verify(token, process.env.NEXT_PUBLIC_JWT_KEY || '');
+    const decoded = jwt.verify(token, process.env.JWT_KEY || '');
     return { valid: true, decoded };
   } catch (error) {
     if (error instanceof jwt.TokenExpiredError) {

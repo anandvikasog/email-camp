@@ -42,10 +42,19 @@ export const authApiSlice = apiSlice.injectEndpoints({
         body: payload,
       }),
     }),
-    buyPlan: builder.mutation({
-      query: () => ({
-        url: apiPaths.user.buyPlan,
+    getPlan: builder.query({
+      query: () => apiPaths.plan.planList,
+    }),
+    subscribe: builder.mutation({
+      query: (payload: {
+        email: string;
+        paymentMethodId: string;
+        userId: string;
+        priceId: string;
+      }) => ({
+        url: apiPaths.plan.subscribe,
         method: 'POST',
+        body: payload,
       }),
     }),
   }),
@@ -57,5 +66,6 @@ export const {
   useSocialLoginUserMutation,
   useForgetPasswordMutation,
   useResetPasswordMutation,
-  useBuyPlanMutation,
+  useGetPlanQuery,
+  useSubscribeMutation,
 } = authApiSlice;

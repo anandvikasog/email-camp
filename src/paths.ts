@@ -27,6 +27,9 @@ export const apiPaths = {
     verifyEmail: '/user/verify-email',
     verifySession: '/user/verify-session',
     verifyForgetPassword: '/user/forget-password/verify',
-    buyPlan: '/user/buy-plan',
+  },
+  plan: {
+    planList: '/plan',
+    subscribe: '/subscribe',
   },
 } as const;
