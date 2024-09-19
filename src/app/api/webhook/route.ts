@@ -10,7 +10,7 @@ export async function POST(req: NextRequest) {
     await dbConnect();
     const event = await req.json();
 
-    console.log('event -------- ', event);
+    console.log(`WEBHOOK EVENT :: ${event.type}`);
 
     switch (event.type) {
       case 'invoice.payment_succeeded': {
@@ -139,7 +139,7 @@ export async function POST(req: NextRequest) {
         break;
       }
       default:
-        console.log(`WEBHOOK ERROR 🚫 :: Unhandled event type ${event.type}`);
+        console.log(`WEBHOOK ERROR 🚫 :: event not handled.`);
     }
 
     console.log('WEBHOOK MANAGED SUCCESSFULLY ✅');

@@ -12,27 +12,22 @@ import {
 export async function POST(req: NextRequest) {
   try {
     const data = await req.json();
-
-    console.log('data', data);
     const { email, paymentMethodId, userId, priceId } = data;
 
     await dbConnect();
     const user = await User.findOne({ _id: userId });
-
-    console.log('user', user);
 
     // checking user exists or not
     if (!user) {
       return NextResponse.json({ message: 'User not found' }, { status: 404 });
     }
 
+    // extracting Stripe customer ID
     let stripeCustomerId = user.stripeCustomerId;
-
     if (!stripeCustomerId) {
       stripeCustomerId = await generateStripeCustomerId(email, paymentMethodId);
       await User.updateOne({ _id: userId }, { $set: { stripeCustomerId } });
     }
-    console.log('stripeCustomerId', stripeCustomerId);
 
     let subscriptionData: null | object = null;
 
@@ -72,7 +67,6 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ subscriptionData }, { status: 200 });
   } catch (e) {
-    console.log('error == ', e);
     return NextResponse.json(
       { status: false, message: 'Something went wrong.' },
       { status: 500 }
