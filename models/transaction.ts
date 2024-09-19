@@ -10,11 +10,9 @@ const transactionSchema: any = new Schema(
     },
     stripePaymentIntentId: {
       type: String,
-      required: true,
     },
     amount: {
       type: Number,
-      required: true,
     },
     currency: {
       type: String,
@@ -24,6 +22,15 @@ const transactionSchema: any = new Schema(
       type: String,
       required: true,
       enum: ['succeeded', 'pending', 'failed'],
+    },
+    invoiceNumber: {
+      type: String,
+    },
+    invoiceUrl: {
+      type: String,
+    },
+    invoicePdf: {
+      type: String,
     },
   },
   { timestamps: true }

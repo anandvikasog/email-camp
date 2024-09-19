@@ -20,6 +20,9 @@ export async function POST(req: NextRequest) {
         const paymentIntentId = invoice.payment_intent;
         const amountPaid = invoice.amount_paid;
         const currency = invoice.currency;
+        const number = invoice.number;
+        const url = invoice.hosted_invoice_url;
+        const pdf = invoice.invoice_pdf;
 
         const user = await User.findOne({ stripeCustomerId });
         if (user) {
@@ -29,7 +32,9 @@ export async function POST(req: NextRequest) {
             amount: amountPaid / 100,
             currency,
             status: 'succeeded',
-            createdAt: new Date(),
+            invoiceNumber: number,
+            invoiceUrl: url,
+            invoicePdf: pdf,
           });
           await newTransaction.save();
 
@@ -60,13 +65,29 @@ export async function POST(req: NextRequest) {
 
         const stripeCustomerId = invoice.customer;
         const paymentIntentId = invoice.payment_intent;
+        const amountPaid = invoice.amount_paid;
+        const currency = invoice.currency;
+        const number = invoice.number;
+        const url = invoice.hosted_invoice_url;
+        const pdf = invoice.invoice_pdf;
 
         const user = await User.findOne({ stripeCustomerId });
         if (user) {
-          await Transaction.updateOne(
-            { stripePaymentIntentId: paymentIntentId },
-            { $set: { status: 'failed' } }
-          );
+          // await Transaction.updateOne(
+          //   { stripePaymentIntentId: paymentIntentId },
+          //   { $set: { status: 'failed' } }
+          // );
+          const newTransaction = new Transaction({
+            userId: user._id,
+            stripePaymentIntentId: paymentIntentId,
+            amount: amountPaid / 100,
+            currency,
+            status: 'failed',
+            invoiceNumber: number,
+            invoiceUrl: url,
+            invoicePdf: pdf,
+          });
+          await newTransaction.save();
         }
         break;
       }
