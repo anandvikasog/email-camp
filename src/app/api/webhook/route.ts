@@ -26,43 +26,58 @@ export async function POST(req: NextRequest) {
 
         const user = await User.findOne({ stripeCustomerId });
         if (user) {
-          const newTransaction = new Transaction({
-            userId: user._id,
-            stripePaymentIntentId: paymentIntentId,
-            amount: amountPaid / 100,
-            currency,
-            status: 'succeeded',
-            invoiceNumber: number,
-            invoiceUrl: url,
-            invoicePdf: pdf,
-          });
-          await newTransaction.save();
-
-          const subscription = await stripe.subscriptions.retrieve(
-            // @ts-ignore
-            invoice.subscription
-          );
-          await Subscription.updateOne(
-            { userId: user._id },
-            {
-              $set: {
-                currentPeriodStart: new Date(
-                  subscription.current_period_start * 1000
-                ),
-                currentPeriodEnd: new Date(
-                  subscription.current_period_end * 1000
-                ),
-                status: subscription.status,
-                updatedAt: new Date(),
-              },
-            }
+          try {
+            const newTransaction = new Transaction({
+              userId: user._id,
+              stripePaymentIntentId: paymentIntentId,
+              amount: amountPaid / 100,
+              currency,
+              status: 'succeeded',
+              invoiceNumber: number,
+              invoiceUrl: url,
+              invoicePdf: pdf,
+            });
+            await newTransaction.save();
+          } catch (error) {
+            console.log(
+              `WEBHOOK ERROR 🚫 :: error in creating new transaction`,
+              error
+            );
+          }
+          try {
+            const subscription = await stripe.subscriptions.retrieve(
+              // @ts-ignore
+              invoice.subscription
+            );
+            await Subscription.updateOne(
+              { stripeSubscriptionId: invoice.subscription },
+              {
+                $set: {
+                  currentPeriodStart: new Date(
+                    subscription.current_period_start * 1000
+                  ),
+                  currentPeriodEnd: new Date(
+                    subscription.current_period_end * 1000
+                  ),
+                  status: 'active',
+                },
+              }
+            );
+          } catch (error) {
+            console.log(
+              `WEBHOOK ERROR 🚫 :: error in updating subscription`,
+              error
+            );
+          }
+        } else {
+          console.log(
+            `WEBHOOK ERROR 🚫 :: user was not found with stripeCustomerId ${stripeCustomerId}`
           );
         }
         break;
       }
       case 'invoice.payment_failed': {
         const invoice = event.data.object;
-
         const stripeCustomerId = invoice.customer;
         const paymentIntentId = invoice.payment_intent;
         const amountPaid = invoice.amount_paid;
@@ -73,48 +88,65 @@ export async function POST(req: NextRequest) {
 
         const user = await User.findOne({ stripeCustomerId });
         if (user) {
-          // await Transaction.updateOne(
-          //   { stripePaymentIntentId: paymentIntentId },
-          //   { $set: { status: 'failed' } }
-          // );
-          const newTransaction = new Transaction({
-            userId: user._id,
-            stripePaymentIntentId: paymentIntentId,
-            amount: amountPaid / 100,
-            currency,
-            status: 'failed',
-            invoiceNumber: number,
-            invoiceUrl: url,
-            invoicePdf: pdf,
-          });
-          await newTransaction.save();
+          try {
+            const newTransaction = new Transaction({
+              userId: user._id,
+              stripePaymentIntentId: paymentIntentId,
+              amount: amountPaid / 100,
+              currency,
+              status: 'failed',
+              invoiceNumber: number,
+              invoiceUrl: url,
+              invoicePdf: pdf,
+            });
+            await newTransaction.save();
+          } catch (error) {
+            console.log(
+              `WEBHOOK ERROR 🚫 :: error in creating new transaction`,
+              error
+            );
+          }
+        } else {
+          console.log(
+            `WEBHOOK ERROR 🚫 :: user was not found with stripeCustomerId ${stripeCustomerId}`
+          );
         }
         break;
       }
       case 'customer.subscription.deleted': {
-        const subscription = event.data.object;
+        const invoice = event.data.object;
 
-        const stripeCustomerId = subscription.customer;
+        const stripeCustomerId = invoice.customer;
 
         const user = await User.findOne({ stripeCustomerId });
         if (user) {
-          await Subscription.updateOne(
-            { userId: user._id },
-            { $set: { status: 'canceled', updatedAt: new Date() } }
+          try {
+            await Subscription.updateOne(
+              { stripeSubscriptionId: invoice.subscription },
+              { $set: { status: 'canceled' } }
+            );
+          } catch (error) {
+            console.log(
+              `WEBHOOK ERROR 🚫 :: error in updating subscription`,
+              error
+            );
+          }
+        } else {
+          console.log(
+            `WEBHOOK ERROR 🚫 :: user was not found with stripeCustomerId ${stripeCustomerId}`
           );
         }
         break;
       }
       default:
-        console.warn(`Unhandled event type ${event.type}`);
+        console.log(`WEBHOOK ERROR 🚫 :: Unhandled event type ${event.type}`);
     }
 
-    console.log('wobhook success 🙂');
+    console.log('WEBHOOK MANAGED SUCCESSFULLY ✅');
 
-    // Login Success
     return NextResponse.json({ received: true }, { status: 200 });
   } catch (e) {
-    console.log('error ----', e);
+    console.log('WEBHOOK ERROR 🚫 :: Unhandled error', e);
     return NextResponse.json(
       { status: false, message: 'Something went wrong.' },
       { status: 500 }

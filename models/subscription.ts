@@ -10,7 +10,6 @@ const subscriptionSchema: any = new Schema(
     },
     stripeSubscriptionId: {
       type: String,
-      required: true,
     },
     stripePriceId: {
       type: String,
@@ -19,15 +18,14 @@ const subscriptionSchema: any = new Schema(
     status: {
       type: String,
       required: true,
-      enum: ['active', 'past_due', 'canceled'],
+      default: 'due',
+      enum: ['active', 'past', 'due', 'canceled'],
     },
     currentPeriodStart: {
       type: Date,
-      required: true,
     },
     currentPeriodEnd: {
       type: Date,
-      required: true,
     },
   },
   { timestamps: true }

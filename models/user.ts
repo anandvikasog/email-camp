@@ -1,4 +1,4 @@
-import mongoose from 'mongoose';
+import mongoose, { InferSchemaType } from 'mongoose';
 import validator from 'validator';
 const { Schema } = mongoose;
 
@@ -56,5 +56,8 @@ const userSchema: any = new Schema(
   },
   { timestamps: true }
 );
+
+export type UserType = InferSchemaType<typeof userSchema>;
+
 const User = mongoose.models.User || mongoose.model('User', userSchema);
 export default User;
