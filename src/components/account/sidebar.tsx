@@ -4,16 +4,30 @@ import { useState } from 'react';
 import { FiSettings, FiUser, FiLock } from 'react-icons/fi';
 import { MdDeleteOutline } from 'react-icons/md';
 import { RiMoneyDollarCircleLine } from 'react-icons/ri';
+import { useDispatch } from 'react-redux';
+import { logOut } from '@/store/Features/auth/authSlice';
+import { signOut } from 'next-auth/react';
+import { paths } from '@/paths';
 
 const Sidebar = () => {
   const [activeTab, setActiveTab] = useState('basic-info');
+  const dispatch = useDispatch();
+  const handleSignOut = async () => {
+    dispatch(logOut());
+    await signOut({ redirect: true, callbackUrl: paths.public.signIn });
+  };
 
   const menuItems = [
     { name: 'Basic Information', icon: <FiUser />, id: 'basic-info' },
-    { name: 'Preferences', icon: <FiSettings />, id: 'preferences' },
-    { name: 'Password', icon: <FiLock />, id: 'password' },
-    { name: 'Billing', icon: <RiMoneyDollarCircleLine />, id: 'billing' },
-    { name: 'Delete your account', icon: <MdDeleteOutline />, id: 'delete' },
+
+    // { name: 'Password', icon: <FiLock />, id: 'password' },
+    // { name: 'Billing', icon: <RiMoneyDollarCircleLine />, id: 'billing' },
+    {
+      name: 'Log out',
+      icon: <MdDeleteOutline />,
+      id: 'delete',
+      handler: handleSignOut,
+    },
   ];
 
   return (
@@ -27,7 +41,12 @@ const Sidebar = () => {
                 ? 'bg-gray-100 text-[#6950e9] border-l-4 border-[#6950e9]'
                 : ''
             }`}
-            onClick={() => setActiveTab(item.id)}
+            onClick={() => {
+              setActiveTab(item.id);
+              if (item.handler) {
+                item.handler();
+              }
+            }}
           >
             <span className="mr-2 text-lg">{item.icon}</span>
             {item.name}

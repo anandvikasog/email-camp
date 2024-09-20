@@ -85,3 +85,123 @@ export async function POST(req: NextRequest) {
     );
   }
 }
+
+export async function GET(req: NextRequest) {
+  try {
+    await dbConnect();
+
+    // Extract the userId from the query parameters
+    const userId = req.nextUrl.searchParams.get('userId');
+
+    if (!userId) {
+      return NextResponse.json(
+        { message: 'User ID is required.' },
+        { status: 400 }
+      );
+    }
+
+    // Find the user by ID
+    const user = await User.findById(userId).select('-password'); // Excluding the password field
+
+    if (!user) {
+      return NextResponse.json({ message: 'User not found.' }, { status: 404 });
+    }
+
+    // Return user details
+    return NextResponse.json(
+      {
+        status: true,
+        data: {
+          _id: user._id,
+          firstName: user.firstName,
+          lastName: user.lastName,
+          email: user.email,
+          mobile: user.mobile,
+          profilePicture: user.profilePicture,
+
+          gender: user.gender,
+          about: user.about,
+        },
+      },
+      { status: 200 }
+    );
+  } catch (e) {
+    return NextResponse.json(
+      { status: false, message: 'Something went wrong.' },
+      { status: 500 }
+    );
+  }
+}
+
+export async function PUT(req: NextRequest) {
+  try {
+    await dbConnect();
+    const multipartData = await req.formData();
+
+    // Assuming user ID is available through some auth context
+    const userId = multipartData.get('userId');
+    if (!userId) {
+      return NextResponse.json(
+        { message: 'User ID is required.' },
+        { status: 400 }
+      );
+    }
+
+    const reqData = {
+      firstName: multipartData.get('firstName'),
+      lastName: multipartData.get('lastName'),
+
+      mobile: multipartData.get('mobile'),
+      gender: multipartData.get('gender'),
+      about: multipartData.get('about'),
+    };
+
+    // Validate required fields
+    if (!reqData.firstName) {
+      return NextResponse.json(
+        { message: 'Please provide required fields.' },
+        { status: 400 }
+      );
+    }
+
+    // Check if the email already exists
+    const existingUser = await User.findByIdAndUpdate(userId, reqData, {
+      new: true,
+    });
+    if (!existingUser) {
+      return NextResponse.json({ message: 'User not found.' }, { status: 409 });
+    }
+
+    // // Handle profile picture upload
+    // const profilePicture = multipartData.get('profilePicture');
+    // if (profilePicture) {
+    //   const buffer = await getFileBuffer(profilePicture);
+    //   reqData.profilePicture = await uploadImageToCloudinary(buffer, `avatar_${Date.now()}`);
+    // }
+
+    // Return updated user details (excluding password)
+    return NextResponse.json(
+      {
+        status: true,
+        message: 'User updated successfully.',
+        data: {
+          _id: existingUser._id,
+          firstName: existingUser.firstName,
+          lastName: existingUser.lastName,
+
+          mobile: existingUser.mobile,
+          gender: existingUser.gender,
+          about: existingUser.about,
+          // profilePicture: updatedUser.profilePicture,
+        },
+      },
+      { status: 200 }
+    );
+  } catch (e) {
+    // Log the error for debugging
+    return NextResponse.json(
+      { status: false, message: 'Something went wrong.' },
+      { status: 500 }
+    );
+  }
+}
