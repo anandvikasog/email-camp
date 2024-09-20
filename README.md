@@ -1,5 +1,4 @@
 # environment variables
-
 MONGODB_URI=
 SENDGRID_API_KEY=
 SENDGRID_FROM_EMAIL=
