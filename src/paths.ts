@@ -2,7 +2,6 @@ export const paths = {
   public: {
     signIn: '/login',
     signUp: '/register',
-    emailVerify: '/email-verified',
     forgetPassword: '/forgot-password',
     resetPassword: '/reset-password',
   },
@@ -15,6 +14,7 @@ export const paths = {
     home: '/',
     tnc: '/tnc',
     error: '/500-error',
+    emailVerify: '/email-verified',
   },
 } as const;
 
@@ -26,6 +26,7 @@ export const apiPaths = {
     forgetPassword: '/user/forget-password',
     resetPassword: '/user/reset-password',
     verifyEmail: '/user/verify-email',
+    resendVerifyEmail: '/user/verify-email/resend',
     verifySession: '/user/verify-session',
     verifyForgetPassword: '/user/forget-password/verify',
   },

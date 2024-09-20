@@ -1,6 +1,5 @@
 'use client';
 
-import { CheckIcon, XMarkIcon } from '@heroicons/react/20/solid';
 import { PlanType } from '~/models/plan';
 import { PrivatePlanAction } from '../common/plan-action';
 import { useGetPlanQuery } from '@/store/Features/auth/authApiSlice';

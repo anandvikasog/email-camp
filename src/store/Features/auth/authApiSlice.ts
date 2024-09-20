@@ -14,6 +14,13 @@ export const authApiSlice = apiSlice.injectEndpoints({
         body: payload,
       }),
     }),
+    resendVerifyEmail: builder.mutation({
+      query: (payload: { userId: string }) => ({
+        url: apiPaths.user.resendVerifyEmail,
+        method: 'POST',
+        body: payload,
+      }),
+    }),
     loginUser: builder.mutation({
       query: (payload: { email: string; password: string }) => ({
         url: apiPaths.user.login,
@@ -62,6 +69,7 @@ export const authApiSlice = apiSlice.injectEndpoints({
 
 export const {
   useCreateUserMutation,
+  useResendVerifyEmailMutation,
   useLoginUserMutation,
   useSocialLoginUserMutation,
   useForgetPasswordMutation,

@@ -6,7 +6,7 @@ import { emailVerificationTemplate } from './emailTemplates/verify';
 
 sgMail.setApiKey(process.env.SENDGRID_API_KEY || '');
 
-let emailVerifyPageUrl: string = paths.public.emailVerify;
+let emailVerifyPageUrl: string = paths.common.emailVerify;
 if (emailVerifyPageUrl[0] === '/') {
   emailVerifyPageUrl = emailVerifyPageUrl.slice(1, emailVerifyPageUrl.length);
 }
