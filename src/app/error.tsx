@@ -8,7 +8,7 @@ const Error = () => {
   const router = useRouter();
   router.push(paths.common.error);
 
-  return <FullscreenLoader title="Loading" />;
+  return <FullscreenLoader />;
 };
 
 export default Error;

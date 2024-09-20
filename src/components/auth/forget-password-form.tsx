@@ -54,7 +54,12 @@ export function ForgetPasswordForm(): JSX.Element {
           }`}
         >
           <div className="flex flex-col items-center justify-center space-y-6 w-[30vw] p-4">
-            <img src="/lock-icon.png" alt="Lock Icon" className="w-20 h-20" />
+            <Image
+              src="/images/lock-icon.png"
+              alt="Lock Icon"
+              height={100}
+              width={100}
+            />
             <h1 className="text-2xl font-bold">
               Forget Password reset link is sent
             </h1>
@@ -70,10 +75,10 @@ export function ForgetPasswordForm(): JSX.Element {
           >
             <div className="flex flex-col items-center justify-center space-y-6 w-[30vw] p-4">
               <Image
-                src="/lock-icon.png"
+                src="/images/lock-icon.png"
                 alt="Lock Icon"
-                height={20}
-                width={20}
+                height={100}
+                width={100}
               />
               <h1 className="text-2xl font-bold">Forgot your password?</h1>
               <p className="text-gray-600 text-center">

@@ -1,7 +1,7 @@
 import { ClipLoader } from 'react-spinners';
 
-const SpinnerLoader = () => {
-  return <ClipLoader size={25} color="white" />;
+const SpinnerLoader = ({ color = 'white' }: { color?: string }) => {
+  return <ClipLoader size={25} color={color} />;
 };
 
 export default SpinnerLoader;
