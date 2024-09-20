@@ -89,18 +89,6 @@ const ProfileForm: React.FC<ProfileFormProps> = ({ userData }) => {
     }
   };
 
-  // const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-  //   const file = e.target.files?.[0];
-  //   if (file) {
-  //     const reader = new FileReader();
-  //     reader.onload = () => {
-  //       setValue('profilePicture', file);
-  //       trigger('profilePicture');
-  //     };
-  //     reader.readAsDataURL(file);
-  //   }
-  // };
-
   const accountInfo = [
     {
       id: 'firstName',
@@ -111,7 +99,7 @@ const ProfileForm: React.FC<ProfileFormProps> = ({ userData }) => {
     { id: 'lastName', type: 'text', placeholder: 'Last Name', required: false },
     {
       id: 'mobile',
-      type: 'text',
+      type: 'number',
       placeholder: 'Mobile Number',
       required: true,
     },
@@ -149,7 +137,6 @@ const ProfileForm: React.FC<ProfileFormProps> = ({ userData }) => {
                 id={field.id}
                 {...register(field.id as keyof Values)}
                 className="w-full p-2 border border-gray-300 rounded-md"
-                required={field.required}
               >
                 {field.options?.map((option) => (
                   <option key={option.value} value={option.value}>
@@ -163,7 +150,6 @@ const ProfileForm: React.FC<ProfileFormProps> = ({ userData }) => {
                 rows={4}
                 className="w-full p-2 border border-gray-300 rounded-md"
                 placeholder={field.placeholder}
-                required={field.required}
                 {...register(field.id as keyof Values)}
                 defaultValue={
                   userData ? [field.id as keyof typeof userData] : ''
@@ -179,7 +165,6 @@ const ProfileForm: React.FC<ProfileFormProps> = ({ userData }) => {
                 defaultValue={
                   userData ? [field.id as keyof typeof userData] : ''
                 } // Set default value
-                required={field.required}
               />
             )}
             {errors[field.id as keyof Values] && (
@@ -196,12 +181,6 @@ const ProfileForm: React.FC<ProfileFormProps> = ({ userData }) => {
         className="w-20 p-2 bg-[#6950e9] text-white rounded-md hover:bg-[#6950e9df] transition-colors"
       >
         {isUpdating ? 'Saving...' : 'Save'}
-      </button>
-      <button
-        type="button"
-        className="w-20 p-2 mx-4 border border-gray-300 rounded-md hover:bg-gray-200"
-      >
-        Cancel
       </button>
     </form>
   );

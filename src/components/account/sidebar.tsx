@@ -43,7 +43,9 @@ const Sidebar = () => {
             }`}
             onClick={() => {
               setActiveTab(item.id);
-              if (item.handler) {item.handler()};
+              if (item.handler) {
+                item.handler();
+              }
             }}
           >
             <span className="mr-2 text-lg">{item.icon}</span>

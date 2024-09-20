@@ -56,9 +56,9 @@ const userSchema: any = new Schema(
     gender: {
       type: String,
     },
-    about:{
+    about: {
       type: String,
-    }
+    },
   },
   { timestamps: true }
 );

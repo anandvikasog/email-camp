@@ -57,21 +57,21 @@ export const authApiSlice = apiSlice.injectEndpoints({
         body: payload,
       }),
     }),
-       // New getUser query to fetch a user by userId
-       getUser: builder.query({
-        query: (userId: string) => ({
-          url: `${apiPaths.user.signup}?userId=${userId}`,
-          method: 'GET',
-        }),
+    // New getUser query to fetch a user by userId
+    getUser: builder.query({
+      query: (userId: string) => ({
+        url: `${apiPaths.user.signup}?userId=${userId}`,
+        method: 'GET',
       }),
-      // New updateUser mutation to update a user's profile
-      updateUser: builder.mutation({
-        query: (payload: FormData) => ({
-          url: `${apiPaths.user.signup}`, // Replace with your actual update endpoint
-          method: 'PUT',
-          body: payload,
-        }),
+    }),
+    // New updateUser mutation to update a user's profile
+    updateUser: builder.mutation({
+      query: (payload: FormData) => ({
+        url: `${apiPaths.user.signup}`, // Replace with your actual update endpoint
+        method: 'PUT',
+        body: payload,
       }),
+    }),
   }),
 });
 
@@ -83,6 +83,6 @@ export const {
   useResetPasswordMutation,
   useGetPlanQuery,
   useSubscribeMutation,
-  useGetUserQuery, 
-  useUpdateUserMutation, 
+  useGetUserQuery,
+  useUpdateUserMutation,
 } = authApiSlice;

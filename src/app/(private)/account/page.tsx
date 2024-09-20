@@ -1,4 +1,4 @@
-'use client'
+'use client';
 import Sidebar from '../../../components/account/sidebar';
 import Header from '../../../components/account/header';
 import ProfileForm from '../../../components/account/profileForm';
@@ -12,7 +12,6 @@ export default function Home() {
     skip: !userId,
   }); // Fetch user data by userId
 
-
   if (isLoading) {
     return <SpinnerLoader />;
   }
@@ -22,9 +21,9 @@ export default function Home() {
       <div className="flex flex-col md:flex-row">
         <Sidebar />
         <main className="w-full px-2 lg:px-4">
-          <Header userData={userData?.data}/>
+          <Header userData={userData?.data} />
           <div className="mt-6 bg-white p-6 rounded-lg shadow-lg">
-            <ProfileForm userData={userData?.data}/>
+            <ProfileForm userData={userData?.data} />
           </div>
         </main>
       </div>

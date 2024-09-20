@@ -49,25 +49,24 @@ export const signUpSchema = zod.object({
       (file) => file.size >= MIN_FILE_SIZE && file.size <= MAX_FILE_SIZE,
       `Profile picture must be between 10 KB and 2 MB`
     ),
-    
-    
 });
-
 
 // For profile update (password optional)
 export const profileUpdateSchema = signUpSchema.extend({
   password: zod.string().optional().or(zod.literal('')), // Password not required here
   email: zod.string().optional().or(zod.literal('')), // Password not required here
   profilePicture: zod
-  .instanceof(File, { message: 'Profile picture is required' }) // Ensure the profile picture is a file object
-  .refine(
-    (file) => file.size >= MIN_FILE_SIZE && file.size <= MAX_FILE_SIZE,
-    `Profile picture must be between 10 KB and 2 MB`
-  ).optional().or(zod.literal('')),
+    .instanceof(File, { message: 'Profile picture is required' }) // Ensure the profile picture is a file object
+    .refine(
+      (file) => file.size >= MIN_FILE_SIZE && file.size <= MAX_FILE_SIZE,
+      `Profile picture must be between 10 KB and 2 MB`
+    )
+    .optional()
+    .or(zod.literal('')),
   gender: zod.string().min(1, 'Gender is required'),
   about: zod
-  .string()
+    .string()
 
-  .optional()
-  .or(zod.literal('')), // Allow empty string as optional
+    .optional()
+    .or(zod.literal('')), // Allow empty string as optional
 });

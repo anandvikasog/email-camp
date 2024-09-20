@@ -103,10 +103,9 @@ export async function GET(req: NextRequest) {
         { status: 400 }
       );
     }
-    
+
     // Find the user by ID
     const user = await User.findById(userId).select('-password'); // Excluding the password field
-    
 
     if (!user) {
       return NextResponse.json({ message: 'User not found.' }, { status: 404 });
@@ -123,7 +122,7 @@ export async function GET(req: NextRequest) {
           email: user.email,
           mobile: user.mobile,
           profilePicture: user.profilePicture,
-         
+
           gender: user.gender,
           about: user.about,
         },
@@ -131,7 +130,6 @@ export async function GET(req: NextRequest) {
       { status: 200 }
     );
   } catch (e) {
-    
     return NextResponse.json(
       { status: false, message: 'Something went wrong.' },
       { status: 500 }

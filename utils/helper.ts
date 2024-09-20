@@ -24,10 +24,7 @@ export const encryptText = async (data: object) => {
 
 // This will decrypt givien JWT encrypted data (string) - return data object
 export const decryptText = async (token: string) => {
-  const data: any = await jwt.verify(
-    token,
-    process.env.JWT_KEY || ''
-  );
+  const data: any = await jwt.verify(token, process.env.JWT_KEY || '');
   // @ts-ignore
   return data;
 };

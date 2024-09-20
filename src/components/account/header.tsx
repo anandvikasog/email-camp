@@ -5,7 +5,6 @@ import { RiMapPin2Line } from 'react-icons/ri';
 import { HiArchive } from 'react-icons/hi';
 
 const menuItems = [
-
   { name: 'Joined March 17', icon: <SlCalender />, id: 'date' },
 ];
 interface HeaderProps {
@@ -45,8 +44,6 @@ const Header: React.FC<HeaderProps> = ({ userData }) => {
             </p>
           ))}
         </div>
-
-    
       </div>
     </div>
   );
