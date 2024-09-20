@@ -5,7 +5,6 @@ import { decode } from 'next-auth/jwt';
 import User from '~/models/user';
 import { paths } from '@/paths';
 import { redirect } from 'next/navigation';
-import { v2 as cloudinary } from 'cloudinary';
 
 // this will return session cookie name as per dev/prod mode
 export const getSessionCookieName = () => {
@@ -24,10 +23,7 @@ export const encryptText = async (data: object) => {
 
 // This will decrypt givien JWT encrypted data (string) - return data object
 export const decryptText = async (token: string) => {
-  const data: any = await jwt.verify(
-    token,
-    process.env.JWT_KEY || ''
-  );
+  const data: any = await jwt.verify(token, process.env.JWT_KEY || '');
   // @ts-ignore
   return data;
 };
@@ -87,47 +83,4 @@ export const validateUser = async () => {
   }
 
   return isValid;
-};
-
-// cloudinary --
-cloudinary.config({
-  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-  api_key: process.env.CLOUDINARY_API_KEY,
-  api_secret: process.env.CLOUDINARY_API_SECRET,
-  secure: true,
-});
-const options: any = {
-  use_filename: true,
-  unique_filename: false,
-  overwrite: true,
-  resource_type: 'auto',
-};
-
-// upload image to cloudinary
-export const uploadImageToCloudinary = async (
-  imageBuffer: Buffer,
-  fileName: string
-) => {
-  options.public_id = fileName;
-  const value = await new Promise((resolve, reject) => {
-    cloudinary.uploader
-      .upload_stream(options, (error, result) => {
-        if (error) {
-          reject(error);
-        } else {
-          resolve(result?.secure_url);
-        }
-      })
-      .end(imageBuffer);
-  });
-  return value;
-};
-
-// delete image from cloudinary
-export const deleteImageFromCloudinary = async (imageUrl: string) => {
-  // @ts-ignore
-  const publicId = imageUrl.split('/').pop().split('.')[0];
-  const result = await cloudinary.uploader.destroy(publicId);
-  const { result: value } = result;
-  return value === 'ok' ? true : value;
 };

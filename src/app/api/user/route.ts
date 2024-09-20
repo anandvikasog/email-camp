@@ -1,13 +1,9 @@
 import dbConnect from '~/db/db';
 import User from '~/models/user';
 import { NextResponse, NextRequest } from 'next/server';
-import {
-  encryptText,
-  getFileBuffer,
-  hashPassword,
-  uploadImageToCloudinary,
-} from '~/utils/helper';
+import { encryptText, getFileBuffer, hashPassword } from '~/utils/helper';
 import { userEmailVerificationMail } from '~/utils/emailHandler/emailHandler';
+import { uploadToS3 } from '~/utils/aws';
 
 export async function POST(req: NextRequest) {
   try {
@@ -46,8 +42,8 @@ export async function POST(req: NextRequest) {
     if (profilePicture) {
       const buffer = await getFileBuffer(profilePicture);
 
-      // Saving image in cloudinary
-      const profilePictureUrl = await uploadImageToCloudinary(
+      // Saving image in S3
+      const profilePictureUrl = await uploadToS3(
         buffer,
         `avatar_${Date.now()}`
       );
