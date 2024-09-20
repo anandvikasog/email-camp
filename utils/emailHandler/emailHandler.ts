@@ -4,7 +4,7 @@ import MailLog from '~/models/mailLog';
 import { resetPasswordLinkTemplate } from './emailTemplates/reset';
 import { emailVerificationTemplate } from './emailTemplates/verify';
 
-sgMail.setApiKey(process.env.NEXT_PUBLIC_SENDGRID_API_KEY || '');
+sgMail.setApiKey(process.env.SENDGRID_API_KEY || '');
 
 let emailVerifyPageUrl: string = paths.public.emailVerify;
 if (emailVerifyPageUrl[0] === '/') {
@@ -23,7 +23,7 @@ export const sentMail = async (
 ) => {
   const msg = {
     to: toMail,
-    from: process.env.NEXT_PUBLIC_SENDGRID_FROM_EMAIL || '',
+    from: process.env.SENDGRID_FROM_EMAIL || '',
     subject,
     html,
   };
@@ -31,7 +31,7 @@ export const sentMail = async (
     const mailResponse = await sgMail.send(msg);
     if (mailResponse[0]?.statusCode) {
       const newMailLog = new MailLog({
-        from: process.env.NEXT_PUBLIC_SENDGRID_FROM_EMAIL,
+        from: process.env.SENDGRID_FROM_EMAIL,
         to: toMail,
         subject,
         body: html,

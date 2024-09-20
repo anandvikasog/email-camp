@@ -53,6 +53,12 @@ const userSchema: any = new Schema(
       type: Schema.ObjectId,
       ref: 'Subscription',
     },
+    gender: {
+      type: String,
+    },
+    about:{
+      type: String,
+    }
   },
   { timestamps: true }
 );

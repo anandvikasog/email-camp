@@ -11,7 +11,7 @@ const AddAuthData = ({ userData }: { userData: any }) => {
   const router = useRouter();
   useEffect(() => {
     dispatch(logIn(userData));
-    if (!userData.subscription) {
+    if (!userData?.subscription) {
       router.push(paths.private.payment);
     }
   }, [userData, dispatch, router]);

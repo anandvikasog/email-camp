@@ -7,6 +7,7 @@ import { useDispatch } from 'react-redux';
 import { logOut } from '@/store/Features/auth/authSlice';
 import { signOut } from 'next-auth/react';
 import { paths } from '@/paths';
+import Link from 'next/link';
 
 // export const metadata = {
 //   title: `Dashboard | ${config.site.name}`,
@@ -24,7 +25,12 @@ export default function Page(): React.JSX.Element {
     <div className="flex justify-center mt-5">
       <div className="flex flex-col gap-y-4 w-[500px]">
         <div>Dashboard</div>
-
+        <Link
+          className="w-full py-2 px-4 bg-[blue] text-white rounded text-center"
+          href={paths.private.account}
+        >
+          Go to Account
+        </Link>
         <button
           type="submit"
           className="w-full py-2 px-4 bg-[#6950e9] text-white rounded"

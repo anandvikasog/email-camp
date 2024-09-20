@@ -59,3 +59,12 @@ export const socialLoginUser = async ({
     return JSON.stringify({ status: false });
   }
 };
+
+export const getPlans = async () => {
+  try {
+    const res = await axiosInstance.get(apiPaths.plan.planList);
+    return JSON.stringify(res.data);
+  } catch (error) {
+    return JSON.stringify({ status: false });
+  }
+};

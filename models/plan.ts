@@ -1,31 +1,46 @@
-import mongoose from 'mongoose';
+import mongoose, { InferSchemaType } from 'mongoose';
 const { Schema } = mongoose;
 
 const planSchema: any = new Schema(
   {
-    name: {
+    title: {
       type: String,
       required: true,
     },
-    stripePriceId: {
+    description: {
       type: String,
       required: true,
-    },
-    interval: {
-      type: String,
-      required: true,
-      enum: ['monthly', 'yearly'],
     },
     amount: {
       type: Number,
       required: true,
     },
-    currency: {
+    interval: {
+      type: String,
+      required: true,
+      enum: ['month', 'year'],
+    },
+    pros: [
+      {
+        type: String,
+        required: true,
+      },
+    ],
+    cons: [
+      {
+        type: String,
+        required: true,
+      },
+    ],
+    stripePriceId: {
       type: String,
       required: true,
     },
   },
   { timestamps: true }
 );
+
+export type PlanType = InferSchemaType<typeof planSchema>;
+
 const Plan = mongoose.models.Plan || mongoose.model('Plan', planSchema);
 export default Plan;

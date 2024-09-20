@@ -65,7 +65,10 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    return NextResponse.json({ subscriptionData }, { status: 200 });
+    return NextResponse.json(
+      { message: 'Subscribed successfully', data: subscriptionData },
+      { status: 200 }
+    );
   } catch (e) {
     return NextResponse.json(
       { status: false, message: 'Something went wrong.' },

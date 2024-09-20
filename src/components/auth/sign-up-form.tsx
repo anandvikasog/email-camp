@@ -226,6 +226,7 @@ export function SignUpForm(): JSX.Element {
               <button
                 type="submit"
                 className="w-full py-2 px-4 bg-[#6950e9] text-white rounded"
+                disabled={isLoading}
               >
                 {isLoading ? <SpinnerLoader /> : 'Sign up via Email'}
               </button>

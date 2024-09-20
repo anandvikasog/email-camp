@@ -9,6 +9,7 @@ const initialState = {
   mobile: '',
   profilePicture: '',
   _id: '',
+  subscription: null,
 };
 
 export const authSlice = createSlice({
@@ -29,6 +30,7 @@ export const authSlice = createSlice({
       state.mobile = action.payload?.mobile || '';
       state.profilePicture = action.payload?.profilePicture || '';
       state._id = action.payload?._id || '';
+      state.subscription = action.payload?.subscription || null;
     },
     updateData: (state, action) => {
       return { ...state, ...action.payload };

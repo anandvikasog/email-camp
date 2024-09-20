@@ -16,7 +16,7 @@ export const getSessionCookieName = () => {
 
 // This will encrypt givien data (object) using JWT - return encrypted string
 export const encryptText = async (data: object) => {
-  const token = jwt.sign(data, process.env.NEXT_PUBLIC_JWT_KEY || '', {
+  const token = jwt.sign(data, process.env.JWT_KEY || '', {
     expiresIn: '1d',
   });
   return token;
@@ -26,7 +26,7 @@ export const encryptText = async (data: object) => {
 export const decryptText = async (token: string) => {
   const data: any = await jwt.verify(
     token,
-    process.env.NEXT_PUBLIC_JWT_KEY || ''
+    process.env.JWT_KEY || ''
   );
   // @ts-ignore
   return data;
@@ -57,7 +57,7 @@ export const getFileBuffer = async (file: any) => {
 export const validateSession = async (sessionToken: string) => {
   const tokenData: any = await decode({
     token: sessionToken,
-    secret: process.env.NEXT_PUBLIC_JWT_KEY || '',
+    secret: process.env.JWT_KEY || '',
   });
 
   if (!tokenData || !tokenData?._id) {
@@ -91,9 +91,9 @@ export const validateUser = async () => {
 
 // cloudinary --
 cloudinary.config({
-  cloud_name: process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME,
-  api_key: process.env.NEXT_PUBLIC_CLOUDINARY_API_KEY,
-  api_secret: process.env.NEXT_PUBLIC_CLOUDINARY_API_SECRET,
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
   secure: true,
 });
 const options: any = {
