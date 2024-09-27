@@ -100,7 +100,11 @@ export const authApiSlice = apiSlice.injectEndpoints({
       }),
     }),
     connectEmail: builder.mutation({
-      query: (payload: { email: string; body: string; domain: string }) => ({
+      query: (payload: {
+        email: string;
+        signature: string;
+        domain: string;
+      }) => ({
         url: apiPaths.email.connectEmail,
         method: 'POST',
         body: payload,

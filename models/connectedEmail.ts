@@ -11,7 +11,7 @@ const connectedEmailSchema: any = new Schema(
       type: String,
       required: true,
     },
-    body: {
+    signature: {
       type: String,
     },
     domain: {

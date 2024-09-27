@@ -17,7 +17,7 @@ export async function POST(req: NextRequest) {
       );
     }
     const data = await req.json();
-    const { email, domain, body } = data;
+    const { email, domain, signature } = data;
 
     // checking is email is already connected
     const isAlreadyExists = await ConnectedEmail.findOne({ emailId: email });
@@ -45,7 +45,7 @@ export async function POST(req: NextRequest) {
     const newConnectedEmail = new ConnectedEmail({
       userId: user._id,
       emailId: email,
-      body,
+      signature,
       domain,
     });
 

@@ -23,7 +23,7 @@ type Values = zod.infer<typeof connectEmailSchema>;
 
 const defaultValues = {
   email: '',
-  body: '',
+  signature: '',
 };
 
 const Page = () => {
@@ -45,7 +45,7 @@ const Page = () => {
   };
 
   const onSubmit = (data: Values) => {
-    const { email, body, domainType } = data;
+    const { email, signature, domainType } = data;
 
     if (!domainType || !providerDomainMap[domainType]) {
       setError('email', {
@@ -70,7 +70,7 @@ const Page = () => {
 
     connect({
       email,
-      body, // New field for body or details
+      signature, // New field for signature or details
       domain: emailDomain,
     });
   };
@@ -155,16 +155,16 @@ const Page = () => {
               </span>
             )}
 
-            {/* Textarea for the body or additional details */}
+            {/* Textarea for the signature or additional details */}
             <textarea
-              {...register('body')}
-              placeholder="Enter additional details"
+              {...register('signature')}
+              placeholder="Signature text"
               className="p-2 border rounded bg-white"
               rows={5}
             />
-            {errors['body'] && (
+            {errors['signature'] && (
               <span className="text-xs text-red-600">
-                {errors['body']?.message}
+                {errors['signature']?.message}
               </span>
             )}
             <button
