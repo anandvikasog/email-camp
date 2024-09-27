@@ -9,6 +9,11 @@ export const paths = {
     dashboard: '/dashboard',
     payment: '/payment',
     account: '/account',
+    changePassword: '/change-password',
+    connectedEmails: '/connect-email',
+    connectNewEmails: '/connect-email/new',
+    campaign: '/campaign',
+    newCampaign: '/campaign/new',
   },
   common: {
     home: '/',
@@ -29,9 +34,16 @@ export const apiPaths = {
     resendVerifyEmail: '/user/verify-email/resend',
     verifySession: '/user/verify-session',
     verifyForgetPassword: '/user/forget-password/verify',
+    changePassword: '/user/change-password',
   },
   plan: {
     planList: '/plan',
     subscribe: '/subscribe',
+  },
+  email: {
+    connectEmail: '/connect-email',
+  },
+  campaign: {
+    create: '/campaign',
   },
 } as const;

@@ -7,7 +7,6 @@ import { useForm, Controller } from 'react-hook-form';
 import { z as zod } from 'zod';
 import { useCreateUserMutation } from '@/store/Features/auth/authApiSlice';
 import { useDarkMode } from '../../contexts/DarkModeContext';
-
 import { signUpSchema } from '@/lib/validationSchema';
 import Link from 'next/link';
 import { paths } from '@/paths';
@@ -20,6 +19,7 @@ import { toast } from 'react-toastify';
 import { signIn } from 'next-auth/react';
 import Image from 'next/image';
 import { ToggleButton } from '../common/toggle-button';
+import countryList from '../../../utils/data/country.json';
 
 type Values = zod.infer<typeof signUpSchema>;
 
@@ -29,6 +29,8 @@ const defaultValues = {
   email: '',
   password: '',
   mobile: '', // Optional
+  companyName: '', // Optional
+  countryCode: '+91_IN',
   profilePicture: null as unknown as File,
 } satisfies Values;
 
@@ -56,12 +58,17 @@ export function SignUpForm(): JSX.Element {
     formData.append('firstName', data.firstName);
     formData.append('email', data.email);
     formData.append('password', data.password);
+    formData.append('companyName', data.companyName);
     formData.append('profilePicture', data.profilePicture);
+
     if (data.lastName) {
       formData.append('lastName', data.lastName);
     }
     if (data.mobile) {
       formData.append('mobile', data.mobile);
+    }
+    if (data.countryCode) {
+      formData.append('countryCode', data.countryCode);
     }
     createUser(formData);
   };
@@ -101,6 +108,12 @@ export function SignUpForm(): JSX.Element {
 
   const fields = [
     {
+      id: 'profilePicture',
+      type: 'file',
+      placeholder: 'Upload Profile Picture',
+      required: true,
+    },
+    {
       id: 'firstName',
       type: 'text',
       placeholder: 'First Name',
@@ -120,26 +133,20 @@ export function SignUpForm(): JSX.Element {
       required: true,
     },
     {
-      id: 'mobile',
-      type: 'tel',
-      placeholder: 'Mobile Number',
-      required: false,
-    },
-    {
-      id: 'profilePicture',
-      type: 'file',
-      placeholder: 'Upload Profile Picture',
+      id: 'companyName',
+      type: 'string',
+      placeholder: 'Company Name',
       required: true,
     },
   ];
 
   return (
     <div>
-      <div className="flex flex-row ">
+      <div className="flex flex-row max-sm:flex-col">
         <AuthSidePanel {...signUpCardData} />
 
         <div
-          className={`w-[50vw] h-screen relative flex items-center justify-center ${
+          className={`flex-1 h-screen relative flex items-center justify-center ${
             isDarkMode ? 'bg-[#111828] text-white' : 'bg-white text-black'
           }`}
         >
@@ -154,7 +161,7 @@ export function SignUpForm(): JSX.Element {
                 Already have an account?
               </span>
               <Link
-                className="text-[#6950e9] cursor-pointer text-xs"
+                className="text-[#6950e9] cursor-pointer text-xs pl-1"
                 href={paths.public.signIn}
               >
                 Sign In
@@ -223,6 +230,58 @@ export function SignUpForm(): JSX.Element {
                 </div>
               ))}
 
+              {/* Country Code and Mobile Number in a Row */}
+              <div className="flex gap-4">
+                <div className="flex-1">
+                  <Controller
+                    name="countryCode"
+                    control={control}
+                    render={({ field }) => (
+                      <div className="relative">
+                        <select
+                          {...field}
+                          className="w-full p-2 border rounded bg-white z-10 relative max-h-48"
+                          onFocus={(e) =>
+                            e.target.classList.add('dropdown-open')
+                          }
+                          onBlur={(e) =>
+                            e.target.classList.remove('dropdown-open')
+                          }
+                        >
+                          {countryList.map((elem) => (
+                            <option
+                              key={elem.alpha2Code}
+                              value={`${elem.dialCode}_${elem.alpha2Code}`}
+                            >
+                              {`${elem.dialCode} (${elem.alpha2Code})`}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                    )}
+                  />
+                  {errors.countryCode && (
+                    <span className="text-xs text-red-600">
+                      {errors.countryCode.message}
+                    </span>
+                  )}
+                </div>
+
+                <div className="flex-1">
+                  <input
+                    id="mobile"
+                    type="tel"
+                    {...register('mobile')}
+                    placeholder="Mobile Number"
+                    className={`w-full p-2 border rounded ${isDarkMode ? 'bg-[#202938] border-[#121929]' : 'bg-white'}`}
+                  />
+                  {errors.mobile && (
+                    <span className="text-xs text-red-600">
+                      {errors.mobile.message}
+                    </span>
+                  )}
+                </div>
+              </div>
               <button
                 type="submit"
                 className="w-full py-2 px-4 bg-[#6950e9] text-white rounded"

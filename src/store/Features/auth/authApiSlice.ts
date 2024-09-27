@@ -1,3 +1,4 @@
+import { IMail } from '@/app/(private)/(authLayout)/campaign/new/page';
 import { apiPaths } from '@/paths';
 import apiSlice from '@/store/apiSlice';
 
@@ -79,6 +80,49 @@ export const authApiSlice = apiSlice.injectEndpoints({
         body: payload,
       }),
     }),
+    changePassword: builder.mutation({
+      query: (payload: { oldPassword: string; newPassword: string }) => ({
+        url: apiPaths.user.changePassword,
+        method: 'POST',
+        body: payload,
+      }),
+    }),
+    getConnectedEmail: builder.mutation({
+      query: () => ({
+        url: `${apiPaths.email.connectEmail}`,
+        method: 'GET',
+      }),
+    }),
+    queryConnectedEmail: builder.query({
+      query: () => ({
+        url: `${apiPaths.email.connectEmail}`,
+        method: 'GET',
+      }),
+    }),
+    connectEmail: builder.mutation({
+      query: (payload: { email: string; body: string; domain: string }) => ({
+        url: apiPaths.email.connectEmail,
+        method: 'POST',
+        body: payload,
+      }),
+    }),
+    createCampaign: builder.mutation({
+      query: (payload: {
+        name: string;
+        fromEmail: string;
+        mails: IMail[];
+      }) => ({
+        url: apiPaths.campaign.create,
+        method: 'POST',
+        body: payload,
+      }),
+    }),
+    getCampaign: builder.query({
+      query: () => ({
+        url: `${apiPaths.campaign.create}`,
+        method: 'GET',
+      }),
+    }),
   }),
 });
 
@@ -93,4 +137,10 @@ export const {
   useSubscribeMutation,
   useGetUserQuery,
   useUpdateUserMutation,
+  useChangePasswordMutation,
+  useGetConnectedEmailMutation,
+  useQueryConnectedEmailQuery,
+  useConnectEmailMutation,
+  useCreateCampaignMutation,
+  useGetCampaignQuery,
 } = authApiSlice;

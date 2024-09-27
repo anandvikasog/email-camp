@@ -5,22 +5,37 @@ import { FiSettings, FiUser, FiLock } from 'react-icons/fi';
 import { MdDeleteOutline } from 'react-icons/md';
 import { RiMoneyDollarCircleLine } from 'react-icons/ri';
 import { useDispatch } from 'react-redux';
+import { useRouter } from 'next/navigation';
 import { logOut } from '@/store/Features/auth/authSlice';
 import { signOut } from 'next-auth/react';
 import { paths } from '@/paths';
+import FullscreenLoader from '@/components/common/fullscreen-loader';
 
-const Sidebar = () => {
-  const [activeTab, setActiveTab] = useState('basic-info');
+const Sidebar = ({
+  activeTab,
+  setActiveTab,
+}: {
+  activeTab: string;
+  setActiveTab: (tab: string) => void;
+}) => {
   const dispatch = useDispatch();
+  const router = useRouter();
+  const [loading, setLoading] = useState(false); // State for loading
   const handleSignOut = async () => {
+    setLoading(true); // Show loader
     dispatch(logOut());
     await signOut({ redirect: true, callbackUrl: paths.public.signIn });
+    setLoading(false); // Hide loader once logout is done
   };
+
+  if (loading) {
+    return <FullscreenLoader />;
+  }
 
   const menuItems = [
     { name: 'Basic Information', icon: <FiUser />, id: 'basic-info' },
 
-    // { name: 'Password', icon: <FiLock />, id: 'password' },
+    { name: 'Password', icon: <FiLock />, id: 'password' },
     // { name: 'Billing', icon: <RiMoneyDollarCircleLine />, id: 'billing' },
     {
       name: 'Log out',
@@ -43,6 +58,7 @@ const Sidebar = () => {
             }`}
             onClick={() => {
               setActiveTab(item.id);
+
               if (item.handler) {
                 item.handler();
               }

@@ -1,9 +1,26 @@
 import dbConnect from '~/db/db';
 import User from '~/models/user';
 import { NextResponse, NextRequest } from 'next/server';
-import { encryptText, getFileBuffer, hashPassword } from '~/utils/helper';
+import {
+  encryptText,
+  getFileBuffer,
+  hashPassword,
+  validateUser,
+} from '~/utils/helper';
 import { userEmailVerificationMail } from '~/utils/emailHandler/emailHandler';
 import { uploadToS3 } from '~/utils/aws';
+
+type UserUpdateData = {
+  firstName?: string;
+  lastName?: string;
+  mobile?: string;
+  gender?: string;
+  about?: string;
+  companyName?: string;
+  companyCode?: string;
+  countryCode?: string;
+  profilePicture?: File | string; // Can be a File (before upload) or a string (URL after upload)
+};
 
 export async function POST(req: NextRequest) {
   try {
@@ -16,10 +33,17 @@ export async function POST(req: NextRequest) {
       email: multipartData.get('email'),
       password: multipartData.get('password'),
       mobile: multipartData.get('mobile'),
+      countryCode: multipartData.get('countryCode'),
+      companyName: multipartData.get('companyName'),
       profilePicture: '',
     };
 
-    if (!reqData.email || !reqData.password || !reqData.firstName) {
+    if (
+      !reqData.email ||
+      !reqData.password ||
+      !reqData.firstName ||
+      !reqData.companyName
+    ) {
       return NextResponse.json(
         { message: 'Please provide all the required data.' },
         { status: 400 }
@@ -53,6 +77,7 @@ export async function POST(req: NextRequest) {
     }
 
     const newUser = new User(reqData);
+
     await newUser.save();
     const token = await encryptText({ id: newUser._id });
 
@@ -72,6 +97,7 @@ export async function POST(req: NextRequest) {
           email: newUser.email,
           mobile: newUser.mobile,
           profilePicture: newUser.profilePicture,
+          companyName: newUser.companyName,
           emailVerified: newUser.emailVerified,
           subscription: newUser.subscription,
         },
@@ -117,10 +143,12 @@ export async function GET(req: NextRequest) {
           lastName: user.lastName,
           email: user.email,
           mobile: user.mobile,
+          countryCode: user.countryCode,
           profilePicture: user.profilePicture,
-
+          companyName: user.companyName,
           gender: user.gender,
           about: user.about,
+          createdAt: user.createdAt,
         },
       },
       { status: 200 }
@@ -136,10 +164,19 @@ export async function GET(req: NextRequest) {
 export async function PUT(req: NextRequest) {
   try {
     await dbConnect();
+
     const multipartData = await req.formData();
 
-    // Assuming user ID is available through some auth context
-    const userId = multipartData.get('userId');
+    let user = await validateUser();
+
+    if (!user) {
+      return NextResponse.json(
+        { status: false, message: 'User not authenticated.' },
+        { status: 401 }
+      );
+    }
+
+    const userId = user._id;
     if (!userId) {
       return NextResponse.json(
         { message: 'User ID is required.' },
@@ -147,58 +184,71 @@ export async function PUT(req: NextRequest) {
       );
     }
 
-    const reqData = {
-      firstName: multipartData.get('firstName'),
-      lastName: multipartData.get('lastName'),
+    // Initialize an empty object to store update data with defined type
+    const reqData: UserUpdateData = {};
 
-      mobile: multipartData.get('mobile'),
-      gender: multipartData.get('gender'),
-      about: multipartData.get('about'),
-    };
+    // Check if there's a profile picture and handle the upload
+    const profilePicture = multipartData.get('profilePicture');
+    if (profilePicture) {
+      const buffer = await getFileBuffer(profilePicture);
+      const uploadedImageUrl = await uploadToS3(buffer, `avatar_${Date.now()}`);
+      reqData.profilePicture = uploadedImageUrl;
+    }
 
-    // Validate required fields
-    if (!reqData.firstName) {
+    // Collect other optional fields, but only if they exist in the request
+    const firstName = multipartData.get('firstName') as string | null;
+    const lastName = multipartData.get('lastName') as string | null;
+    const mobile = multipartData.get('mobile') as string | null;
+    const countryCode = multipartData.get('countryCode') as string | null;
+    const gender = multipartData.get('gender') as string | null;
+    const about = multipartData.get('about') as string | null;
+    const companyName = multipartData.get('companyName') as string | null;
+
+    // Add other fields to reqData only if they are provided
+    if (firstName) reqData.firstName = firstName;
+    if (lastName) reqData.lastName = lastName;
+    if (mobile) reqData.mobile = mobile;
+    if (countryCode) reqData.countryCode = countryCode;
+    if (gender) reqData.gender = gender;
+    if (about) reqData.about = about;
+    if (companyName) reqData.companyName = companyName;
+
+    // If no data to update, return an error
+    if (Object.keys(reqData).length === 0) {
       return NextResponse.json(
-        { message: 'Please provide required fields.' },
+        { message: 'No data provided to update.' },
         { status: 400 }
       );
     }
 
-    // Check if the email already exists
-    const existingUser = await User.findByIdAndUpdate(userId, reqData, {
+    // Update the user with the collected data
+    const updatedUser = await User.findByIdAndUpdate(userId, reqData, {
       new: true,
     });
-    if (!existingUser) {
-      return NextResponse.json({ message: 'User not found.' }, { status: 409 });
+
+    if (!updatedUser) {
+      return NextResponse.json({ message: 'User not found.' }, { status: 404 });
     }
 
-    // // Handle profile picture upload
-    // const profilePicture = multipartData.get('profilePicture');
-    // if (profilePicture) {
-    //   const buffer = await getFileBuffer(profilePicture);
-    //   reqData.profilePicture = await uploadImageToCloudinary(buffer, `avatar_${Date.now()}`);
-    // }
-
-    // Return updated user details (excluding password)
+    // Return updated user details
     return NextResponse.json(
       {
         status: true,
         message: 'User updated successfully.',
         data: {
-          _id: existingUser._id,
-          firstName: existingUser.firstName,
-          lastName: existingUser.lastName,
-
-          mobile: existingUser.mobile,
-          gender: existingUser.gender,
-          about: existingUser.about,
-          // profilePicture: updatedUser.profilePicture,
+          _id: updatedUser._id,
+          firstName: updatedUser.firstName,
+          lastName: updatedUser.lastName,
+          mobile: updatedUser.mobile,
+          countryCode: updatedUser.countryCode,
+          gender: updatedUser.gender,
+          about: updatedUser.about,
+          profilePicture: updatedUser.profilePicture, // Return updated profile picture
         },
       },
       { status: 200 }
     );
-  } catch (e) {
-    // Log the error for debugging
+  } catch (error) {
     return NextResponse.json(
       { status: false, message: 'Something went wrong.' },
       { status: 500 }

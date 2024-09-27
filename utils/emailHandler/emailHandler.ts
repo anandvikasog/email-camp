@@ -1,10 +1,8 @@
 import { paths } from '@/paths';
-import sgMail from '@sendgrid/mail';
-import MailLog from '~/models/mailLog';
 import { resetPasswordLinkTemplate } from './emailTemplates/reset';
 import { emailVerificationTemplate } from './emailTemplates/verify';
-
-sgMail.setApiKey(process.env.SENDGRID_API_KEY || '');
+import { updatePasswordTemplate } from './emailTemplates/password';
+import { sendSingleEmail } from '../aws';
 
 let emailVerifyPageUrl: string = paths.common.emailVerify;
 if (emailVerifyPageUrl[0] === '/') {
@@ -16,47 +14,18 @@ if (resetPasswordPage[0] === '/') {
   resetPasswordPage = resetPasswordPage.slice(1, resetPasswordPage.length);
 }
 
-export const sentMail = async (
-  toMail: string,
-  subject: string,
-  html: string = ''
-) => {
-  const msg = {
-    to: toMail,
-    from: process.env.SENDGRID_FROM_EMAIL || '',
-    subject,
-    html,
-  };
-  try {
-    const mailResponse = await sgMail.send(msg);
-    if (mailResponse[0]?.statusCode) {
-      const newMailLog = new MailLog({
-        from: process.env.SENDGRID_FROM_EMAIL,
-        to: toMail,
-        subject,
-        body: html,
-      });
-      try {
-        await newMailLog.save();
-      } catch (error) {
-        // eslint-disable-next-line no-console
-        console.log('Failed to save mail log!');
-      }
-    }
-  } catch (error: any) {
-    // eslint-disable-next-line no-console
-    console.log('Error while sending mail!');
-    throw new Error(error);
-  }
-};
-
 export const userEmailVerificationMail = async (
   email: string,
   token: string
 ) => {
   try {
     const link = `${process.env.NEXT_PUBLIC_APP_URL}${emailVerifyPageUrl}?code=${token}`;
-    await sentMail(email, 'Verify Your Email', emailVerificationTemplate(link));
+    await sendSingleEmail(
+      process.env.OFFICIAL_FROM_MAIL,
+      email,
+      'Verify Your Email',
+      emailVerificationTemplate(link)
+    );
   } catch (error: any) {
     throw new Error(error);
   }
@@ -68,10 +37,24 @@ export const userResetPasswordLinkMail = async (
 ) => {
   try {
     const link = `${process.env.NEXT_PUBLIC_APP_URL}${resetPasswordPage}?code=${token}`;
-    await sentMail(
+    await sendSingleEmail(
+      process.env.OFFICIAL_FROM_MAIL,
       email,
       'Reset Password Link',
       resetPasswordLinkTemplate(link)
+    );
+  } catch (error: any) {
+    throw new Error(error);
+  }
+};
+
+export const userUpdatePasswordMail = async (email: string) => {
+  try {
+    await sendSingleEmail(
+      process.env.OFFICIAL_FROM_MAIL,
+      email,
+      'Your Password Has Been Successfully Updated',
+      updatePasswordTemplate()
     );
   } catch (error: any) {
     throw new Error(error);

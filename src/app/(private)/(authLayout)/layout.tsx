@@ -13,24 +13,12 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const session = await getServerSession(authOptions);
-
-  if (!session) {
-    redirect(paths.public.signIn);
-  }
-
-  let verifySessionRes: any = await verifySession();
-
-  verifySessionRes = JSON.parse(verifySessionRes);
-
-  if (!verifySessionRes.status) {
-    redirect(paths.public.signIn);
-  }
-
   return (
     <>
-      <AddAuthData userData={verifySessionRes.data} />
-      {children}
+      <Layout>
+        <EmailVerifyAlert />
+        {children}
+      </Layout>
     </>
   );
 }

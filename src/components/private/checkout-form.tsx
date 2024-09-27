@@ -36,48 +36,52 @@ const CheckoutForm = ({
   onBack: () => void;
 }) => {
   return (
-    <div>
-      <div className="p-10 flex">
-        <span
-          className="text-black flex gap-3 cursor-pointer hover:text-indigo-600"
+    <div className="w-screen">
+      {/* Navigation */}
+      <div className="p-5">
+        <button
+          className="flex items-center gap-2 text-indigo-600 hover:underline"
           onClick={onBack}
         >
-          <ArrowLeftIcon aria-hidden="true" className="h-6 w-5  " /> Change Plan
-        </span>
+          <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+            <path d="M7.707 14.707a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 1.414L4.414 9H17a1 1 0 110 2H4.414l3.293 3.293a1 1 0 010 1.414z" />
+          </svg>
+          Change Plan
+        </button>
       </div>
 
-      <div className="flex">
-        <div className="flex-1 px-20">
-          <PlanCard plan={plan} />
-        </div>
-        <div className="flex-1 px-20">
-          <div className="p-2">
-            <div className="flex justify-between pb-2">
-              <span>Amount</span>
-              <span>${plan.amount}</span>
-            </div>
-            <div className="flex justify-between pb-2">
-              <span>Charges</span>
-              <span>${0}</span>
-            </div>
-            <div className="border mb-2" />
-            <div className="flex justify-between">
-              <span className="font-bold">Total</span>
-              <span>${plan.amount}</span>
-            </div>
-            <div className="flex gap-5 items-center mt-8">
-              <Image
-                src="/images/credit-card.png"
-                alt="card image"
-                height={40}
-                width={40}
-              />
-              <div>
-                Fill your <span className="font-bold">Credit Card</span> details
-                below to continue.
-              </div>
-            </div>
+      <div className="flex justify-between mt-10 p-10">
+        {/* Plan Summary */}
+        <div className="w-1/3 bg-white shadow-md rounded-lg p-5">
+          <h3 className="text-lg font-semibold mb-4">Order Summary</h3>
+          <div className="flex justify-between mb-6">
+            <span>Subtotal</span>
+            <span>${plan.amount}</span>
           </div>
+          <div className="flex justify-between mb-6">
+            <span>Charges</span>
+            <span>$0</span>
+          </div>
+
+          <div className="border-b mt-16"></div>
+          <div className="flex justify-between font-semibold text-lg mt-2">
+            <span>Total</span>
+            <span className="text-red-700">${plan.amount}</span>
+          </div>
+        </div>
+
+        {/* Payment Form */}
+        <div className="w-1/2 bg-white shadow-md rounded-lg p-5">
+          <div className="flex gap-3 items-center mb-4">
+            <Image
+              src="/images/credit-card.png"
+              alt="Credit Card"
+              width={40}
+              height={40}
+            />
+            <h3 className="text-lg font-semibold">Credit Card Details</h3>
+          </div>
+
           <Elements stripe={stripePromise}>
             <PaymentForm plan={plan} />
           </Elements>
@@ -163,84 +167,68 @@ const PaymentForm = ({ plan }: { plan: PlanType }) => {
   }, [data, dispatch, router]);
 
   return (
-    <form
-      onSubmit={handleSubmit}
-      className="flex flex-col justify-center gap-y-4 bg-white p-2 rounded mt-8"
-    >
-      <div className="flex flex-col gap-y-2">
-        <label className="relative">
+    <form onSubmit={handleSubmit} className="space-y-4">
+      <div>
+        <label className="block text-sm font-medium">
           Card Number
           <CardNumberElement
-            className="p-2 border rounded"
+            className="block w-full p-2 border rounded-lg mt-1"
             options={{
               style: {
                 base: {
                   fontSize: '16px',
                   color: '#424770',
-                  '::placeholder': {
-                    color: '#aab7c4',
-                  },
+                  '::placeholder': { color: '#aab7c4' },
                 },
-                invalid: {
-                  color: '#9e2146',
-                },
+                invalid: { color: '#9e2146' },
               },
             }}
             onChange={handleCardNumberChange}
           />
-          <div className="absolute top-0 right-0 text-[#6950e9] font-bold">
-            {cardBrand !== 'unknown' && cardBrand}
-          </div>
         </label>
-        <div className="flex justify-between gap-4">
-          <label className="flex-1">
-            Expiry Date
-            <CardExpiryElement
-              className="p-2 border rounded"
-              options={{
-                style: {
-                  base: {
-                    fontSize: '16px',
-                    color: '#424770',
-                    '::placeholder': {
-                      color: '#aab7c4',
-                    },
-                  },
-                  invalid: {
-                    color: '#9e2146',
-                  },
+      </div>
+
+      <div className="flex gap-4">
+        <label className="block text-sm font-medium flex-1">
+          Expiry Date
+          <CardExpiryElement
+            className="block w-full p-2 border rounded-lg mt-1"
+            options={{
+              style: {
+                base: {
+                  fontSize: '16px',
+                  color: '#424770',
+                  '::placeholder': { color: '#aab7c4' },
                 },
-              }}
-              onChange={handleExpiryChange}
-            />
-          </label>
-          <label className="flex-1">
-            CVC
-            <CardCvcElement
-              className="p-2 border rounded"
-              options={{
-                style: {
-                  base: {
-                    fontSize: '16px',
-                    color: '#424770',
-                    '::placeholder': {
-                      color: '#aab7c4',
-                    },
-                  },
-                  invalid: {
-                    color: '#9e2146',
-                  },
+                invalid: { color: '#9e2146' },
+              },
+            }}
+            onChange={handleExpiryChange}
+          />
+        </label>
+
+        <label className="block text-sm font-medium flex-1">
+          CVC
+          <CardCvcElement
+            className="block w-full p-2 border rounded-lg mt-1"
+            options={{
+              style: {
+                base: {
+                  fontSize: '16px',
+                  color: '#424770',
+                  '::placeholder': { color: '#aab7c4' },
                 },
-              }}
-              onChange={handleCvcChange}
-            />
-          </label>
-        </div>
+                invalid: { color: '#9e2146' },
+              },
+            }}
+            onChange={handleCvcChange}
+          />
+        </label>
       </div>
 
       <button
         type="submit"
-        className={`mt-4 py-2 px-4 text-white rounded ${isFormValid ? 'bg-[#6950e9]' : 'bg-[#9b8de0]'}`}
+        className={`w-full py-2 px-4 text-white rounded ${isFormValid ? 'bg-indigo-600' : 'bg-indigo-300'}`}
         disabled={!stripe || loading || isLoading || !isFormValid}
       >
         {loading || isLoading ? (

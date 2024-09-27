@@ -53,7 +53,7 @@ export function ForgetPasswordForm(): JSX.Element {
             isDarkMode ? 'bg-[#111828] text-white' : 'bg-white text-black'
           }`}
         >
-          <div className="flex flex-col items-center justify-center space-y-6 w-[30vw] p-4">
+          <div className="flex flex-col items-center justify-center space-y-6 lg:w-[30vw] p-4">
             <Image
               src="/images/lock-icon.png"
               alt="Lock Icon"
@@ -73,7 +73,7 @@ export function ForgetPasswordForm(): JSX.Element {
               isDarkMode ? 'bg-[#111828] text-white' : 'bg-white text-black'
             }`}
           >
-            <div className="flex flex-col items-center justify-center space-y-6 w-[30vw] p-4">
+            <div className="flex flex-col items-center justify-center space-y-6 lg:w-[30vw] p-4">
               <Image
                 src="/images/lock-icon.png"
                 alt="Lock Icon"

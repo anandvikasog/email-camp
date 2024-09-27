@@ -1,11 +1,19 @@
 import AWS from 'aws-sdk';
+import ConnectedEmail from '~/models/connectedEmail';
+import Campaign from '~/models/campaign';
+import { Types } from 'mongoose';
+import { Prospect } from '@/app/api/campaign/route';
+import CampaignMail from '~/models/campaignMail';
 
-// Initialize S3 client
-const s3 = new AWS.S3({
+// Config AWS
+AWS.config.update({
   accessKeyId: process.env.AWS_ACCESS_KEY_ID,
   secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
   region: process.env.AWS_REGION,
 });
+
+// Initialize S3 client
+const s3 = new AWS.S3();
 
 // Function to upload the file buffer to S3
 export const uploadToS3 = async (buffer: Buffer, key: string) => {
@@ -51,5 +59,242 @@ export const deleteFromS3 = async (imageUrl: string) => {
   } catch (error) {
     console.error('Error deleting from S3:', error);
     throw new Error('Error deleting file from S3');
+  }
+};
+
+// Initialize AWS SES
+const ses = new AWS.SES();
+
+export const verifyEmailAddress = async (email: string) => {
+  const params = {
+    EmailAddress: email,
+  };
+
+  try {
+    const result = await ses.verifyEmailAddress(params).promise();
+    return { status: true, data: result };
+  } catch (error) {
+    console.error('Error while sending verification mail:', error);
+    return {
+      status: false,
+    };
+  }
+};
+
+export const checkEmailVerificationStatus = async (email: string) => {
+  const params = {
+    Identities: [email],
+  };
+  try {
+    // checking verification status in DB
+    const isVerified = await ConnectedEmail.findOne({ emailId: email });
+
+    if (isVerified && isVerified?.verified) {
+      return true;
+    }
+    const data = await ses.getIdentityVerificationAttributes(params).promise();
+    const status = data.VerificationAttributes[email]?.VerificationStatus; // This could be 'Success', 'Pending', or 'Failed'
+    if (status === 'Success') {
+      await ConnectedEmail.findOneAndUpdate(
+        { emailId: email },
+        { verified: true }
+      );
+      return true;
+    }
+    return false;
+  } catch (error) {
+    console.error('Error checking verification status:', error);
+    throw error;
+  }
+};
+
+// export const checkEmailListVerificationStatus = async (emails: string[]) => {
+//   const params = {
+//     Identities: emails,
+//   };
+//   // try {
+//   //   // checking verification status in DB
+//   //   const isVerified = await ConnectedEmail.findOne({ emailId: email });
+
+//   //   if (isVerified && isVerified?.verified) {
+//   //     return true;
+//   //   }
+//   //   const data = await ses.getIdentityVerificationAttributes(params).promise();
+//   //   const status = data.VerificationAttributes[email]?.VerificationStatus; // This could be 'Success', 'Pending', or 'Failed'
+//   //   if (status === 'Success') {
+//   //     await ConnectedEmail.findOneAndUpdate(
+//   //       { emailId: email },
+//   //       { verified: true }
+//   //     );
+//   //     return true;
+//   //   }
+//   //   return false;
+//   // } catch (error) {
+//   //   console.error('Error checking verification status:', error);
+//   //   throw error;
+//   // }
+// };
+
+export const checkEmailListVerificationStatus = async (emails: string[]) => {
+  const params = {
+    Identities: emails, // List of emails to check
+  };
+
+  try {
+    const data = await ses.getIdentityVerificationAttributes(params).promise();
+    const results = [];
+
+    for (const email of emails) {
+      const status = data.VerificationAttributes[email]?.VerificationStatus; // 'Success', 'Pending', or 'Failed'
+
+      if (status === 'Success') {
+        // Update the verification status in MongoDB
+        await ConnectedEmail.findOneAndUpdate(
+          { emailId: email },
+          { verified: true }
+        );
+      }
+
+      // Fetch the updated email document (including all fields)
+      const updatedEmailDoc = await ConnectedEmail.findOne({ emailId: email });
+      results.push(updatedEmailDoc);
+    }
+
+    return results; // Return the list of complete email documents
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const sendBulkEmails = async (
+  fromEmail: string,
+  recipients: string[],
+  subject: string,
+  body: string,
+  campaignId: Types.ObjectId
+) => {
+  const params = {
+    Source: fromEmail, // User's verified email
+    Destination: {
+      ToAddresses: recipients,
+    },
+    Message: {
+      Body: {
+        Html: { Data: body },
+      },
+      Subject: { Data: subject },
+    },
+  };
+
+  try {
+    const result = await ses.sendEmail(params).promise();
+    await Campaign.findByIdAndUpdate(campaignId, { status: 'Running' });
+    console.log('Emails sent successfully:', result);
+    return result;
+  } catch (error) {
+    console.error('Error sending emails:', error);
+    throw error;
+  }
+};
+
+export const sendCampaignEmails = async (
+  fromEmail: string,
+  prospects: Prospect[],
+  subject: string,
+  bodyTemplate: string,
+  campaignId: Types.ObjectId,
+  mailId: Types.ObjectId
+) => {
+  try {
+    const mailDeliveryStatus = [];
+    const updatedProspects: Prospect[] = [];
+    for (let i = 0; i < prospects.length; i++) {
+      const prospect = prospects[i];
+      const recipantData = prospect.prospectData;
+
+      let personalizedBody = bodyTemplate;
+      Object.keys(recipantData).forEach((key) => {
+        personalizedBody = personalizedBody.replace(
+          `{{${key}}}`,
+          recipantData[key]
+        );
+      });
+
+      const params = {
+        Source: fromEmail,
+        Destination: {
+          ToAddresses: [recipantData.EMAIL],
+        },
+        Message: {
+          Body: {
+            Html: { Data: personalizedBody },
+          },
+          Subject: { Data: subject },
+        },
+      };
+
+      try {
+        const result = await ses.sendEmail(params).promise();
+        console.log(`Mail sent at: ${recipantData.EMAIL} ---`);
+        console.log(result);
+        mailDeliveryStatus.push({ EMAIL: recipantData.EMAIL, status: true });
+        updatedProspects.push({
+          ...prospect,
+          isBounced: false,
+          isDelivered: true,
+          isRejected: false,
+        });
+      } catch (mailError) {
+        console.log(`Error in sending mail at: ${recipantData.EMAIL} ---`);
+        console.log(mailError);
+        mailDeliveryStatus.push({ EMAIL: recipantData.EMAIL, status: false });
+        updatedProspects.push({
+          ...prospect,
+          isBounced: false,
+          isDelivered: false,
+          isRejected: true,
+        });
+      }
+    }
+
+    // Update campaign status after sending emails
+    await Campaign.findByIdAndUpdate(campaignId, { status: 'Running' });
+
+    // Update campaignMail status after sending emails
+    await CampaignMail.findByIdAndUpdate(mailId, {
+      prospects: updatedProspects,
+    });
+  } catch (error) {
+    console.error('Error sending emails', error);
+    throw error;
+  }
+};
+
+export const sendSingleEmail = async (
+  fromEmail: string = process.env.OFFICIAL_FROM_MAIL || 'info@mirrorteams.com',
+  recipient: string,
+  subject: string,
+  body: string
+) => {
+  const params = {
+    Source: fromEmail,
+    Destination: {
+      ToAddresses: [recipient],
+    },
+    Message: {
+      Body: {
+        Html: { Data: body },
+      },
+      Subject: { Data: subject },
+    },
+  };
+
+  try {
+    const result = await ses.sendEmail(params).promise();
+    console.log('Email sent successfully:', result);
+    return result;
+  } catch (error) {
+    console.error('Error sending email:', error);
+    throw error;
   }
 };

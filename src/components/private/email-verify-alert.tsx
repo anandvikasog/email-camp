@@ -27,7 +27,9 @@ const EmailVerifyAlert = () => {
       setShowAlert(false);
       return;
     }
-    setShowAlert(!emailVerified);
+    if (emailVerified !== null) {
+      setShowAlert(!emailVerified);
+    }
   }, [pathName, emailVerified]);
 
   useEffect(() => {

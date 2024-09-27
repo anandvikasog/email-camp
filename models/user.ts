@@ -36,8 +36,15 @@ const userSchema: any = new Schema(
     mobile: {
       type: String,
     },
+    countryCode: {
+      type: String,
+    },
     profilePicture: {
       type: String,
+    },
+    companyName: {
+      type: String,
+      required: true,
     },
     emailVerified: {
       type: Boolean,

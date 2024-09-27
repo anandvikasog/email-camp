@@ -57,10 +57,10 @@ export function SignInForm(): React.JSX.Element {
   }, [data, router]);
 
   return (
-    <div className="flex flex-row">
+    <div className="flex flex-row max-sm:flex-col">
       <AuthSidePanel {...signInCardData} />
       <div
-        className={`w-[50vw] h-screen relative flex items-center justify-center ${
+        className={`flex-1 h-screen relative flex items-center justify-center ${
           isDarkMode ? 'bg-[#111828] text-white' : 'bg-white text-black'
         }`}
       >
@@ -106,11 +106,13 @@ export function SignInForm(): React.JSX.Element {
             <div className="flex items-center justify-between mb-6">
               <label className="flex items-center ">
                 <input type="checkbox" />
-                <span className="ml-2 text-sm text-gray-600">Remember Me?</span>
+                <span className="ml-2 max-sm:text-xs text-sm text-gray-600">
+                  Remember Me?
+                </span>
               </label>
               <Link
                 href={paths.public.forgetPassword}
-                className="text-sm text-[#f26387] hover:underline"
+                className="max-sm:text-xs text-sm text-[#f26387] hover:underline"
               >
                 Forget Password?
               </Link>

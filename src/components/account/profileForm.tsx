@@ -4,13 +4,14 @@ import React, { useEffect } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { profileUpdateSchema } from '@/lib/validationSchema';
-
+import { toast } from 'react-toastify';
 import {
   useGetUserQuery,
   useUpdateUserMutation,
 } from '@/store/Features/auth/authApiSlice';
 import { useSelector } from 'react-redux'; // Import useSelector to access Redux store
 import { z as zod } from 'zod';
+import countryList from '../../../utils/data/country.json';
 
 type Values = zod.infer<typeof profileUpdateSchema>;
 
@@ -22,6 +23,8 @@ const defaultValues = {
   mobile: '',
   about: '',
   gender: '',
+  companyName: '',
+  countryCode: '+91_IN',
   // profilePicture: null as unknown as File,
 } satisfies Values;
 
@@ -32,12 +35,16 @@ interface ProfileFormProps {
 
     mobile?: string;
     gender?: string;
+    companyName?: string;
     about?: string;
   };
 }
-const ProfileForm: React.FC<ProfileFormProps> = ({ userData }) => {
+const ProfileForm: React.FC = () => {
   const [updateUser, { isLoading: isUpdating }] = useUpdateUserMutation();
   const userId = useSelector((state: any) => state.auth._id); // Get the userId from Redux store
+
+  // Get user data from Redux store
+  const userData = useSelector((state: any) => state.auth);
 
   const {
     control,
@@ -57,9 +64,10 @@ const ProfileForm: React.FC<ProfileFormProps> = ({ userData }) => {
     if (userData) {
       setValue('firstName', userData.firstName || '');
       setValue('lastName', userData.lastName || '');
-
+      setValue('countryCode', userData.countryCode || '');
       setValue('mobile', userData.mobile || '');
       setValue('gender', userData.gender || '');
+      setValue('companyName', userData.companyName || '');
       setValue('about', userData.about || '');
     }
   }, [userData, setValue]);
@@ -70,6 +78,10 @@ const ProfileForm: React.FC<ProfileFormProps> = ({ userData }) => {
     formData.append('userId', userId); // Pass userId
     formData.append('firstName', data.firstName);
     formData.append('gender', data.gender);
+    formData.append('companyName', data.companyName);
+    if (data.countryCode) {
+      formData.append('countryCode', data.countryCode);
+    }
     if (data.about) {
       formData.append('about', data.about);
     }
@@ -82,6 +94,7 @@ const ProfileForm: React.FC<ProfileFormProps> = ({ userData }) => {
 
     try {
       await updateUser(formData).unwrap();
+      toast.success('Updated successfully');
       // Handle success (e.g., show a success message)
     } catch (error) {
       // console.error('Error updating user:', error);
@@ -98,6 +111,16 @@ const ProfileForm: React.FC<ProfileFormProps> = ({ userData }) => {
     },
     { id: 'lastName', type: 'text', placeholder: 'Last Name', required: false },
     {
+      id: 'countryCode',
+      type: 'select',
+      options: countryList.map((country) => ({
+        value: `${country.dialCode}_${country.alpha2Code}`,
+        label: `${country.dialCode} (${country.alpha2Code})`,
+      })),
+      placeholder: 'Select Country Code',
+      required: true,
+    },
+    {
       id: 'mobile',
       type: 'number',
       placeholder: 'Mobile Number',
@@ -112,6 +135,12 @@ const ProfileForm: React.FC<ProfileFormProps> = ({ userData }) => {
         { value: 'female', label: 'Female' },
       ],
       required: true,
+    },
+    {
+      id: 'companyName',
+      type: 'text',
+      placeholder: 'Company Name',
+      required: false,
     },
     {
       id: 'about',
@@ -151,9 +180,9 @@ const ProfileForm: React.FC<ProfileFormProps> = ({ userData }) => {
                 className="w-full p-2 border border-gray-300 rounded-md"
                 placeholder={field.placeholder}
                 {...register(field.id as keyof Values)}
-                defaultValue={
-                  userData ? [field.id as keyof typeof userData] : ''
-                }
+                // defaultValue={
+                //   userData ? [field.id as keyof typeof userData] : ''
+                // }
               />
             ) : (
               <input
@@ -162,9 +191,9 @@ const ProfileForm: React.FC<ProfileFormProps> = ({ userData }) => {
                 {...register(field.id as keyof Values)}
                 className="w-full p-2 border border-gray-300 rounded-md"
                 placeholder={field.placeholder}
-                defaultValue={
-                  userData ? [field.id as keyof typeof userData] : ''
-                } // Set default value
+                // defaultValue={
+                //   userData ? [field.id as keyof typeof userData] : ''
+                // } // Set default value
               />
             )}
             {errors[field.id as keyof Values] && (

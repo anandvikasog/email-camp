@@ -15,7 +15,7 @@ export function AuthSidePanel({
   logos,
 }: AuthPanelProps): JSX.Element {
   return (
-    <div className="h-screen bg-[#6950e9] w-[50vw] flex justify-center items-center">
+    <div className="h-screen bg-[#6950e9] flex-1 flex justify-center items-center py-10">
       <div className="w-3/5 text-white flex flex-col gap-y-6">
         {head && <h1 className="font-bold text-3xl">Onion</h1>}
         <h2 className="text-3xl font-bold">{title}</h2>
