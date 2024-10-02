@@ -14,6 +14,7 @@ export const paths = {
     connectNewEmails: '/connect-email/new',
     campaign: '/campaign',
     newCampaign: '/campaign/new',
+    editCampaign: (id: string) => `/campaign/${id}`,
   },
   common: {
     home: '/',

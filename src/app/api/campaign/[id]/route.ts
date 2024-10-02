@@ -10,6 +10,10 @@ import { validateUser } from '~/utils/helper';
 import CampaignMail from '~/models/campaignMail';
 import User from '~/models/user';
 
+interface Params {
+  id: string; // Define the type for params
+}
+
 // Define the Prospect interface
 export interface Prospect {
   prospectData: any;
@@ -40,22 +44,130 @@ interface CampaignDocument extends mongoose.Document {
   emailId?: string;
 }
 
-// POST API to create a campaign and schedule follow-up emails
-export async function POST(req: NextRequest, res: NextResponse) {
+export async function GET(req: NextRequest, { params }: { params: Params }) {
   try {
-    const body = await req.json(); // Parse the request body
-    const {
-      name,
-      fromEmail,
-      mails, // Array of follow-up mails
-      savedAsDraft,
-    } = body;
+    // Validate the user authentication
+    const user = await validateUser();
+    if (!user) {
+      return NextResponse.json(
+        { status: false, message: 'User not authenticated.' },
+        { status: 401 }
+      );
+    }
+
+    const campaignId = params.id; // Get campaignId from the route params
+
+    // Validate the presence of campaignId
+    if (!campaignId) {
+      return NextResponse.json(
+        { status: false, message: 'Campaign ID is required.' },
+        { status: 400 }
+      );
+    }
 
     // Connect to the database
     await dbConnect();
 
-    let user = await validateUser();
+    // Common aggregation pipeline
+    const campaignAggregation = (matchCondition: object) => [
+      { $match: matchCondition },
+      {
+        $lookup: {
+          from: 'connectedemails',
+          localField: 'fromEmail',
+          foreignField: '_id',
+          as: 'fromEmail',
+        },
+      },
+      {
+        $unwind: {
+          path: '$fromEmail',
+          preserveNullAndEmptyArrays: true,
+        },
+      },
+      {
+        $addFields: {
+          fromEmail: '$fromEmail.emailId',
+        },
+      },
+      {
+        $lookup: {
+          from: 'campaignmails',
+          localField: 'mails',
+          foreignField: '_id',
+          as: 'mails',
+        },
+      },
+      {
+        $addFields: {
+          mails: {
+            $map: {
+              input: '$mails',
+              as: 'mail',
+              in: {
+                sendAt: '$$mail.sendAt',
+                subject: '$$mail.subject',
+                body: '$$mail.body',
+                prospects: '$$mail.prospects',
+                timezone: '$$mail.timezone',
+              },
+            },
+          },
+        },
+      },
+    ];
 
+    // Fetch the specific campaign
+    const campaign = await Campaign.aggregate(
+      campaignAggregation({
+        _id: new Types.ObjectId(campaignId),
+        userId: new Types.ObjectId(user._id),
+      })
+    );
+
+    if (!campaign || campaign.length === 0) {
+      return NextResponse.json(
+        { status: false, message: 'Campaign not found.' },
+        { status: 404 }
+      );
+    }
+
+    // Return the specific campaign data
+    return NextResponse.json(
+      {
+        status: true,
+        message: 'Campaign retrieved successfully',
+        data: campaign[0], // Return the first item from the aggregation result
+      },
+      { status: 200 }
+    );
+  } catch (error: any) {
+    console.error('Error fetching campaign:', error);
+    return NextResponse.json(
+      {
+        status: false,
+        message: 'Error fetching campaign',
+        error: error.message,
+      },
+      { status: 500 }
+    );
+  }
+}
+
+// Function to update a campaign
+export async function PUT(req: NextRequest, { params }: { params: Params }) {
+  console.log('hii');
+  try {
+    const body = await req.json();
+    const { name, fromEmail, mails, savedAsDraft } = body;
+
+    // Connect to the database
+    await dbConnect();
+
+    console.log(JSON.stringify(body));
+
+    // Validate user authentication
+    const user = await validateUser();
     if (!user) {
       return NextResponse.json(
         { status: false, message: 'User not authenticated.' },
@@ -64,9 +176,9 @@ export async function POST(req: NextRequest, res: NextResponse) {
     }
 
     const userId = user._id;
+    const campaignId = params.id; // Get campaignId from the route params
 
-    // Validate that each sendAt time is in the future
-    // Validate that each sendAt time is in the future only if not a draft
+    // Validate that each sendAt time is in the future if not a draft
     if (!savedAsDraft) {
       const currentUTCDate = new Date();
       for (const mail of mails) {
@@ -83,20 +195,33 @@ export async function POST(req: NextRequest, res: NextResponse) {
       }
     }
 
-    // creating campaign
-    const newCampaign = new Campaign({
-      name,
-      userId,
-      fromEmail,
-      savedAsDraft,
+    // Find the existing campaign
+    const existingCampaign = await Campaign.findOne({
+      _id: campaignId,
+      userId: userId,
     });
 
-    // creating and saving campaign mail
+    if (!existingCampaign) {
+      return NextResponse.json(
+        { status: false, message: 'Campaign not found.' },
+        { status: 404 }
+      );
+    }
+
+    // Update campaign fields
+    existingCampaign.name = name;
+    existingCampaign.fromEmail = fromEmail;
+    existingCampaign.savedAsDraft = savedAsDraft;
+
+    // Remove existing campaign mails
+    await CampaignMail.deleteMany({ campaignId: existingCampaign._id });
+
+    // Create and save new campaign mails
     const campaignMailsArray = [];
     for (let i = 0; i < mails.length; i++) {
       const newCampaignMail = new CampaignMail({
         ...mails[i],
-        campaignId: newCampaign._id,
+        campaignId: existingCampaign._id,
       });
       campaignMailsArray.push(newCampaignMail.toObject());
       try {
@@ -106,15 +231,16 @@ export async function POST(req: NextRequest, res: NextResponse) {
       }
     }
 
-    // updating and saving campaign
-    newCampaign.mails = campaignMailsArray.map((c) => c._id);
-    await newCampaign.save();
+    existingCampaign.mails = campaignMailsArray.map((c) => c._id);
+
+    // Save the updated campaign
+    await existingCampaign.save();
 
     // If the campaign is not a draft, schedule follow-ups
     if (!savedAsDraft) {
       // Schedule each follow-up mail based on its sendAt date
       scheduleFollowUps({
-        ...newCampaign.toObject(),
+        ...existingCampaign.toObject(),
         mails: campaignMailsArray,
       });
     }
@@ -123,19 +249,18 @@ export async function POST(req: NextRequest, res: NextResponse) {
       {
         status: true,
         message: savedAsDraft
-          ? 'Campaign saved as draft successfully'
-          : 'Campaign created successfully',
-        campaign: newCampaign,
+          ? 'Campaign updated and saved as draft successfully'
+          : 'Campaign updated and scheduled successfully',
+        campaign: existingCampaign,
       },
       { status: 200 }
     );
   } catch (error: any) {
-    console.error('Error creating campaign:', error);
-
+    console.error('Error updating campaign:', error);
     return NextResponse.json(
       {
         status: false,
-        message: 'Error creating campaign',
+        message: 'Error updating campaign',
         error: error.message,
       },
       { status: 500 }
@@ -188,121 +313,3 @@ const scheduleFollowUps = async (campaign: CampaignDocument): Promise<void> => {
     });
   }
 };
-
-// Define the GET API to fetch campaign lists based on userId
-export async function GET(req: NextRequest) {
-  try {
-    console.log('hii');
-    let user = await validateUser();
-
-    if (!user) {
-      return NextResponse.json(
-        { status: false, message: 'User not authenticated.' },
-        { status: 401 }
-      );
-    }
-
-    const { searchParams } = new URL(req.url);
-    const campaignId = searchParams.get('id'); // Check if there's an `id` query parameter
-    console.log('campaignId', campaignId);
-    const userId = user._id;
-    // Connect to the database
-    await dbConnect();
-
-    // If campaignId exists, fetch a specific campaign by ID
-    if (campaignId) {
-      const campaign = await Campaign.aggregate([
-        {
-          $match: {
-            _id: new Types.ObjectId(campaignId),
-            userId: new Types.ObjectId(user._id),
-          },
-        },
-        {
-          $lookup: {
-            from: 'connectedemails',
-            localField: 'fromEmail',
-            foreignField: '_id',
-            as: 'fromEmail',
-          },
-        },
-        {
-          $unwind: {
-            path: '$fromEmail',
-            preserveNullAndEmptyArrays: true,
-          },
-        },
-        {
-          $addFields: {
-            fromEmail: '$fromEmail.emailId',
-          },
-        },
-      ]);
-
-      if (!campaign || campaign.length === 0) {
-        return NextResponse.json(
-          { status: false, message: 'Campaign not found.' },
-          { status: 404 }
-        );
-      }
-
-      // Return the specific campaign data
-      return NextResponse.json(
-        {
-          status: true,
-          message: 'Campaign retrieved successfully',
-          data: campaign[0], // Return the first item from the aggregation result
-        },
-        { status: 200 }
-      );
-    }
-
-    const campaigns = await Campaign.aggregate([
-      {
-        $match: {
-          userId: new Types.ObjectId(userId),
-        },
-      },
-      {
-        $lookup: {
-          from: 'connectedemails',
-          localField: 'fromEmail',
-          foreignField: '_id',
-          as: 'fromEmail',
-        },
-      },
-      {
-        $unwind: {
-          path: '$fromEmail',
-          preserveNullAndEmptyArrays: true,
-        },
-      },
-      {
-        $addFields: {
-          fromEmail: '$fromEmail.emailId',
-        },
-      },
-    ]);
-
-    // Return the response with the campaigns list
-    return NextResponse.json(
-      {
-        status: true,
-        message: 'Campaigns retrieved successfully',
-        data: campaigns,
-      },
-      { status: 200 }
-    );
-  } catch (error: any) {
-    console.error('Error fetching campaigns:', error);
-
-    return NextResponse.json(
-      {
-        status: false,
-        message: 'Error fetching campaigns',
-        error: error.message,
-      },
-      { status: 500 }
-    );
-  }
-}

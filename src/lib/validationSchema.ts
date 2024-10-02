@@ -108,6 +108,42 @@ export const connectEmailSchema = zod.object({
     .max(500, { message: 'Body must not exceed 500 characters.' }),
 });
 
+const timeIntervalSchema = zod
+  .object({
+    start: zod
+      .string()
+      .regex(/^\d{2}:\d{2}$/, 'Start time must be in HH:MM format.'),
+    end: zod
+      .string()
+      .regex(/^\d{2}:\d{2}$/, 'End time must be in HH:MM format.'),
+  })
+  .refine(
+    (data) => {
+      const { start, end } = data;
+      return start < end; // Check if start time is less than end time
+    },
+    {
+      message: 'Start time must be before End time.',
+      path: ['start'], // Path to place the error
+    }
+  );
+const dayTimingSchema = zod.object({
+  checked: zod.boolean(),
+  intervals: zod
+    .array(timeIntervalSchema)
+    .min(1, 'At least one interval is required if checked is true.'),
+});
+
+const timingSchema = zod.object({
+  mon: dayTimingSchema,
+  tue: dayTimingSchema,
+  wed: dayTimingSchema,
+  thu: dayTimingSchema,
+  fri: dayTimingSchema,
+  sat: dayTimingSchema,
+  sun: dayTimingSchema,
+});
+
 export const createCampeignSchema = zod.object({
   name: zod.string().min(2, 'Name should have at least 2 characters.'),
   fromEmail: zod.string(),
@@ -130,6 +166,7 @@ export const createCampeignSchema = zod.object({
 
         gapType: zod.string().optional(),
         gapCount: zod.string().optional(),
+        timing: timingSchema, // Include timing validation
       })
     )
     .min(1, 'Mails array must have at least one mail.')

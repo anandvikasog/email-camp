@@ -27,6 +27,10 @@ const campaignSchema = new Schema(
       enum: ['Pending', 'Running', 'Completed'],
       default: 'Pending',
     },
+    savedAsDraft: {
+      type: Boolean,
+      default: false,
+    },
   },
   {
     timestamps: true,

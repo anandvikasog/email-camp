@@ -127,6 +127,31 @@ export const authApiSlice = apiSlice.injectEndpoints({
         method: 'GET',
       }),
     }),
+    // New query to fetch a campaign by ID (draft)
+    getCampaignById: builder.query({
+      query: (id: string) => ({
+        url: `${apiPaths.campaign.create}/${id}`, // Assuming this is the correct path
+        method: 'GET',
+      }),
+    }),
+
+    // Mutation to update a campaign
+    // Mutation to update a campaign
+    updateCampaign: builder.mutation({
+      query: ({
+        id,
+        ...payload // Spread the rest of the payload
+      }: {
+        id: string;
+        name: string;
+        fromEmail: string;
+        mails: IMail[];
+      }) => ({
+        url: `${apiPaths.campaign.create}/${id}`, // Use the campaign ID in the URL
+        method: 'PUT',
+        body: payload, // Send the remaining fields as the body
+      }),
+    }),
   }),
 });
 
@@ -147,4 +172,6 @@ export const {
   useConnectEmailMutation,
   useCreateCampaignMutation,
   useGetCampaignQuery,
+  useGetCampaignByIdQuery,
+  useUpdateCampaignMutation,
 } = authApiSlice;

@@ -2,13 +2,13 @@
 
 import { createCampeignSchema } from '@/lib/validationSchema';
 import { zodResolver } from '@hookform/resolvers/zod';
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Controller, useFieldArray, useForm } from 'react-hook-form';
 import { z as zod } from 'zod';
 import useProspectUpload from '@/hooks/use-prospect-upload';
 import { timezones } from '~/utils/timezones';
 import 'react-quill/dist/quill.snow.css';
-import EmailForm from '@/components/private/email-form';
+import EmailForm, { defaultTiming } from '@/components/private/email-form';
 import EmailSelector from '@/components/private/email-selector';
 import { ArrowDownTrayIcon, ArrowUpTrayIcon } from '@heroicons/react/20/solid';
 import moment from 'moment';
@@ -30,7 +30,7 @@ export interface IMail {
 
 const defaultValues = {
   name: '',
-  mails: [{ subject: '', body: '' }],
+  mails: [{ subject: '', body: '', timing: defaultTiming }],
 };
 
 export default function Page(): React.JSX.Element {
@@ -42,13 +42,17 @@ export default function Page(): React.JSX.Element {
     handleDownloadSample,
   } = useProspectUpload();
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [createCampaign, { data, isLoading }] =
+  const [createCampaign, { data: createData, isLoading }] =
     useCreateCampaignMutation<any>();
+  const [isDraftLoading, setIsDraftLoading] = useState(false);
   const router = useRouter();
   const {
     control,
     formState: { errors },
     handleSubmit,
+    getValues,
+    setValue,
+    trigger,
   } = useForm<CampaignValues>({
     defaultValues,
     resolver: zodResolver(createCampeignSchema),
@@ -70,6 +74,7 @@ export default function Page(): React.JSX.Element {
     append({
       subject: '',
       body: '',
+      timing: defaultTiming,
     });
   };
 
@@ -77,51 +82,77 @@ export default function Page(): React.JSX.Element {
     fileInputRef.current?.click();
   };
 
-  const onSubmit = (data: CampaignValues) => {
-    const { name, fromEmail, timezone, mails } = data;
+  const preparePayload = (data: CampaignValues, isDraft: boolean) => {
+    const { name, fromEmail, timezone, mails } = data; // Include csvData in destructuring
 
-    const mutatedMails: IMail[] = [];
-    mails.forEach((elem) => {
-      if (elem.sendAt) {
-        mutatedMails.push({
-          subject: elem.subject,
-          body: elem.body,
-          sendAt: moment(elem.sendAt).toISOString(),
-          timezone,
-          prospects: csvData.map((e) => ({ prospectData: e })),
-        });
-      } else if (elem.gapType && elem.gapCount) {
-        const lastMailDate = mutatedMails[mutatedMails.length - 1].sendAt;
-        // @ts-ignore
-        const sendAt = moment(lastMailDate).add(
-          parseInt(elem.gapCount),
-          elem.gapType
-        );
-        mutatedMails.push({
-          subject: elem.subject,
-          body: elem.body,
-          sendAt: moment(sendAt).toISOString(),
-          timezone,
-          prospects: csvData.map((e) => ({ prospectData: e })),
-        });
-      }
-    });
+    const mutatedMails: IMail[] = mails
+      .map((elem) => {
+        if (elem.sendAt) {
+          return {
+            subject: elem.subject,
+            body: elem.body,
+            sendAt: moment(elem.sendAt).toISOString(),
+            timezone,
+            prospects: csvData.map((e) => ({ prospectData: e })),
+          };
+        } else if (elem.gapType && elem.gapCount) {
+          const lastMailDate = mutatedMails[mutatedMails.length - 1]?.sendAt; // Use optional chaining
+          if (lastMailDate) {
+            // @ts-ignore
+            const sendAt = moment(lastMailDate).add(
+              parseInt(elem.gapCount),
+              elem.gapType
+            );
+            return {
+              subject: elem.subject,
+              body: elem.body,
+              sendAt: moment(sendAt).toISOString(),
+              timezone,
+              prospects: csvData.map((e) => ({ prospectData: e })),
+            };
+          }
+        }
+        return undefined; // Explicitly return undefined for unmatched cases
+      })
+      .filter((mail): mail is IMail => mail !== undefined); // Filter out undefined values
 
-    const payload = {
+    return {
       name,
       fromEmail,
       mails: mutatedMails,
+      savedAsDraft: isDraft,
     };
+  };
 
+  const onSubmit = (data: CampaignValues) => {
+    const payload = preparePayload(data, false);
     createCampaign(payload);
   };
 
+  const onSaveAsDraft = async (data: CampaignValues) => {
+    setIsDraftLoading(true);
+    try {
+      const payload = preparePayload(data, true);
+      await createCampaign(payload); // Assuming createCampaign returns a promise
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setIsDraftLoading(false);
+    }
+  };
+
   useEffect(() => {
-    if (data) {
-      toast.success(data.message || 'Created successfully');
+    if (createData) {
+      if (createData.isDraft) {
+        toast.success(
+          createData.message || 'Campaign saved as draft successfully'
+        );
+      } else {
+        toast.success(createData.message || 'Campaign created successfully');
+      }
       router.push(paths.private.campaign);
     }
-  }, [data, router]);
+  }, [createData, router]);
 
   return (
     <div>
@@ -183,50 +214,92 @@ export default function Page(): React.JSX.Element {
           </div>
         </div>
       </div>
-      <div className="mt-3 mb-8  p-5 rounded-lg shadow-lg flex justify-between">
-        <div className="">
-          <div className="flex flex-1">
-            <label
-              htmlFor="file-input"
-              className="flex gap-3 cursor-pointer border p-2 rounded border-[#6950e9]"
+      <div className="mt-3 mb-8  p-5 rounded-lg shadow-lg">
+        <div className="flex justify-between">
+          <div className="">
+            <div className="flex flex-1">
+              <label
+                htmlFor="file-input"
+                className="flex gap-3 cursor-pointer border p-2 rounded border-[#6950e9]"
+              >
+                Upload Prospects{' '}
+                <ArrowUpTrayIcon
+                  onClick={triggerFileInput}
+                  aria-hidden="true"
+                  className="h-6 w-5 flex-none text-[#6950e9] cursor-pointer"
+                />
+              </label>
+              <input
+                id="file-input"
+                ref={fileInputRef}
+                type="file"
+                accept=".csv"
+                onChange={onChangeHandler}
+                className="hidden"
+              />
+            </div>
+            <div className="mt-2">
+              {csvData.length > 0 ? (
+                <div className="text-sm italic text-[#6950e9]">
+                  {csvData.length} prospects uploaded
+                </div>
+              ) : null}
+              {csvError && (
+                <div className="text-sm text-red-500">{csvError}</div>
+              )}
+            </div>
+          </div>
+          <div>
+            <div
+              className="flex gap-1 cursor-pointer p-2 rounded text-[#6950e9] text-sm"
+              onClick={handleDownloadSample}
             >
-              Upload Prospects{' '}
-              <ArrowUpTrayIcon
-                onClick={triggerFileInput}
+              <ArrowDownTrayIcon
                 aria-hidden="true"
                 className="h-6 w-5 flex-none text-[#6950e9] cursor-pointer"
               />
-            </label>
-            <input
-              id="file-input"
-              ref={fileInputRef}
-              type="file"
-              accept=".csv"
-              onChange={onChangeHandler}
-              className="hidden"
-            />
-          </div>
-          <div className="mt-2">
-            {csvData.length > 0 ? (
-              <div className="text-sm italic text-[#6950e9]">
-                {csvData.length} prospects uploaded
-              </div>
-            ) : null}
-            {csvError && <div className="text-sm text-red-500">{csvError}</div>}
+              Download Sample
+            </div>
           </div>
         </div>
-        <div>
-          <div
-            className="flex gap-1 cursor-pointer p-2 rounded text-[#6950e9] text-sm"
-            onClick={handleDownloadSample}
-          >
-            <ArrowDownTrayIcon
-              aria-hidden="true"
-              className="h-6 w-5 flex-none text-[#6950e9] cursor-pointer"
-            />
-            Download Sample
+        {csvData.length > 0 && (
+          <div className="container mx-auto mt-2">
+            <div className="overflow-x-auto h-[200px] overflow-y-auto">
+              <table className="min-w-full bg-white border border-gray-200 rounded-lg">
+                <thead>
+                  <tr className="bg-gray-100 border-b">
+                    {variables.map((v) => {
+                      return (
+                        <th
+                          key={v}
+                          className="text-left py-1 px-3 font-semibold text-sm text-gray-600 whitespace-nowrap"
+                        >
+                          {v}
+                        </th>
+                      );
+                    })}
+                  </tr>
+                </thead>
+                <tbody>
+                  {csvData.map((user, ind) => (
+                    <tr key={ind} className="border-b hover:bg-gray-50">
+                      {variables.map((v) => {
+                        return (
+                          <td
+                            key={v}
+                            className="py-1 px-3 text-gray-700 text-sm whitespace-nowrap"
+                          >
+                            {user[v]}
+                          </td>
+                        );
+                      })}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
-        </div>
+        )}
       </div>
 
       {csvData.length > 0 && (
@@ -242,6 +315,9 @@ export default function Page(): React.JSX.Element {
               errors={
                 errors?.mails && errors?.mails[ind] ? errors?.mails[ind] : {}
               }
+              getValues={getValues}
+              setValue={setValue}
+              trigger={trigger}
             />
           ))}
           <div className="flex justify-between">
@@ -255,13 +331,23 @@ export default function Page(): React.JSX.Element {
                 Add step
               </button>
             )}
-            <button
-              className="bg-[#6950e9] text-white py-2 px-5 rounded-lg font-semibold transition duration-300"
-              disabled={isLoading}
-              onClick={handleSubmit(onSubmit)}
-            >
-              {isLoading ? <SpinnerLoader /> : 'Create'}
-            </button>
+
+            <div className="flex gap-2">
+              <button
+                className="bg-gray-400 text-white py-2 px-5 rounded-lg font-semibold transition duration-300"
+                disabled={isDraftLoading}
+                onClick={handleSubmit(onSaveAsDraft)}
+              >
+                {isDraftLoading ? <SpinnerLoader /> : 'Save as Draft'}
+              </button>
+              <button
+                className="bg-[#6950e9] text-white py-2 px-5 rounded-lg font-semibold transition duration-300"
+                disabled={isLoading}
+                onClick={handleSubmit(onSubmit)}
+              >
+                {isLoading ? <SpinnerLoader /> : 'Create'}
+              </button>
+            </div>
           </div>
         </div>
       )}

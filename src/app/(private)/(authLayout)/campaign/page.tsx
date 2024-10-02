@@ -13,6 +13,8 @@ interface ICampaign {
   fromEmail: string;
   status: string;
   createdAt: string;
+
+  savedAsDraft: Boolean;
 }
 
 const Page = () => {
@@ -76,6 +78,12 @@ const Page = () => {
                       >
                         Created At
                       </th>
+                      <th
+                        scope="col"
+                        className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900"
+                      >
+                        Action
+                      </th>
                     </tr>
                   </thead>
 
@@ -117,6 +125,16 @@ const Page = () => {
                               ? moment(elem.createdAt).format('DD/MM/YYYY')
                               : ''}
                           </div>
+                        </td>
+                        <td className="whitespace-nowrap px-3 py-5 text-sm text-gray-500">
+                          {elem.savedAsDraft === true ? (
+                            <Link
+                              href={paths.private.editCampaign(elem._id)}
+                              className="text-indigo-600 hover:text-indigo-900"
+                            >
+                              Continue Draft
+                            </Link>
+                          ) : null}
                         </td>
                       </tr>
                     ))}
