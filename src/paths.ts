@@ -11,6 +11,7 @@ export const paths = {
     account: '/account',
     changePassword: '/change-password',
     connectedEmails: '/connect-email',
+    editConnectedEmail: (id: string) => `/connect-email/${id}`,
     connectNewEmails: '/connect-email/new',
     campaign: '/campaign',
     newCampaign: '/campaign/new',

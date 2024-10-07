@@ -29,6 +29,7 @@ const defaultValues = {
 const Page = () => {
   const router = useRouter();
   const [connect, { data, isLoading }] = useConnectEmailMutation<any>();
+
   const {
     handleSubmit,
     register,
@@ -45,7 +46,7 @@ const Page = () => {
   };
 
   const onSubmit = (data: Values) => {
-    const { email, signature, domainType } = data;
+    const { email, domainType } = data;
 
     if (!domainType || !providerDomainMap[domainType]) {
       setError('email', {
@@ -70,7 +71,6 @@ const Page = () => {
 
     connect({
       email,
-      signature, // New field for signature or details
       domain: emailDomain,
     });
   };
@@ -78,7 +78,7 @@ const Page = () => {
   useEffect(() => {
     if (data) {
       toast.success(data.message);
-      router.push(paths.private.connectedEmails);
+      router.push(paths.private.editConnectedEmail(data.ConnectedEmail));
     }
   }, [data, router]);
 
@@ -155,18 +155,6 @@ const Page = () => {
               </span>
             )}
 
-            {/* Textarea for the signature or additional details */}
-            <textarea
-              {...register('signature')}
-              placeholder="Signature text"
-              className="p-2 border rounded bg-white"
-              rows={5}
-            />
-            {errors['signature'] && (
-              <span className="text-xs text-red-600">
-                {errors['signature']?.message}
-              </span>
-            )}
             <button
               type="submit"
               disabled={isLoading}

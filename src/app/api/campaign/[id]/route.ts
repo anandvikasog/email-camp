@@ -3,12 +3,11 @@ import mongoose, { Types } from 'mongoose'; // Import ObjectId type and Mongoose
 import dbConnect from '~/db/db'; // MongoDB connection file
 import Campaign from '~/models/campaign';
 import ConnectedEmail from '~/models/connectedEmail';
-import { sendBulkEmails, sendCampaignEmails } from '~/utils/aws';
+import { sendCampaignEmails } from '~/utils/aws';
 import { scheduleJob } from 'node-schedule'; // Node-schedule for scheduling follow-ups
 import moment from 'moment-timezone';
 import { validateUser } from '~/utils/helper';
 import CampaignMail from '~/models/campaignMail';
-import User from '~/models/user';
 
 interface Params {
   id: string; // Define the type for params
@@ -73,25 +72,6 @@ export async function GET(req: NextRequest, { params }: { params: Params }) {
       { $match: matchCondition },
       {
         $lookup: {
-          from: 'connectedemails',
-          localField: 'fromEmail',
-          foreignField: '_id',
-          as: 'fromEmail',
-        },
-      },
-      {
-        $unwind: {
-          path: '$fromEmail',
-          preserveNullAndEmptyArrays: true,
-        },
-      },
-      {
-        $addFields: {
-          fromEmail: '$fromEmail.emailId',
-        },
-      },
-      {
-        $lookup: {
           from: 'campaignmails',
           localField: 'mails',
           foreignField: '_id',
@@ -99,18 +79,11 @@ export async function GET(req: NextRequest, { params }: { params: Params }) {
         },
       },
       {
-        $addFields: {
+        $set: {
           mails: {
-            $map: {
+            $sortArray: {
               input: '$mails',
-              as: 'mail',
-              in: {
-                sendAt: '$$mail.sendAt',
-                subject: '$$mail.subject',
-                body: '$$mail.body',
-                prospects: '$$mail.prospects',
-                timezone: '$$mail.timezone',
-              },
+              sortBy: { sendAt: 1 },
             },
           },
         },

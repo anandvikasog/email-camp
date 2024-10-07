@@ -102,6 +102,9 @@ export const connectEmailSchema = zod.object({
   domainType: zod.enum(['gmail', 'outlook', 'custom'], {
     errorMap: () => ({ message: 'Please provide a valid domain.' }),
   }),
+});
+
+export const updateEmailSchema = zod.object({
   signature: zod
     .string()
     .min(10, { message: 'Body is required.' })

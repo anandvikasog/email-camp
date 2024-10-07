@@ -18,14 +18,35 @@ export interface Prospect {
   isRejected?: boolean;
 }
 
+interface TimeInterval {
+  start: string; // Start time in "HH:mm" format
+  end: string; // End time in "HH:mm" format
+}
+
+// Define a type for the days of the week
+type WeekDays = 'sun' | 'mon' | 'tue' | 'wed' | 'thu' | 'fri' | 'sat';
+
+interface DaySchedule {
+  checked: boolean; // Whether this day is enabled
+  intervals: TimeInterval[]; // Array of start and end times
+}
 // Define the CampaignMail interface
 interface CampaignMail {
   campaignId?: Types.ObjectId;
   sendAt: Date;
-  timezone?: string;
+  timezone: string;
   subject: string;
   body: string;
   prospects: Prospect[];
+  timing: {
+    mon: DaySchedule;
+    tue: DaySchedule;
+    wed: DaySchedule;
+    thu: DaySchedule;
+    fri: DaySchedule;
+    sat: DaySchedule;
+    sun: DaySchedule;
+  };
 }
 
 // Define the CampaignDocument interface for Mongoose
@@ -65,7 +86,6 @@ export async function POST(req: NextRequest, res: NextResponse) {
 
     const userId = user._id;
 
-    // Validate that each sendAt time is in the future
     // Validate that each sendAt time is in the future only if not a draft
     if (!savedAsDraft) {
       const currentUTCDate = new Date();
@@ -143,56 +163,181 @@ export async function POST(req: NextRequest, res: NextResponse) {
   }
 }
 
-// Function to schedule follow-up emails
-const scheduleFollowUps = async (campaign: CampaignDocument): Promise<void> => {
-  let sentCount = 0; // Counter for sent emails
-
-  // Extract the email address from connecteamails db
-  const emailDoc = await ConnectedEmail.findById(campaign.fromEmail);
-
-  // Check if the email was found
-  if (!emailDoc || !emailDoc?.emailId) {
-    console.error(`Email not found for user ID: ${campaign.fromEmail}`);
-    return; // Exit the function or handle as needed
-  }
-
-  for (const mail of campaign.mails) {
-    // If a timezone is provided, convert the sendAt time to the specified timezone
-    const sendTime = mail.timezone
-      ? moment.tz(mail.sendAt, mail.timezone).toDate() // Convert to Date object using moment-timezone
-      : new Date(mail.sendAt); // Default to the sendAt time as is if no timezone is specified
-
-    // Schedule job for each follow-up email
-    scheduleJob(sendTime, async function () {
-      try {
-        await sendCampaignEmails(
-          emailDoc.emailId,
-          mail.prospects,
-          mail.subject,
-          mail.body,
-          campaign._id as Types.ObjectId, // Pass campaignId
-          mail._id as Types.ObjectId
-        );
-
-        sentCount++; // Increment sent email count
-
-        // If this is the last email sent, update status to 'Completed'
-        if (sentCount === campaign.mails.length) {
-          await Campaign.findByIdAndUpdate(campaign._id, {
-            status: 'Completed',
-          });
-        }
-      } catch (error) {
-        console.error(`Error sending follow-up ${campaign.name}:`, error);
-      }
-    });
-  }
+// Function to map weekday index to WeekDays type
+const getWeekDayFromIndex = (index: number): WeekDays => {
+  const weekdayMapping: WeekDays[] = [
+    'sun',
+    'mon',
+    'tue',
+    'wed',
+    'thu',
+    'fri',
+    'sat',
+  ];
+  return weekdayMapping[index];
 };
 
 // Define the GET API to fetch campaign lists based on userId
+
+const scheduleFollowUps = async (campaign: CampaignDocument): Promise<void> => {
+  let sentCount = 0;
+
+  // Fetch the connected email from the database
+  const emailDoc = await ConnectedEmail.findById(campaign.fromEmail);
+  if (!emailDoc || !emailDoc.emailId) {
+    console.error(`Email not found for user ID: ${campaign.fromEmail}`);
+    return;
+  }
+
+  // Loop through the mails in the campaign
+  for (const mail of campaign.mails) {
+    const { sendAt, timezone, timing } = mail;
+
+    // Convert sendAt to the user's timezone
+    const userSendTime = moment.tz(sendAt, timezone);
+    const weekday = userSendTime.day(); // Get weekday from sendAt time
+    const currentDay: WeekDays = getWeekDayFromIndex(weekday);
+    const daySchedule = timing[currentDay];
+
+    let scheduledTime: moment.Moment | null = null;
+
+    // Function to check the schedule and find the next available time
+    const findNextAvailableTime = (startDay: number): moment.Moment | null => {
+      for (let i = 0; i < 7; i++) {
+        // console.log('i1 ' + i);
+        const nextDayIndex = (startDay + i) % 7; // Calculate the index for the next day
+        const nextDay = getWeekDayFromIndex(nextDayIndex); // Map index to day
+        const nextDaySchedule = timing[nextDay];
+        // console.log('nch');
+        // console.log(nextDaySchedule);
+
+        // Skip if the next day is not checked
+        if (!nextDaySchedule || !nextDaySchedule.checked) {
+          continue;
+        }
+
+        // Loop through the intervals for the next day
+        for (const interval of nextDaySchedule.intervals) {
+          // Create a date object for the current interval using the correct date
+          const intervalDate = moment
+            .tz(userSendTime, timezone)
+            .startOf('day')
+            .add(i, 'days');
+
+          const startInterval = moment.tz(
+            `${intervalDate.format('YYYY-MM-DD')} ${interval.start}`,
+            timezone
+          );
+
+          const endInterval = moment.tz(
+            `${intervalDate.format('YYYY-MM-DD')} ${interval.end}`,
+            timezone
+          );
+
+          // Check if the send time is outside today's interval or looking for a future day
+          if (
+            (i === 0 && userSendTime.isBefore(startInterval)) || // Case 1: SendAt is before the interval on the same day
+            i > 0 // Case 2: Looking for the next available day
+          ) {
+            // console.log('i ' + i);
+            // console.log('sstartINt');
+            // console.log(startInterval.format()); // Ensure you're printing the correct time
+            return startInterval; // Return the start time for the next available slot
+          }
+
+          // Check if userSendTime falls within the current interval
+          if (i === 0 && userSendTime.isBetween(startInterval, endInterval)) {
+            console.log(
+              'SendAt is within the interval, returning the same time:',
+              userSendTime.format()
+            );
+            return userSendTime; // Return the user's send time if it's within the interval
+          }
+        }
+      }
+      return null; // No valid time found
+    };
+
+    // Check the current day's schedule
+    if (daySchedule && daySchedule.checked) {
+      const firstIntervalStart = moment.tz(
+        `${userSendTime.format('YYYY-MM-DD')} ${daySchedule.intervals[0].start}`,
+        timezone
+      );
+      const lastIntervalEnd = moment.tz(
+        `${userSendTime.format('YYYY-MM-DD')} ${daySchedule.intervals[daySchedule.intervals.length - 1].end}`,
+        timezone
+      );
+
+      // If sendAt is before today's first interval, shift it to the start of today's interval
+      if (userSendTime.isBefore(firstIntervalStart)) {
+        scheduledTime = firstIntervalStart;
+        // console.log('st');
+        // console.log(scheduledTime);
+      }
+      // If sendAt is within any of today's intervals, keep the current time
+      else if (userSendTime.isBetween(firstIntervalStart, lastIntervalEnd)) {
+        scheduledTime = userSendTime;
+      }
+      // If sendAt is after today's last interval, find the next available time
+      else {
+        scheduledTime = findNextAvailableTime(weekday);
+        // console.log('usersendtime');
+        // console.log(userSendTime);
+        // console.log('sch');
+        // console.log(scheduledTime);
+      }
+    } else {
+      // If today's schedule is not checked, find the next available day
+      scheduledTime = findNextAvailableTime(weekday);
+      // console.log('sch1');
+      // console.log(scheduledTime);
+    }
+
+    // If a scheduled time was found, proceed with scheduling
+    if (scheduledTime) {
+      let delay = 0; // Start with no delay
+
+      for (const prospect of mail.prospects) {
+        delay += 60000; // 60 seconds interval
+
+        // Schedule email sending for each prospect
+        scheduleJob(
+          scheduledTime.clone().add(delay, 'ms').toDate(),
+          async () => {
+            try {
+              await sendCampaignEmails(
+                emailDoc.emailId,
+                [prospect], // Only send to one prospect at a time
+                mail.subject,
+                mail.body,
+                campaign._id as Types.ObjectId, // Pass campaignId
+                mail._id as Types.ObjectId
+              );
+
+              sentCount++;
+
+              // Mark the campaign as completed when all emails are sent
+              if (sentCount === campaign.mails.length) {
+                await Campaign.findByIdAndUpdate(campaign._id, {
+                  status: 'Completed',
+                });
+              }
+            } catch (error) {
+              console.error(
+                `Error sending follow-up for ${campaign.name}:`,
+                error
+              );
+            }
+          }
+        );
+      }
+    }
+  }
+};
+
 export async function GET(req: NextRequest) {
   try {
-    console.log('hii');
     let user = await validateUser();
 
     if (!user) {
@@ -204,7 +349,7 @@ export async function GET(req: NextRequest) {
 
     const { searchParams } = new URL(req.url);
     const campaignId = searchParams.get('id'); // Check if there's an `id` query parameter
-    console.log('campaignId', campaignId);
+
     const userId = user._id;
     // Connect to the database
     await dbConnect();

@@ -20,6 +20,13 @@ const useProspectUpload = () => {
     document.body.removeChild(link);
   };
 
+  const populateData = (list: any) => {
+    setCsvData(list);
+    if (list.length > 0) {
+    }
+    setVariables(Object.keys(list[0]));
+  };
+
   const onChangeHandler = (event: React.ChangeEvent<HTMLInputElement>) => {
     setCsvError(null);
     const file = event.target.files?.[0];
@@ -29,10 +36,7 @@ const useProspectUpload = () => {
         header: true,
         skipEmptyLines: true,
         complete: (results: ParseResult<CsvRow>) => {
-          setCsvData(results.data);
-          if (results.data.length > 0) {
-          }
-          setVariables(Object.keys(results.data[0]));
+          populateData(results.data);
         },
         error: (error) => {
           setCsvError('File not supported.');
@@ -47,6 +51,7 @@ const useProspectUpload = () => {
     onChangeHandler,
     variables,
     handleDownloadSample,
+    populateData,
   };
 };
 

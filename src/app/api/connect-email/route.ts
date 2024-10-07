@@ -17,7 +17,7 @@ export async function POST(req: NextRequest) {
       );
     }
     const data = await req.json();
-    const { email, domain, signature } = data;
+    const { email, domain } = data;
 
     // checking is email is already connected
     const isAlreadyExists = await ConnectedEmail.findOne({ emailId: email });
@@ -45,7 +45,7 @@ export async function POST(req: NextRequest) {
     const newConnectedEmail = new ConnectedEmail({
       userId: user._id,
       emailId: email,
-      signature,
+
       domain,
     });
 
@@ -54,6 +54,7 @@ export async function POST(req: NextRequest) {
       {
         status: true,
         message: `A verification email is sent on ${email}.`,
+        ConnectedEmail: newConnectedEmail._id,
       },
       { status: 200 }
     );
@@ -91,6 +92,76 @@ export async function GET(req: NextRequest) {
       {
         status: true,
         data: emailStatuses,
+      },
+      { status: 200 }
+    );
+  } catch (e) {
+    return NextResponse.json(
+      { status: false, message: 'Something went wrong.' },
+      { status: 500 }
+    );
+  }
+}
+
+export async function PUT(req: NextRequest) {
+  try {
+    const user = await validateUser();
+    if (!user) {
+      return NextResponse.json(
+        {
+          status: false,
+          message: 'Unauthorised.',
+        },
+        { status: 401 }
+      );
+    }
+    const data = await req.json();
+    const { id, signature } = data;
+
+    // Check if the connected email exists for the user by id
+    let connectedEmail = await ConnectedEmail.findOne({
+      _id: id,
+      userId: user._id,
+    });
+    if (!connectedEmail) {
+      return NextResponse.json(
+        {
+          status: false,
+          message: 'Connected email not found.',
+        },
+        { status: 404 }
+      );
+    }
+
+    const emailList = [connectedEmail.emailId];
+    // Check the verification status of the email list in AWS SES
+    await checkEmailListVerificationStatus(emailList);
+
+    // Refetch the connected email to ensure it's updated
+    connectedEmail = await ConnectedEmail.findOne({
+      _id: id,
+      userId: user._id,
+    });
+
+    // Check if the email is verified
+    if (!connectedEmail.verified) {
+      return NextResponse.json(
+        {
+          status: false,
+          message: 'Email is not verified. Cannot update the signature.',
+        },
+        { status: 403 } // Forbidden status code
+      );
+    }
+
+    // Update the signature
+    connectedEmail.signature = signature;
+    await connectedEmail.save();
+
+    return NextResponse.json(
+      {
+        status: true,
+        message: `Signature updated successfully.`,
       },
       { status: 200 }
     );

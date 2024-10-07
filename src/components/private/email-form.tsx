@@ -1,4 +1,3 @@
-import { CampaignValues } from '@/app/(private)/(authLayout)/campaign/new/page';
 import React, { useState } from 'react';
 import {
   Control,
@@ -9,11 +8,24 @@ import {
 } from 'react-hook-form';
 import { TrashIcon } from '@heroicons/react/20/solid';
 import dynamic from 'next/dynamic';
+import { CampaignValues } from './campaign-form';
 const RichTextEditor = dynamic(() => import('./rich-text-editor'), {
   ssr: false,
 });
 
 type WeekDay = 'mon' | 'tue' | 'wed' | 'thu' | 'fri' | 'sat' | 'sun';
+
+export interface IInterval {
+  start: string;
+  end: string;
+}
+
+export interface ITiming {
+  [key: string]: {
+    checked: boolean;
+    intervals: IInterval[];
+  };
+}
 const weekDays: WeekDay[] = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'];
 
 const daysNameMap = {
@@ -26,7 +38,7 @@ const daysNameMap = {
   sun: 'Sunday',
 };
 
-export const defaultInterval = {
+export const defaultInterval: IInterval = {
   start: '10:00',
   end: '19:00',
 };

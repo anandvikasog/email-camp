@@ -1,16 +1,27 @@
 'use client';
 
-import { useQueryConnectedEmailQuery } from '@/store/Features/auth/authApiSlice';
+import { useGetConnectedEmailMutation } from '@/store/Features/auth/authApiSlice';
 import React, { useEffect, useState } from 'react';
 import { ConnectedEmailType } from '@/app/(private)/(authLayout)/connect-email/page';
-import { CampaignValues } from '@/app/(private)/(authLayout)/campaign/new/page';
 import { Control, Controller } from 'react-hook-form';
 
-const EmailSelector = ({ control }: { control: Control<CampaignValues> }) => {
-  const { data: connectedEmails, isLoading } = useQueryConnectedEmailQuery<any>(
-    {}
-  );
-  const [verifiedMails, setVerifiedMails] = useState<ConnectedEmailType[]>([]);
+const EmailSelector = ({
+  control,
+  data = [],
+}: {
+  control: Control<any>;
+  data?: ConnectedEmailType[];
+}) => {
+  const [getEmails, { data: connectedEmails, isLoading }] =
+    useGetConnectedEmailMutation<any>({});
+  const [verifiedMails, setVerifiedMails] =
+    useState<ConnectedEmailType[]>(data);
+
+  useEffect(() => {
+    if (verifiedMails.length === 0) {
+      getEmails({});
+    }
+  }, [verifiedMails]);
 
   useEffect(() => {
     if (connectedEmails) {
@@ -21,6 +32,7 @@ const EmailSelector = ({ control }: { control: Control<CampaignValues> }) => {
       );
     }
   }, [connectedEmails]);
+  console.log('rendering----------');
   return (
     <>
       <label htmlFor="subject">Sender Email</label>

@@ -1,5 +1,70 @@
 import mongoose, { Schema } from 'mongoose';
 
+const timingSchema = new Schema({
+  mon: {
+    checked: { type: Boolean, default: false },
+    intervals: [
+      {
+        start: { type: String, required: true },
+        end: { type: String, required: true },
+      },
+    ],
+  },
+  tue: {
+    checked: { type: Boolean, default: false },
+    intervals: [
+      {
+        start: { type: String, required: true },
+        end: { type: String, required: true },
+      },
+    ],
+  },
+  wed: {
+    checked: { type: Boolean, default: false },
+    intervals: [
+      {
+        start: { type: String, required: true },
+        end: { type: String, required: true },
+      },
+    ],
+  },
+  thu: {
+    checked: { type: Boolean, default: false },
+    intervals: [
+      {
+        start: { type: String, required: true },
+        end: { type: String, required: true },
+      },
+    ],
+  },
+  fri: {
+    checked: { type: Boolean, default: false },
+    intervals: [
+      {
+        start: { type: String, required: true },
+        end: { type: String, required: true },
+      },
+    ],
+  },
+  sat: {
+    checked: { type: Boolean, default: false },
+    intervals: [
+      {
+        start: { type: String, required: true },
+        end: { type: String, required: true },
+      },
+    ],
+  },
+  sun: {
+    checked: { type: Boolean, default: false },
+    intervals: [
+      {
+        start: { type: String, required: true },
+        end: { type: String, required: true },
+      },
+    ],
+  },
+});
 const campaignMailSchema = new Schema(
   {
     campaignId: {
@@ -42,6 +107,13 @@ const campaignMailSchema = new Schema(
         },
       },
     ],
+    gapType: {
+      type: String,
+    },
+    gapCount: {
+      type: Number,
+    },
+    timing: timingSchema, // Add timing field
   },
   {
     timestamps: true,

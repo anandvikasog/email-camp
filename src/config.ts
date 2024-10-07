@@ -4,7 +4,7 @@ export interface Config {
 
 export const config: Config = {
   site: {
-    name: 'NextJS',
+    name: 'Mirror',
     description: '',
   },
 };

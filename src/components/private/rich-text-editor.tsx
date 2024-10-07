@@ -1,8 +1,8 @@
-import { CampaignValues } from '@/app/(private)/(authLayout)/campaign/new/page';
 import React, { useRef } from 'react';
 import { Control, Controller } from 'react-hook-form';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
+import { CampaignValues } from './campaign-form';
 
 const RichTextEditor = ({
   index,

@@ -4,6 +4,7 @@ import { useGetConnectedEmailMutation } from '@/store/Features/auth/authApiSlice
 import Link from 'next/link';
 import React, { useEffect } from 'react';
 import SpinnerLoader from '../../../../components/common/spinner-loader';
+import { FaRegEdit } from 'react-icons/fa';
 
 export interface ConnectedEmailType {
   _id: string;
@@ -11,6 +12,7 @@ export interface ConnectedEmailType {
   verified: boolean;
   domain: string;
   userId: string;
+  signature: string;
 }
 
 const Page = () => {
@@ -63,6 +65,12 @@ const Page = () => {
                       >
                         Status
                       </th>
+                      <th
+                        scope="col"
+                        className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900"
+                      >
+                        Signature
+                      </th>
                     </tr>
                   </thead>
 
@@ -80,6 +88,22 @@ const Page = () => {
                             className={`inline-flex items-center rounded-md ${elem.verified ? 'bg-green-50' : 'bg-red-50'}  px-2 py-1 text-xs font-medium ${elem.verified ? 'text-green-700' : 'text-red-700'} ring-1 ring-inset  ${elem.verified ? 'ring-green-600/20' : 'ring-red-600/20'}`}
                           >
                             {elem.verified ? 'Verified' : 'Not Verified'}
+                          </span>
+                        </td>
+                        <td className="whitespace-nowrap px-6 py-5 text-sm text-gray-500">
+                          <span
+                            className={`inline-flex items-center rounded-md  px-2 py-1 text-xs font-medium`}
+                          >
+                            <Link
+                              href={{
+                                pathname: paths.private.editConnectedEmail(
+                                  elem._id
+                                ),
+                                query: { signature: elem.signature },
+                              }}
+                            >
+                              <FaRegEdit size={20} className="text-[#6950e9]" />
+                            </Link>
                           </span>
                         </td>
                       </tr>

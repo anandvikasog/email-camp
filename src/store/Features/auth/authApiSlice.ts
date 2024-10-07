@@ -1,4 +1,4 @@
-import { IMail } from '@/app/(private)/(authLayout)/campaign/new/page';
+import { IMail } from '@/components/private/campaign-form';
 import { apiPaths } from '@/paths';
 import apiSlice from '@/store/apiSlice';
 
@@ -110,6 +110,15 @@ export const authApiSlice = apiSlice.injectEndpoints({
         body: payload,
       }),
     }),
+
+    // PUT request for updating signature
+    updateConnectedEmail: builder.mutation({
+      query: (payload: { id: string; signature: string }) => ({
+        url: `${apiPaths.email.connectEmail}`,
+        method: 'PUT',
+        body: { id: payload.id, signature: payload.signature },
+      }),
+    }),
     createCampaign: builder.mutation({
       query: (payload: {
         name: string;
@@ -127,29 +136,25 @@ export const authApiSlice = apiSlice.injectEndpoints({
         method: 'GET',
       }),
     }),
-    // New query to fetch a campaign by ID (draft)
     getCampaignById: builder.query({
       query: (id: string) => ({
-        url: `${apiPaths.campaign.create}/${id}`, // Assuming this is the correct path
+        url: `${apiPaths.campaign.create}/${id}`,
         method: 'GET',
       }),
     }),
-
-    // Mutation to update a campaign
-    // Mutation to update a campaign
     updateCampaign: builder.mutation({
       query: ({
         id,
-        ...payload // Spread the rest of the payload
+        ...payload
       }: {
         id: string;
         name: string;
         fromEmail: string;
         mails: IMail[];
       }) => ({
-        url: `${apiPaths.campaign.create}/${id}`, // Use the campaign ID in the URL
+        url: `${apiPaths.campaign.create}/${id}`,
         method: 'PUT',
-        body: payload, // Send the remaining fields as the body
+        body: payload,
       }),
     }),
   }),
@@ -174,4 +179,5 @@ export const {
   useGetCampaignQuery,
   useGetCampaignByIdQuery,
   useUpdateCampaignMutation,
+  useUpdateConnectedEmailMutation,
 } = authApiSlice;
