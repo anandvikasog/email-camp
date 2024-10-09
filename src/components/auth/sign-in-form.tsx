@@ -64,8 +64,8 @@ export function SignInForm(): React.JSX.Element {
           isDarkMode ? 'bg-[#111828] text-white' : 'bg-white text-black'
         }`}
       >
-        <div className="w-3/5">
-          {/* <ToggleButton isChecked={isDarkMode} onChange={toggleDarkMode} /> */}
+        <div className="w-4/5 sm:w-3/5 py-2">
+          <ToggleButton isChecked={isDarkMode} onChange={toggleDarkMode} />
 
           <div className="py-4">
             <h3 className="text-2xl font-semibold py-2">Sign In</h3>
@@ -104,12 +104,6 @@ export function SignInForm(): React.JSX.Element {
               required
             />
             <div className="flex items-center justify-between mb-6">
-              <label className="flex items-center ">
-                <input type="checkbox" />
-                <span className="ml-2 max-sm:text-xs text-sm text-gray-600">
-                  Remember Me?
-                </span>
-              </label>
               <Link
                 href={paths.public.forgetPassword}
                 className="max-sm:text-xs text-sm text-[#f26387] hover:underline"

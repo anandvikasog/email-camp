@@ -82,14 +82,14 @@ export function ChangePasswordForm() {
   return (
     <div>
       <div
-        className={`flex items-center justify-center  h-screen ${isDarkMode ? 'bg-[#111828] text-white' : 'bg-white text-black'}`}
+        className={`flex items-center justify-center  h-screen ${isDarkMode ? 'bg-[#202938] text-white' : 'bg-white text-black'}`}
       >
         <div className="flex flex-col items-center justify-center space-y-6 w-[30vw] p-4">
           <Image
-            src="/images/lock-icon.png"
+            src="/images/lock-icon.svg"
             alt="Lock Icon"
-            height={100}
-            width={100}
+            height={225}
+            width={225}
           />
           <h1 className="text-2xl font-bold">Change your password</h1>
           <form onSubmit={handleSubmit(onSubmit)} className="w-full space-y-6">

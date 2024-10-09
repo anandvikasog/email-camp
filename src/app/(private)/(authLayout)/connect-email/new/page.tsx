@@ -10,6 +10,7 @@ import React, { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'react-toastify';
 import { z as zod } from 'zod';
+import { useDarkMode } from '../../../../../contexts/DarkModeContext';
 
 type ProviderType = 'gmail' | 'outlook' | 'custom';
 
@@ -29,6 +30,7 @@ const defaultValues = {
 const Page = () => {
   const router = useRouter();
   const [connect, { data, isLoading }] = useConnectEmailMutation<any>();
+  const { isDarkMode, toggleDarkMode } = useDarkMode();
 
   const {
     handleSubmit,
@@ -85,8 +87,8 @@ const Page = () => {
   const activeProvider = watch('domainType');
 
   return (
-    <div className="p-10">
-      <div className="pb-10">
+    <div className="p-2 min-h-screen">
+      <div className="pb-2">
         <button
           className="flex items-center gap-2 text-indigo-600 hover:underline"
           onClick={() => router.push(paths.private.connectedEmails)}
@@ -103,7 +105,7 @@ const Page = () => {
         </h1>
         <div className="flex flex-wrap gap-5 pt-5">
           <div
-            className={`flex justify-center items-center gap-3 font-thin text-black py-3 rounded-lg border p-10 cursor-pointer ${activeProvider === 'gmail' ? 'border-[#6950e9] bg-[#dbdbdb]' : 'border-gray-500'}`}
+            className={`flex justify-center items-center gap-3 font-thin py-3 rounded-lg border p-10 cursor-pointer ${activeProvider === 'gmail' ? 'border-[#6950e9] bg-[#20293844]' : 'border-gray-500'} ${isDarkMode ? 'text-[#FFF]' : 'text-[#111827]'}`}
             onClick={() => handleSelectProvider('gmail')}
           >
             <Image
@@ -115,7 +117,7 @@ const Page = () => {
             Google/Gmail
           </div>
           <div
-            className={`flex justify-center items-center gap-3 font-thin text-black py-3 rounded-lg border p-10 cursor-pointer ${activeProvider === 'outlook' ? 'border-[#6950e9] bg-[#dbdbdb]' : 'border-gray-500'}`}
+            className={`flex justify-center items-center gap-3 font-thin py-3 rounded-lg border p-10 cursor-pointer ${activeProvider === 'outlook' ? 'border-[#6950e9] bg-[#20293844]' : 'border-gray-500'} ${isDarkMode ? 'text-[#FFF]' : 'text-[#111827]'}`}
             onClick={() => handleSelectProvider('outlook')}
           >
             <Image
@@ -127,7 +129,7 @@ const Page = () => {
             Microsoft/Outlook
           </div>
           <div
-            className={`flex justify-center items-center gap-3 font-thin text-black py-3 rounded-lg border p-10 cursor-pointer ${activeProvider === 'custom' ? 'border-[#6950e9] bg-[#dbdbdb]' : 'border-gray-500'}`}
+            className={`flex justify-center items-center gap-3 font-thin py-3 rounded-lg border p-10 cursor-pointer ${activeProvider === 'custom' ? 'border-[#6950e9] bg-[#20293844]' : 'border-gray-500'} ${isDarkMode ? 'text-[#FFF]' : 'text-[#111827]'}`}
             onClick={() => handleSelectProvider('custom')}
           >
             <Image
@@ -147,7 +149,7 @@ const Page = () => {
               type="email"
               {...register('email')}
               placeholder="Enter email address"
-              className={`p-2 border rounded bg-white`}
+              className={`p-2 border rounded ${isDarkMode ? 'bg-[#202938] border-[#121929]' : 'bg-white'}`}
             />
             {errors['email'] && (
               <span className="text-xs text-red-600">

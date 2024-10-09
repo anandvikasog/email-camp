@@ -23,6 +23,7 @@ import { toast } from 'react-toastify';
 import { useRouter } from 'next/navigation';
 import { paths } from '@/paths';
 import SpinnerLoader from '@/components/common/spinner-loader';
+import { useDarkMode } from '../../contexts/DarkModeContext';
 
 export type CampaignValues = zod.infer<typeof createCampeignSchema>;
 
@@ -59,6 +60,7 @@ export default function CampaignForm({
     populateData,
   } = useProspectUpload();
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const { isDarkMode } = useDarkMode();
   const [createCampaign, { data: createData, isLoading }] =
     useCreateCampaignMutation<any>();
   const [updateCampaign, { data: updateData, isLoading: updateLoading }] =
@@ -199,8 +201,12 @@ export default function CampaignForm({
   }, [campaignData, reset]);
 
   return (
-    <div>
-      <div className="mt-3 mb-8  p-5 rounded-lg shadow-lg ">
+    <div className="min-h-screen">
+      <div
+        className={`mt-3 mb-8  p-5 rounded-lg shadow-lg ${
+          isDarkMode ? 'text-white bg-[#202938]' : 'bg-white text-gray-900'
+        }`}
+      >
         <div className="flex flex-wrap gap-5 justify-between">
           <div className="flex-1">
             <label htmlFor="subject">Name</label>
@@ -212,7 +218,7 @@ export default function CampaignForm({
                 <input
                   {...field}
                   placeholder="Name of campeign"
-                  className={`w-full p-2 border rounded bg-white`}
+                  className={`w-full p-2 border rounded ${isDarkMode ? 'bg-[#202938] border-[#121929]' : 'bg-white'}`}
                 />
               )}
             />
@@ -231,7 +237,7 @@ export default function CampaignForm({
               render={({ field }) => (
                 <select
                   {...field}
-                  className={`w-full p-2 border rounded bg-white`}
+                  className={`w-full p-2 border rounded ${isDarkMode ? 'bg-[#202938] border-[#121929]' : 'bg-white'}`}
                 >
                   <option value="">Select</option>
                   {timezones.map((elem) => (
@@ -258,7 +264,11 @@ export default function CampaignForm({
           </div>
         </div>
       </div>
-      <div className="mt-3 mb-8  p-5 rounded-lg shadow-lg">
+      <div
+        className={`mt-3 mb-8  p-5 rounded-lg shadow-lg ${
+          isDarkMode ? 'text-white bg-[#202938]' : 'bg-white text-gray-900'
+        }`}
+      >
         <div className="flex justify-between">
           <div className="">
             <div className="flex flex-1">
@@ -309,14 +319,18 @@ export default function CampaignForm({
         {csvData.length > 0 && (
           <div className="container mx-auto mt-2">
             <div className="overflow-x-auto h-[200px] overflow-y-auto">
-              <table className="min-w-full bg-white border border-gray-200 rounded-lg">
+              <table
+                className={`min-w-full ${isDarkMode ? 'bg-[#202938] border-[#121929]' : 'bg-white'} border rounded-lg`}
+              >
                 <thead>
-                  <tr className="bg-gray-100 border-b">
+                  <tr
+                    className={`border-b ${isDarkMode ? 'border-[#121929]' : ''}`}
+                  >
                     {variables.map((v) => {
                       return (
                         <th
                           key={v}
-                          className="text-left py-1 px-3 font-semibold text-sm text-gray-600 whitespace-nowrap"
+                          className="text-left py-1 px-3 font-semibold text-sm  whitespace-nowrap"
                         >
                           {v}
                         </th>
@@ -326,12 +340,15 @@ export default function CampaignForm({
                 </thead>
                 <tbody>
                   {csvData.map((user, ind) => (
-                    <tr key={ind} className="border-b hover:bg-gray-50">
+                    <tr
+                      key={ind}
+                      className={`border-b ${isDarkMode ? 'border-[#121929]' : ''}`}
+                    >
                       {variables.map((v) => {
                         return (
                           <td
                             key={v}
-                            className="py-1 px-3 text-gray-700 text-sm whitespace-nowrap"
+                            className="py-1 px-3 text-sm whitespace-nowrap"
                           >
                             {user[v]}
                           </td>

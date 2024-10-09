@@ -181,12 +181,18 @@ const getWeekDayFromIndex = (index: number): WeekDays => {
 
 const scheduleFollowUps = async (campaign: CampaignDocument): Promise<void> => {
   let sentCount = 0;
+  let totalProspects = 0;
 
   // Fetch the connected email from the database
   const emailDoc = await ConnectedEmail.findById(campaign.fromEmail);
   if (!emailDoc || !emailDoc.emailId) {
     console.error(`Email not found for user ID: ${campaign.fromEmail}`);
     return;
+  }
+
+  // Calculate total number of prospects across all mails
+  for (const mail of campaign.mails) {
+    totalProspects += mail.prospects.length;
   }
 
   // Loop through the mails in the campaign
@@ -204,12 +210,9 @@ const scheduleFollowUps = async (campaign: CampaignDocument): Promise<void> => {
     // Function to check the schedule and find the next available time
     const findNextAvailableTime = (startDay: number): moment.Moment | null => {
       for (let i = 0; i < 7; i++) {
-        // console.log('i1 ' + i);
         const nextDayIndex = (startDay + i) % 7; // Calculate the index for the next day
         const nextDay = getWeekDayFromIndex(nextDayIndex); // Map index to day
         const nextDaySchedule = timing[nextDay];
-        // console.log('nch');
-        // console.log(nextDaySchedule);
 
         // Skip if the next day is not checked
         if (!nextDaySchedule || !nextDaySchedule.checked) {
@@ -239,9 +242,6 @@ const scheduleFollowUps = async (campaign: CampaignDocument): Promise<void> => {
             (i === 0 && userSendTime.isBefore(startInterval)) || // Case 1: SendAt is before the interval on the same day
             i > 0 // Case 2: Looking for the next available day
           ) {
-            // console.log('i ' + i);
-            // console.log('sstartINt');
-            // console.log(startInterval.format()); // Ensure you're printing the correct time
             return startInterval; // Return the start time for the next available slot
           }
 
@@ -272,8 +272,6 @@ const scheduleFollowUps = async (campaign: CampaignDocument): Promise<void> => {
       // If sendAt is before today's first interval, shift it to the start of today's interval
       if (userSendTime.isBefore(firstIntervalStart)) {
         scheduledTime = firstIntervalStart;
-        // console.log('st');
-        // console.log(scheduledTime);
       }
       // If sendAt is within any of today's intervals, keep the current time
       else if (userSendTime.isBetween(firstIntervalStart, lastIntervalEnd)) {
@@ -282,16 +280,10 @@ const scheduleFollowUps = async (campaign: CampaignDocument): Promise<void> => {
       // If sendAt is after today's last interval, find the next available time
       else {
         scheduledTime = findNextAvailableTime(weekday);
-        // console.log('usersendtime');
-        // console.log(userSendTime);
-        // console.log('sch');
-        // console.log(scheduledTime);
       }
     } else {
       // If today's schedule is not checked, find the next available day
       scheduledTime = findNextAvailableTime(weekday);
-      // console.log('sch1');
-      // console.log(scheduledTime);
     }
 
     // If a scheduled time was found, proceed with scheduling
@@ -318,7 +310,7 @@ const scheduleFollowUps = async (campaign: CampaignDocument): Promise<void> => {
               sentCount++;
 
               // Mark the campaign as completed when all emails are sent
-              if (sentCount === campaign.mails.length) {
+              if (sentCount === totalProspects) {
                 await Campaign.findByIdAndUpdate(campaign._id, {
                   status: 'Completed',
                 });

@@ -4,6 +4,8 @@ import Campaign from '~/models/campaign';
 import { Types } from 'mongoose';
 import { Prospect } from '@/app/api/campaign/route';
 import CampaignMail from '~/models/campaignMail';
+import { awsEmailVerificationTemplate } from './emailHandler/emailTemplates/verifyAwsEmail';
+import { paths } from '@/paths';
 
 // Config AWS
 AWS.config.update({
@@ -14,6 +16,10 @@ AWS.config.update({
 
 // Initialize S3 client
 const s3 = new AWS.S3();
+
+const emailTemplates = {
+  VERIFY_EMAIL: 'VerifyEmail',
+};
 
 // Function to upload the file buffer to S3
 export const uploadToS3 = async (buffer: Buffer, key: string) => {
@@ -65,21 +71,21 @@ export const deleteFromS3 = async (imageUrl: string) => {
 // Initialize AWS SES
 const ses = new AWS.SES();
 
-export const verifyEmailAddress = async (email: string) => {
-  const params = {
-    EmailAddress: email,
-  };
+// export const verifyEmailAddress = async (email: string) => {
+//   const params = {
+//     EmailAddress: email,
+//   };
 
-  try {
-    const result = await ses.verifyEmailAddress(params).promise();
-    return { status: true, data: result };
-  } catch (error) {
-    console.error('Error while sending verification mail:', error);
-    return {
-      status: false,
-    };
-  }
-};
+//   try {
+//     const result = await ses.verifyEmailAddress(params).promise();
+//     return { status: true, data: result };
+//   } catch (error) {
+//     console.error('Error while sending verification mail:', error);
+//     return {
+//       status: false,
+//     };
+//   }
+// };
 
 export const checkEmailVerificationStatus = async (email: string) => {
   const params = {
@@ -107,33 +113,6 @@ export const checkEmailVerificationStatus = async (email: string) => {
     throw error;
   }
 };
-
-// export const checkEmailListVerificationStatus = async (emails: string[]) => {
-//   const params = {
-//     Identities: emails,
-//   };
-//   // try {
-//   //   // checking verification status in DB
-//   //   const isVerified = await ConnectedEmail.findOne({ emailId: email });
-
-//   //   if (isVerified && isVerified?.verified) {
-//   //     return true;
-//   //   }
-//   //   const data = await ses.getIdentityVerificationAttributes(params).promise();
-//   //   const status = data.VerificationAttributes[email]?.VerificationStatus; // This could be 'Success', 'Pending', or 'Failed'
-//   //   if (status === 'Success') {
-//   //     await ConnectedEmail.findOneAndUpdate(
-//   //       { emailId: email },
-//   //       { verified: true }
-//   //     );
-//   //     return true;
-//   //   }
-//   //   return false;
-//   // } catch (error) {
-//   //   console.error('Error checking verification status:', error);
-//   //   throw error;
-//   // }
-// };
 
 export const checkEmailListVerificationStatus = async (emails: string[]) => {
   const params = {
@@ -296,5 +275,81 @@ export const sendSingleEmail = async (
   } catch (error) {
     console.error('Error sending email:', error);
     throw error;
+  }
+};
+
+// Check if the template exists
+const checkIfTemplateExists = async (templateName: string) => {
+  try {
+    await ses
+      .getCustomVerificationEmailTemplate({ TemplateName: templateName })
+      .promise();
+    return true; // Template exists
+  } catch (error: any) {
+    if (
+      error.code === 'NotFoundException' ||
+      'CustomVerificationEmailTemplateDoesNotExist'
+    ) {
+      return false; // Template does not exist
+    }
+    throw error; // Other errors (e.g., network issues) should be handled differently
+  }
+};
+
+// Create the custom verification email template
+const createCustomVerificationTemplate = async () => {
+  console.log(
+    `${process.env.NEXT_PUBLIC_APP_URL}${paths.common.awsEmailVerifySuccess}`
+  );
+  console.log(
+    `${process.env.NEXT_PUBLIC_APP_URL}${paths.common.awsEmailVerifyFail}`
+  );
+  const params = {
+    TemplateName: emailTemplates.VERIFY_EMAIL,
+    FromEmailAddress: process.env.OFFICIAL_FROM_MAIL || 'info@mirrorteams.com',
+    TemplateSubject: 'Please verify your email address',
+    TemplateContent: awsEmailVerificationTemplate(),
+    SuccessRedirectionURL: `${process.env.NEXT_PUBLIC_APP_URL}${paths.common.awsEmailVerifySuccess}`,
+    FailureRedirectionURL: `${process.env.NEXT_PUBLIC_APP_URL}${paths.common.awsEmailVerifyFail}`,
+  };
+
+  try {
+    const result = await ses
+      .createCustomVerificationEmailTemplate(params)
+      .promise();
+    console.log('Template created successfully:', result);
+  } catch (error) {
+    console.error('Error creating template:', error);
+    throw error;
+  }
+};
+
+// Send the custom verification email
+export const verifyEmailAddress = async (email: string) => {
+  const templateName = emailTemplates.VERIFY_EMAIL; // The name of your template
+
+  try {
+    // Check if the template exists
+    const templateExists = await checkIfTemplateExists(templateName);
+
+    // If the template doesn't exist, create it
+    if (!templateExists) {
+      console.log('Template does not exist. Creating the template...');
+      await createCustomVerificationTemplate();
+    } else {
+      console.log('Template already exists. Skipping creation.');
+    }
+
+    // Send the custom verification email
+    const params = {
+      EmailAddress: email,
+      TemplateName: templateName,
+    };
+
+    const result = await ses.sendCustomVerificationEmail(params).promise();
+    return { status: true, data: result };
+  } catch (error) {
+    console.error('Error while sending verification mail:', error);
+    return { status: false, error };
   }
 };

@@ -9,6 +9,7 @@ import {
 import { TrashIcon } from '@heroicons/react/20/solid';
 import dynamic from 'next/dynamic';
 import { CampaignValues } from './campaign-form';
+import { useDarkMode } from '../../contexts/DarkModeContext';
 const RichTextEditor = dynamic(() => import('./rich-text-editor'), {
   ssr: false,
 });
@@ -95,12 +96,13 @@ const EmailForm = ({
   setValue: UseFormSetValue<CampaignValues>;
   trigger: UseFormTrigger<CampaignValues>;
 }) => {
+  const { isDarkMode } = useDarkMode();
   return (
     <div>
       <div className="py-10 px-5 mb-5 mt-5 ml-2 border-l-2 border-dashed border-[#6950e9] text-[#6950e9] italic text-sm">
         {index === 0 ? 'First email' : `Follow up ${index}`}
       </div>
-      <div className="">
+      <div>
         {startType === 'absolute' ? (
           <div>
             <label>Start Date</label>
@@ -113,7 +115,11 @@ const EmailForm = ({
                   type="datetime-local"
                   {...field}
                   placeholder="Start At"
-                  className={`p-2 border rounded bg-white`}
+                  className={`p-2 border rounded ${
+                    isDarkMode
+                      ? 'text-white bg-[#202938]'
+                      : 'bg-white text-gray-900'
+                  }`}
                   min={new Date().toISOString().slice(0, 16)}
                 />
               )}
@@ -137,7 +143,11 @@ const EmailForm = ({
                     type="number"
                     {...field}
                     placeholder="Count"
-                    className={`p-2 border rounded bg-white w-20`}
+                    className={`p-2 border rounded ${
+                      isDarkMode
+                        ? 'text-white bg-[#202938]'
+                        : 'bg-white text-gray-900'
+                    } w-20`}
                   />
                 )}
               />
@@ -145,7 +155,14 @@ const EmailForm = ({
                 name={`mails.${index}.gapType`}
                 control={control}
                 render={({ field }) => (
-                  <select {...field} className={`p-2 border rounded bg-white`}>
+                  <select
+                    {...field}
+                    className={`p-2 border rounded ${
+                      isDarkMode
+                        ? 'text-white bg-[#202938]'
+                        : 'bg-white text-gray-900'
+                    }`}
+                  >
                     <option value="hours">Hours</option>
                     <option value="days">Days</option>
                   </select>
@@ -202,7 +219,11 @@ const EmailForm = ({
                     <input
                       {...field}
                       placeholder="Subject"
-                      className={`p-2 w-full border rounded bg-white`}
+                      className={`p-2 w-full border rounded ${
+                        isDarkMode
+                          ? 'text-white bg-[#202938]'
+                          : 'bg-white text-gray-900'
+                      }`}
                     />
                   )}
                 />
@@ -256,11 +277,12 @@ const WeeklyScadule = ({
   const [enabled, setEnabled] = useState(
     getValues(`mails.${mailIndex}.timing.${day}.checked`)
   );
+  const { isDarkMode } = useDarkMode();
 
   return (
     <div className="py-1">
       <div className="text-sm flex gap-3">
-        <div className="w-[120px] cursor-pointer">
+        <div className={`w-[120px] cursor-pointer`}>
           <Controller
             name={`mails.${mailIndex}.timing.${day}.checked`}
             control={control}

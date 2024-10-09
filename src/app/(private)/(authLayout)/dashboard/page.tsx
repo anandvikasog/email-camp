@@ -22,7 +22,7 @@ export default function Page(): React.JSX.Element {
   };
 
   return (
-    <div className="flex justify-center mt-5">
+    <div className="flex justify-center pt-5 min-h-[calc(100vh-5rem)]">
       <div className="flex flex-col gap-y-4 w-[500px]">
         <div>Dashboard</div>
         <Link

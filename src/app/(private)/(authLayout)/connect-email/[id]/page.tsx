@@ -10,6 +10,7 @@ import React, { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'react-toastify';
 import { z as zod } from 'zod';
+import { useDarkMode } from '../../../../../contexts/DarkModeContext';
 
 type Values = zod.infer<typeof updateEmailSchema>;
 
@@ -38,6 +39,8 @@ const Page = () => {
     defaultValues,
     resolver: zodResolver(updateEmailSchema),
   });
+
+  const { isDarkMode } = useDarkMode();
 
   // Set the pre-filled signature when the component mounts
   useEffect(() => {
@@ -73,7 +76,7 @@ const Page = () => {
   }, [isSuccess, isError, data, router]);
 
   return (
-    <div className="p-10">
+    <div className="p-10 min-h-[calc(100vh-6rem)]">
       <div className="pb-10">
         <button
           className="flex items-center gap-2 text-indigo-600 hover:underline"
@@ -91,7 +94,9 @@ const Page = () => {
         <textarea
           {...register('signature')}
           placeholder="Signature text"
-          className="p-2 border rounded bg-white"
+          className={`p-2 border rounded ${
+            isDarkMode ? 'bg-[#202938] border-[#121929]' : 'bg-white'
+          }`}
           rows={5}
         />
         {errors['signature'] && (

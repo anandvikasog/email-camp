@@ -22,6 +22,8 @@ export const paths = {
     tnc: '/tnc',
     error: '/500-error',
     emailVerify: '/email-verified',
+    awsEmailVerifySuccess: 'connected-email-verification/success',
+    awsEmailVerifyFail: 'connected-email-verification/fail',
   },
 } as const;
 

@@ -4,7 +4,12 @@ import { useGetConnectedEmailMutation } from '@/store/Features/auth/authApiSlice
 import Link from 'next/link';
 import React, { useEffect } from 'react';
 import SpinnerLoader from '../../../../components/common/spinner-loader';
+import { ToggleButton } from '../../../../components/common/toggle-button';
+import { useDarkMode } from '../../../../contexts/DarkModeContext';
 import { FaRegEdit } from 'react-icons/fa';
+import Image from 'next/image';
+import Chip from '@/components/common/chip';
+import Button from '@/components/common/button';
 
 export interface ConnectedEmailType {
   _id: string;
@@ -18,114 +23,122 @@ export interface ConnectedEmailType {
 const Page = () => {
   const [getEmailIds, { data, isLoading }] =
     useGetConnectedEmailMutation<any>();
-
+  const { isDarkMode } = useDarkMode();
   useEffect(() => {
     getEmailIds({});
   }, [getEmailIds]);
   return (
-    <div className="pt-10">
-      <div className="px-4 sm:px-6 lg:px-8">
-        <div className="sm:flex sm:items-center">
-          <div className="sm:flex-auto">
-            <h1 className="text-base font-semibold leading-6 text-gray-900">
-              Connected Email IDs
-            </h1>
+    <div
+      className={`p-5 rounded-lg overflow-auto ${isDarkMode ? 'bg-[#202938] border-[#121929] text-white' : 'bg-white text-gray-900'}`}
+    >
+      <div className="w-[100%] flex justify-between mb-5">
+        <div className="flex gap-2 items-center">
+          <div className="bg-['rgba(10, 7, 22, 0.1)'] p-3 rounded">
+            <Image src="/images/doc.svg" height={20} width={20} alt="users" />
           </div>
-          <div className="mt-4 sm:ml-16 sm:mt-0 sm:flex-none">
-            <Link
-              href={paths.private.connectNewEmails}
-              className="block rounded-md bg-[#6950e9] px-3 py-2 text-center text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#6950e9]"
-            >
-              Connect New
-            </Link>
-          </div>
+          Connected Emails
         </div>
-        <div className="mt-8 flow-root shadow-lg p-5 rounded-lg">
-          <div className="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
-            <div className="inline-block min-w-full py-2 align-middle sm:px-6 lg:px-8">
-              {data && data?.data.length > 0 ? (
-                <table className="min-w-full divide-y divide-gray-300">
-                  <thead>
-                    <tr>
-                      <th
-                        scope="col"
-                        className="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-0"
-                      >
-                        Email ID
-                      </th>
-                      <th
-                        scope="col"
-                        className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900"
-                      >
-                        Domain
-                      </th>
-                      <th
-                        scope="col"
-                        className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900"
-                      >
-                        Status
-                      </th>
-                      <th
-                        scope="col"
-                        className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900"
-                      >
-                        Signature
-                      </th>
-                    </tr>
-                  </thead>
-
-                  <tbody className="divide-y divide-gray-200 bg-white">
-                    {data.data.map((elem: ConnectedEmailType) => (
-                      <tr key={elem._id}>
-                        <td className="whitespace-nowrap px-3 py-5 text-sm text-gray-500">
-                          <div className="text-gray-900">{elem.emailId}</div>
-                        </td>
-                        <td className="whitespace-nowrap px-3 py-5 text-sm text-gray-500">
-                          <div className="text-gray-900">{elem.domain}</div>
-                        </td>
-                        <td className="whitespace-nowrap px-3 py-5 text-sm text-gray-500">
-                          <span
-                            className={`inline-flex items-center rounded-md ${elem.verified ? 'bg-green-50' : 'bg-red-50'}  px-2 py-1 text-xs font-medium ${elem.verified ? 'text-green-700' : 'text-red-700'} ring-1 ring-inset  ${elem.verified ? 'ring-green-600/20' : 'ring-red-600/20'}`}
-                          >
-                            {elem.verified ? 'Verified' : 'Not Verified'}
-                          </span>
-                        </td>
-                        <td className="whitespace-nowrap px-6 py-5 text-sm text-gray-500">
-                          <span
-                            className={`inline-flex items-center rounded-md  px-2 py-1 text-xs font-medium`}
-                          >
-                            <Link
-                              href={{
-                                pathname: paths.private.editConnectedEmail(
-                                  elem._id
-                                ),
-                                query: { signature: elem.signature },
-                              }}
-                            >
-                              <FaRegEdit size={20} className="text-[#6950e9]" />
-                            </Link>
-                          </span>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              ) : (
-                <div className="text-center pt-10 w-[100%]">
-                  {isLoading ? (
-                    <div>
-                      <SpinnerLoader color="blue" />
-                      <p>Loading existing ...</p>
-                    </div>
-                  ) : (
-                    'No data found!'
-                  )}
-                </div>
-              )}
-            </div>
-          </div>
+        <div className="flex gap-2 items-center">
+          <Button
+            as={Link}
+            href={paths.private.connectNewEmails}
+            startIcon={
+              <Image src="/images/add.svg" height={18} width={18} alt="add" />
+            }
+          >
+            Connect New
+          </Button>
         </div>
       </div>
+      {data && data?.data.length > 0 ? (
+        <table
+          className={`min-w-full divide-y ${isDarkMode ? 'divide-[#374151]' : 'divide-[#E5E7EB]'}`}
+        >
+          <thead>
+            <tr>
+              <th
+                scope="col"
+                className={`py-3.5 pl-4 pr-3 ${isDarkMode ? 'text-[#9CA3AF]' : 'text-[#6B7280]'}  text-left text-sm  sm:pl-0`}
+              >
+                Email ID
+              </th>
+              <th
+                scope="col"
+                className={`py-3.5 pl-4 pr-3 ${isDarkMode ? 'text-[#9CA3AF]' : 'text-[#6B7280]'}  text-left text-sm  sm:pl-0`}
+              >
+                Domain
+              </th>
+              <th
+                scope="col"
+                className={`py-3.5 pl-4 pr-3 ${isDarkMode ? 'text-[#9CA3AF]' : 'text-[#6B7280]'}  text-left text-sm  sm:pl-0`}
+              >
+                Status
+              </th>
+              <th
+                scope="col"
+                className={`py-3.5 pl-4 pr-3 ${isDarkMode ? 'text-[#9CA3AF]' : 'text-[#6B7280]'}  text-left text-sm  sm:pl-0`}
+              >
+                Signature
+              </th>
+            </tr>
+          </thead>
+
+          <tbody
+            className={`divide-y ${isDarkMode ? 'divide-[#374151]' : 'divide-[#E5E7EB]'}`}
+          >
+            {data.data.map((elem: ConnectedEmailType) => (
+              <tr key={elem._id}>
+                <td
+                  className={`whitespace-nowrap px-3 py-5 ${isDarkMode ? 'text-[#FFF]' : 'text-[#111827]'}`}
+                >
+                  <div className="">{elem.emailId}</div>
+                </td>
+                <td
+                  className={`whitespace-nowrap px-3 py-5 ${isDarkMode ? 'text-[#9CA3AF]' : 'text-[#6B7280]'} text-sm`}
+                >
+                  <div className="">{elem.domain}</div>
+                </td>
+                <td>
+                  <Chip
+                    label={elem.verified ? 'Verified' : 'Not Verified'}
+                    color={elem.verified ? 'success' : 'danger'}
+                  />
+                </td>
+                <td className="whitespace-nowrap px-6 py-5 text-sm text-gray-500">
+                  <span
+                    className={`inline-flex items-center rounded-md  px-2 py-1 text-xs font-medium`}
+                  >
+                    <Link
+                      href={{
+                        pathname: paths.private.editConnectedEmail(elem._id),
+                        query: { signature: elem.signature },
+                      }}
+                    >
+                      <Image
+                        src="/images/pencil.svg"
+                        height={18}
+                        width={18}
+                        alt="edit"
+                      />
+                    </Link>
+                  </span>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      ) : (
+        <div className="text-center pt-10 w-[100%]">
+          {isLoading ? (
+            <div>
+              <SpinnerLoader color="blue" />
+              <p>Loading existing ...</p>
+            </div>
+          ) : (
+            'No data found!'
+          )}
+        </div>
+      )}
     </div>
   );
 };

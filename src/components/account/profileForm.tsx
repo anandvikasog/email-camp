@@ -12,6 +12,8 @@ import {
 import { useSelector } from 'react-redux'; // Import useSelector to access Redux store
 import { z as zod } from 'zod';
 import countryList from '../../../utils/data/country.json';
+import { ToggleButton } from '../common/toggle-button';
+import { useDarkMode } from '../../contexts/DarkModeContext';
 
 type Values = zod.infer<typeof profileUpdateSchema>;
 
@@ -45,7 +47,7 @@ const ProfileForm: React.FC = () => {
 
   // Get user data from Redux store
   const userData = useSelector((state: any) => state.auth);
-
+  const { isDarkMode, toggleDarkMode } = useDarkMode();
   const {
     control,
     handleSubmit,
@@ -151,7 +153,12 @@ const ProfileForm: React.FC = () => {
   ];
 
   return (
-    <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
+    <form
+      className={`space-y-6 ${
+        isDarkMode ? 'bg-[#202938] text-white' : 'bg-white text-black'
+      }`}
+      onSubmit={handleSubmit(onSubmit)}
+    >
       <h2 className="text-xl font-semibold mb-4">
         Edit your account information
       </h2>
@@ -165,7 +172,7 @@ const ProfileForm: React.FC = () => {
               <select
                 id={field.id}
                 {...register(field.id as keyof Values)}
-                className="w-full p-2 border border-gray-300 rounded-md"
+                className={`w-full p-2 border border-gray-300 rounded-md ${isDarkMode ? 'bg-[#202938] border-[#121929]' : 'bg-white'} `}
               >
                 {field.options?.map((option) => (
                   <option key={option.value} value={option.value}>
@@ -177,7 +184,7 @@ const ProfileForm: React.FC = () => {
               <textarea
                 id={field.id}
                 rows={4}
-                className="w-full p-2 border border-gray-300 rounded-md"
+                className={`w-full p-2 border border-gray-300 rounded-md ${isDarkMode ? 'bg-[#202938] border-[#121929]' : 'bg-white'} `}
                 placeholder={field.placeholder}
                 {...register(field.id as keyof Values)}
                 // defaultValue={
@@ -189,7 +196,7 @@ const ProfileForm: React.FC = () => {
                 id={field.id}
                 type={field.type}
                 {...register(field.id as keyof Values)}
-                className="w-full p-2 border border-gray-300 rounded-md"
+                className={`w-full p-2 border border-gray-300 rounded-md ${isDarkMode ? 'bg-[#202938] border-[#121929]' : 'bg-white'}`}
                 placeholder={field.placeholder}
                 // defaultValue={
                 //   userData ? [field.id as keyof typeof userData] : ''

@@ -4,6 +4,7 @@ import { useGetConnectedEmailMutation } from '@/store/Features/auth/authApiSlice
 import React, { useEffect, useState } from 'react';
 import { ConnectedEmailType } from '@/app/(private)/(authLayout)/connect-email/page';
 import { Control, Controller } from 'react-hook-form';
+import { useDarkMode } from '../../contexts/DarkModeContext';
 
 const EmailSelector = ({
   control,
@@ -16,6 +17,8 @@ const EmailSelector = ({
     useGetConnectedEmailMutation<any>({});
   const [verifiedMails, setVerifiedMails] =
     useState<ConnectedEmailType[]>(data);
+
+  const { isDarkMode, toggleDarkMode } = useDarkMode();
 
   useEffect(() => {
     if (verifiedMails.length === 0) {
@@ -41,7 +44,10 @@ const EmailSelector = ({
         name={`fromEmail`}
         control={control}
         render={({ field }) => (
-          <select {...field} className={`w-full p-2 border rounded bg-white`}>
+          <select
+            {...field}
+            className={`w-full p-2 border rounded ${isDarkMode ? 'bg-[#202938] border-[#121929]' : 'bg-white'}`}
+          >
             <option value="">{isLoading ? 'Loading...' : 'Select'}</option>
             {verifiedMails.map((elem) => (
               <option key={elem._id} value={elem._id}>

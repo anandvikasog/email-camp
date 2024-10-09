@@ -1,10 +1,17 @@
 export const signUpCardData = {
-  head: 'Onion',
+  head: '/images/onionLogo.svg',
   title: 'Technology is best when it brings people together.',
   description: 'You are in good company',
   product:
     'A product is something a brand is something that is bought by the customer.',
-  logos: ['Amazon', 'GoDaddy', 'Google', 'adidas', 'Dribbble', 'YAHOO!'],
+  logos: [
+    '/images/amazon.svg',
+    '/images/godaddy.svg',
+    '/images/google.svg',
+    '/images/adidas.svg',
+    '/images/dribbble.svg',
+    '/images/yahoo.svg',
+  ],
 };
 
 export const signInCardData = {
@@ -12,5 +19,12 @@ export const signInCardData = {
   description: 'You are in good company',
   product:
     'A product is something a brand is something that is bought by the customer.',
-  logos: ['Amazon', 'GoDaddy', 'Google', 'adidas', 'Dribbble', 'YAHOO!'],
+  logos: [
+    '/images/amazon.svg',
+    '/images/godaddy.svg',
+    '/images/google.svg',
+    '/images/adidas.svg',
+    '/images/dribbble.svg',
+    '/images/yahoo.svg',
+  ],
 };

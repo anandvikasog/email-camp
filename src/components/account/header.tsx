@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { SlCalender } from 'react-icons/sl';
 import { FiEdit } from 'react-icons/fi';
@@ -10,6 +10,9 @@ import { useUpdateUserMutation } from '@/store/Features/auth/authApiSlice';
 import SpinnerLoader from '../common/spinner-loader';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/store/store';
+import { MdModeEdit } from 'react-icons/md';
+import { ToggleButton } from '../common/toggle-button';
+import { useDarkMode } from '../../contexts/DarkModeContext';
 
 type Values = zod.infer<typeof signUpSchema>;
 
@@ -30,6 +33,7 @@ interface UpdateUserResponse {
 
 const Header: React.FC = () => {
   const [updateUser, { isLoading: isUpdating }] = useUpdateUserMutation();
+  const { isDarkMode, toggleDarkMode } = useDarkMode();
   const {
     control,
     handleSubmit,
@@ -48,7 +52,7 @@ const Header: React.FC = () => {
 
   const [isEditing, setIsEditing] = useState(false);
   const [isLoading, setIsLoading] = useState(false); // Loading state
-  const [imgSrc, setImgSrc] = useState(profilePicture || defaultImage);
+  const [imgSrc, setImgSrc] = useState(defaultImage);
 
   const fullName = `${firstName || ''} ${lastName || ''}`;
 
@@ -60,6 +64,12 @@ const Header: React.FC = () => {
         year: 'numeric',
       })
     : 'Date not available';
+
+  useEffect(() => {
+    if (profilePicture) {
+      setImgSrc(profilePicture);
+    }
+  }, [profilePicture]);
 
   const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -97,7 +107,11 @@ const Header: React.FC = () => {
     setImgSrc(defaultImage); // Set fallback image if there's an error
   };
   return (
-    <div className="bg-white rounded-lg shadow-lg flex flex-col items-center pb-4 max-md:hidden">
+    <div
+      className={`rounded-lg shadow-lg flex flex-col items-center pb-4 ${
+        isDarkMode ? 'bg-[#202938] text-white' : 'bg-white text-black'
+      }`}
+    >
       <div className="relative w-full h-32 md:h-32 rounded-lg overflow-hidden bg-[url('/images/accountBackground.jpg')] bg-cover bg-center" />
 
       <div className="relative flex flex-col items-center mt-[-50px] md:mt-[-70px] px-4 w-full">
@@ -128,10 +142,13 @@ const Header: React.FC = () => {
                     />
 
                     <div
-                      className="absolute bottom-1 right-1 p-1 bg-white rounded-full shadow cursor-pointer"
+                      className="absolute bottom-1 right-1 p-1 bg-[#6950e9] rounded-full shadow cursor-pointer border-2 border-white"
                       onClick={() => setIsEditing(true)}
                     >
-                      <FiEdit size={16} className="text-gray-700" />
+                      <MdModeEdit
+                        size={24}
+                        className="text-white max-sm:text-xs max-sm:w-4 max-sm:h-4"
+                      />
                     </div>
                   </label>
                 )}
@@ -149,9 +166,15 @@ const Header: React.FC = () => {
           />
         </div>
 
-        <h1 className="text-2xl font-semibold">{fullName || 'Anonymous'}</h1>
+        <h1 className="max-sm:text-lg text-2xl font-semibold font-sans">
+          {fullName
+            ? fullName
+                .toLowerCase()
+                .replace(/\b\w/g, (char) => char.toUpperCase())
+            : 'Anonymous'}
+        </h1>
         <div className="flex items-center space-x-2 text-gray-500 mt-1 gap-x-6">
-          <p className="flex gap-x-2 items-center">
+          <p className="flex gap-x-2 items-center max-sm:text-sm">
             <SlCalender className="mr-1" />
             <span>Joined {formattedDate}</span>
           </p>

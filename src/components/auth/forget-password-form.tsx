@@ -75,13 +75,15 @@ export function ForgetPasswordForm(): JSX.Element {
           >
             <div className="flex flex-col items-center justify-center space-y-6 lg:w-[30vw] p-4">
               <Image
-                src="/images/lock-icon.png"
+                src="/images/lock-icon.svg"
                 alt="Lock Icon"
-                height={100}
-                width={100}
+                height={225}
+                width={225}
               />
-              <h1 className="text-2xl font-bold">Forgot your password?</h1>
-              <p className="text-gray-600 text-center">
+              <h1 className="text-lg sm:text-2xl font-semibold">
+                Forgot your password?
+              </h1>
+              <p className="text-gray-600 text-center max-sm:text-xs">
                 Please enter the email address associated with your account and
                 we will email you a link to reset your password.
               </p>

@@ -146,12 +146,12 @@ export function SignUpForm(): JSX.Element {
         <AuthSidePanel {...signUpCardData} />
 
         <div
-          className={`flex-1 h-screen relative flex items-center justify-center ${
+          className={`flex-1 min-h-screen p-3 relative flex items-center justify-center ${
             isDarkMode ? 'bg-[#111828] text-white' : 'bg-white text-black'
           }`}
         >
-          <div className="w-3/5">
-            {/* <ToggleButton isChecked={isDarkMode} onChange={toggleDarkMode} /> */}
+          <div className="w-4/5 sm:w-3/5">
+            <ToggleButton isChecked={isDarkMode} onChange={toggleDarkMode} />
 
             <div className="py-4">
               <h3 className="text-2xl font-semibold py-2">
@@ -240,7 +240,7 @@ export function SignUpForm(): JSX.Element {
                       <div className="relative">
                         <select
                           {...field}
-                          className="w-full p-2 border rounded bg-white z-10 relative max-h-48"
+                          className={`w-full p-2 border rounded z-10 relative max-h-48 ${isDarkMode ? 'bg-[#202938] border-[#121929]' : 'bg-white'}  `}
                           onFocus={(e) =>
                             e.target.classList.add('dropdown-open')
                           }

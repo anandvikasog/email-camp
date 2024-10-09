@@ -11,6 +11,8 @@ import { signOut } from 'next-auth/react';
 import { paths } from '@/paths';
 import FullscreenLoader from '@/components/common/fullscreen-loader';
 
+import { useDarkMode } from '../../contexts/DarkModeContext';
+
 const Sidebar = ({
   activeTab,
   setActiveTab,
@@ -21,6 +23,7 @@ const Sidebar = ({
   const dispatch = useDispatch();
   const router = useRouter();
   const [loading, setLoading] = useState(false); // State for loading
+  const { isDarkMode } = useDarkMode();
   const handleSignOut = async () => {
     setLoading(true); // Show loader
     dispatch(logOut());
@@ -37,31 +40,35 @@ const Sidebar = ({
 
     { name: 'Password', icon: <FiLock />, id: 'password' },
     // { name: 'Billing', icon: <RiMoneyDollarCircleLine />, id: 'billing' },
-    {
-      name: 'Log out',
-      icon: <MdDeleteOutline />,
-      id: 'delete',
-      handler: handleSignOut,
-    },
+    // {
+    //   name: 'Log out',
+    //   icon: <MdDeleteOutline />,
+    //   id: 'delete',
+    //   handler: handleSignOut,
+    // },
   ];
 
   return (
-    <aside className="w-full md:w-1/5 bg-white py-4 shadow-xl rounded-2xl">
+    <aside
+      className={`w-full md:w-1/5 py-4 shadow-xl rounded-2xl max-md:hidden ${
+        isDarkMode ? 'bg-[#202938] text-white' : 'bg-white text-black'
+      }`}
+    >
       <ul className="space-y-2">
         {menuItems.map((item) => (
           <li
             key={item.id}
-            className={`flex items-center p-4  cursor-pointer hover:bg-gray-100 hover:border-l-4 hover:text-[#6950e9] hover:border-[#6950e9] ${
+            className={`flex items-center p-4  cursor-pointer hover:border-l-4 hover:text-[#6950e9] hover:border-[#6950e9] ${
               activeTab === item.id
-                ? 'bg-gray-100 text-[#6950e9] border-l-4 border-[#6950e9]'
+                ? ' text-[#6950e9] border-l-4 border-[#6950e9]'
                 : ''
             }`}
             onClick={() => {
               setActiveTab(item.id);
 
-              if (item.handler) {
-                item.handler();
-              }
+              // if (item.handler) {
+              //   item.handler();
+              // }
             }}
           >
             <span className="mr-2 text-lg">{item.icon}</span>
