@@ -182,9 +182,10 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
             <div className="flex h-16 shrink-0 items-center">
               <Image
                 alt="Your Company"
-                src="/images/mirror-logo.png"
-                height={40}
-                width={40}
+                src="/images/mirror-logo.svg"
+                height={30}
+                width={30}
+                className="cursor-pointer"
               />
             </div>
             <nav className="flex flex-1 flex-col">

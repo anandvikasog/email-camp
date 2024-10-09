@@ -7,6 +7,9 @@ import SpinnerLoader from '../../../../components/common/spinner-loader';
 import moment from 'moment';
 import { ToggleButton } from '../../../../components/common/toggle-button';
 import { useDarkMode } from '../../../../contexts/DarkModeContext';
+import Image from 'next/image';
+import Chip from '@/components/common/chip';
+import Button from '@/components/common/button';
 
 interface ICampaign {
   _id: string;
@@ -25,29 +28,29 @@ const Page = () => {
 
   return (
     <div
-      className={`pt-10 min-h-screen ${
-        isDarkMode ? 'text-white' : 'bg-white text-gray-900'
-      }`}
+      className={`pt-10 min-h-screen ${isDarkMode ? 'bg-[#202938] border-[#121929] text-white' : 'bg-white text-gray-900'}`}
     >
       <div className="px-4 sm:px-6 lg:px-8">
-        <div className="sm:flex sm:items-center">
-          <div className="sm:flex-auto">
-            <h1 className="text-base font-semibold leading-6">Campaigns</h1>
+        <div className="w-[100%] flex justify-between mb-5">
+          <div className="flex gap-2 items-center">
+            <div className="bg-['rgba(10, 7, 22, 0.1)'] p-3 rounded">
+              <Image src="/images/doc.svg" height={20} width={20} alt="users" />
+            </div>
+            Campaigns
           </div>
-          <div className="mt-4 sm:ml-16 sm:mt-0 sm:flex-none">
-            <Link
+          <div className="flex gap-2 items-center">
+            <Button
+              as={Link}
               href={paths.private.newCampaign}
-              className="block rounded-md bg-[#6950e9] px-3 py-2 text-center text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#6950e9]"
+              startIcon={
+                <Image src="/images/add.svg" height={18} width={18} alt="add" />
+              }
             >
               Create New
-            </Link>
+            </Button>
           </div>
         </div>
-        <div
-          className={`mt-8 flow-root shadow-lg p-5 rounded-lg ${
-            isDarkMode ? 'bg-[#202938] text-white' : 'bg-white text-gray-900'
-          }`}
-        >
+        <div className={`mt-8 flow-root shadow-lg p-5 rounded-lg`}>
           <div className="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
             <div className="inline-block min-w-full py-2 align-middle sm:px-6 lg:px-8">
               {isLoading ? (
@@ -61,80 +64,74 @@ const Page = () => {
                 </div>
               ) : data && data?.data.length > 0 ? (
                 <table
-                  className={`min-w-full divide-y divide-gray-300  ${
-                    isDarkMode
-                      ? 'bg-[#202938] text-white'
-                      : 'bg-white text-gray-900'
-                  }`}
+                  className={`min-w-full divide-y ${isDarkMode ? 'divide-[#374151]' : 'divide-[#E5E7EB]'}`}
                 >
                   <thead>
                     <tr>
                       <th
                         scope="col"
-                        className="py-3.5 pl-4 pr-3 text-left text-sm font-semibold sm:pl-0"
+                        className={`py-3.5 pl-4 pr-3 text-left text-sm font-semibold sm:pl-0 ${isDarkMode ? 'text-[#9CA3AF]' : 'text-[#6B7280]'}`}
                       >
                         Name
                       </th>
                       <th
                         scope="col"
-                        className="px-3 py-3.5 text-left text-sm font-semibold"
+                        className={`px-3 py-3.5 text-left text-sm font-semibold ${isDarkMode ? 'text-[#9CA3AF]' : 'text-[#6B7280]'}`}
                       >
                         Sender Email
                       </th>
                       <th
                         scope="col"
-                        className="px-3 py-3.5 text-left text-sm font-semibold"
+                        className={`px-3 py-3.5 text-left text-sm font-semibold ${isDarkMode ? 'text-[#9CA3AF]' : 'text-[#6B7280]'}`}
                       >
                         Status
                       </th>
                       <th
                         scope="col"
-                        className="px-3 py-3.5 text-left text-sm font-semibold"
+                        className={`px-3 py-3.5 text-left text-sm font-semibold ${isDarkMode ? 'text-[#9CA3AF]' : 'text-[#6B7280]'}`}
                       >
                         Created At
                       </th>
                       <th
                         scope="col"
-                        className="px-3 py-3.5 text-left text-sm font-semibold"
+                        className={`px-3 py-3.5 text-left text-sm font-semibold ${isDarkMode ? 'text-[#9CA3AF]' : 'text-[#6B7280]'}`}
                       >
                         Action
                       </th>
                     </tr>
                   </thead>
 
-                  <tbody className="divide-y divide-gray-200">
+                  <tbody
+                    className={`divide-y ${isDarkMode ? 'divide-[#374151]' : 'divide-[#E5E7EB]'}`}
+                  >
                     {data.data.map((elem: ICampaign) => (
                       <tr key={elem._id}>
-                        <td className="whitespace-nowrap px-3 py-5 text-sm">
+                        <td
+                          className={`whitespace-nowrap px-3 py-5 text-sm ${isDarkMode ? 'text-[#FFF]' : 'text-[#111827]'}`}
+                        >
                           <div>{elem.name}</div>
                         </td>
-                        <td className="whitespace-nowrap px-3 py-5 text-sm">
+                        <td
+                          className={`whitespace-nowrap px-3 py-5 text-sm ${isDarkMode ? 'text-[#9CA3AF]' : 'text-[#6B7280]'}`}
+                        >
                           <div>{elem.fromEmail}</div>
                         </td>
                         <td className="whitespace-nowrap px-3 py-5 text-sm">
-                          {elem.status === 'Pending' ? (
-                            <span
-                              className={`inline-flex items-center rounded-md bg-red-50  px-2 py-1 text-xs font-medium text-red-700 ring-1 ring-inset  ring-red-600/20`}
-                            >
-                              {elem.status}
-                            </span>
+                          {elem.savedAsDraft === true ? (
+                            <Chip label="In Draft" color="secondary" />
+                          ) : elem.status === 'Pending' ? (
+                            <Chip label="Pending" color="warning" />
                           ) : elem.status === 'Running' ? (
-                            <span
-                              className={`inline-flex items-center rounded-md bg-blue-50 px-2 py-1 text-xs font-medium text-blue-700 ring-1 ring-inset ring-blue-600/20`}
-                            >
-                              {elem.status}
-                            </span>
+                            <Chip label="Running" color="info" />
                           ) : elem.status === 'Completed' ? (
-                            <span
-                              className={`inline-flex items-center rounded-md bg-green-50 px-2 py-1 text-xs font-medium text-green-700 ring-1 ring-inset ring-green-600/20`}
-                            >
-                              {elem.status}
-                            </span>
+                            <Chip label="Completed" color="success" />
                           ) : (
                             ''
                           )}
                         </td>
-                        <td className="whitespace-nowrap px-3 py-5 text-sm">
+                        <td
+                          className={`whitespace-nowrap px-3 py-5 text-sm ${isDarkMode ? 'text-[#9CA3AF]' : 'text-[#6B7280]'}`}
+                        >
                           <div className="">
                             {elem?.createdAt
                               ? moment(elem.createdAt).format('DD/MM/YYYY')
@@ -147,7 +144,12 @@ const Page = () => {
                               href={paths.private.editCampaign(elem._id)}
                               className="text-indigo-600 hover:text-indigo-900"
                             >
-                              Continue Draft
+                              <Image
+                                src="/images/pencil.svg"
+                                height={18}
+                                width={18}
+                                alt="edit"
+                              />
                             </Link>
                           ) : null}
                         </td>

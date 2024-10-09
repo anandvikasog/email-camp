@@ -24,6 +24,8 @@ import { useRouter } from 'next/navigation';
 import { paths } from '@/paths';
 import SpinnerLoader from '@/components/common/spinner-loader';
 import { useDarkMode } from '../../contexts/DarkModeContext';
+import Image from 'next/image';
+import Chip from '../common/chip';
 
 export type CampaignValues = zod.infer<typeof createCampeignSchema>;
 
@@ -51,6 +53,7 @@ export default function CampaignForm({
   formData?: any;
 }): React.JSX.Element {
   const [isExisting] = useState(!!campaignData);
+  const [summeryVisible, setSummeryVisible] = useState(false);
   const {
     csvData,
     csvError,
@@ -97,6 +100,7 @@ export default function CampaignForm({
       body: '',
       timing: defaultTiming,
     });
+    setSummeryVisible(false);
   };
 
   const triggerFileInput = () => {
@@ -147,6 +151,10 @@ export default function CampaignForm({
       mails: mutatedMails,
       savedAsDraft: isDraft,
     };
+  };
+
+  const onViewSummery = () => {
+    setSummeryVisible(true);
   };
 
   const onSave = async (data: CampaignValues) => {
@@ -203,12 +211,12 @@ export default function CampaignForm({
   return (
     <div className="min-h-screen">
       <div
-        className={`mt-3 mb-8  p-5 rounded-lg shadow-lg ${
+        className={`mb-8  max-[400px]:p-2 p-5 rounded-lg shadow-lg ${
           isDarkMode ? 'text-white bg-[#202938]' : 'bg-white text-gray-900'
         }`}
       >
-        <div className="flex flex-wrap gap-5 justify-between">
-          <div className="flex-1">
+        <div className="flex flex-wrap max-sm:gap-2 gap-5 justify-between">
+          <div className="flex-1 max-sm:text-xs">
             <label htmlFor="subject">Name</label>
             <br />
             <Controller
@@ -228,7 +236,7 @@ export default function CampaignForm({
               </div>
             )}
           </div>
-          <div className="flex-1">
+          <div className="flex-1 max-sm:text-xs">
             <label htmlFor="subject">Time Zone</label>
             <br />
             <Controller
@@ -254,7 +262,7 @@ export default function CampaignForm({
               </div>
             )}
           </div>
-          <div className="flex-1">
+          <div className="flex-1 max-sm:text-xs">
             <EmailSelector control={control} data={formData?.connectedEmails} />
             {errors['fromEmail'] && (
               <div className="text-sm text-red-500">
@@ -386,49 +394,166 @@ export default function CampaignForm({
               <div></div>
             ) : (
               <button
-                className="border border-[#6950e9] py-2 px-3 rounded-lg font-semibold transition duration-300"
+                className="border border-[#6950e9] max-sm:p-[6px] py-2 px-3 rounded-lg font-semibold transition duration-300 max-sm:text-xs"
                 onClick={handleAppend}
               >
                 Add step
               </button>
             )}
-            {isExisting ? (
-              <div className="flex gap-2">
+            {csvData.length > 0 && fields.length > 0 && (
+              <div>
                 <button
-                  className="bg-gray-400 text-white py-2 px-5 rounded-lg font-semibold transition duration-300"
-                  disabled={updateLoading}
-                  onClick={handleSubmit(onUpdate)}
+                  className="bg-[#6950e9] text-white py-2 px-5 max-sm:p-[6px] max-sm:text-xs rounded-lg font-semibold transition duration-300"
+                  onClick={handleSubmit(onViewSummery)}
                 >
-                  {updateLoading ? <SpinnerLoader /> : 'Update Draft'}
-                </button>
-
-                <button
-                  className="bg-[#6950e9] text-white py-2 px-5 rounded-lg font-semibold transition duration-300"
-                  disabled={updateLoading}
-                  onClick={handleSubmit(onUpdateAndStart)}
-                >
-                  {updateLoading ? <SpinnerLoader /> : 'Update And Start'}
-                </button>
-              </div>
-            ) : (
-              <div className="flex gap-2">
-                <button
-                  className="bg-gray-400 text-white py-2 px-5 rounded-lg font-semibold transition duration-300"
-                  disabled={isLoading}
-                  onClick={handleSubmit(onSave)}
-                >
-                  {isLoading ? <SpinnerLoader /> : 'Save as Draft'}
-                </button>
-
-                <button
-                  className="bg-[#6950e9] text-white py-2 px-5 rounded-lg font-semibold transition duration-300"
-                  disabled={isLoading}
-                  onClick={handleSubmit(onSaveAndStart)}
-                >
-                  {isLoading ? <SpinnerLoader /> : 'Save And Start'}
+                  Summery
                 </button>
               </div>
             )}
+          </div>
+        </div>
+      )}
+      {summeryVisible && (
+        <div
+          key={Math.random()}
+          className={`mt-8 mb-8  p-5 rounded-lg shadow-lg ${
+            isDarkMode ? 'text-white bg-[#202938]' : 'bg-white text-gray-900'
+          }`}
+        >
+          <div className="mb-5">Summery</div>
+          <div className="flex gap-3 items-start mb-5">
+            <Image
+              src="/images/email.svg"
+              height={18}
+              width={18}
+              alt="summery"
+            />
+            <div>
+              <p
+                className={`text-sm ${isDarkMode ? 'text-[#FFF]' : 'text-[#111827]'}`}
+              >
+                Send from
+              </p>
+              <p
+                className={`text-sm ${isDarkMode ? 'text-[#9CA3AF]' : 'text-[#6B7280]'}`}
+              >
+                {getValues('fromEmail')}
+              </p>
+            </div>
+          </div>
+          <div className="flex gap-3 items-start mb-5">
+            <Image
+              src="/images/list.svg"
+              height={18}
+              width={18}
+              alt="summery"
+            />
+            <div>
+              <p
+                className={`text-sm ${isDarkMode ? 'text-[#FFF]' : 'text-[#111827]'}`}
+              >
+                Steps
+              </p>
+              <ul>
+                {fields.map((f, ind) => {
+                  return (
+                    <li key={f.id}>
+                      <span
+                        className={`text-sm ${isDarkMode ? 'text-[#9CA3AF]' : 'text-[#6B7280]'}`}
+                      >
+                        {getValues(`mails.${ind}.subject`)}{' '}
+                        <>
+                          {getValues(`mails.${ind}.gapType`) ? (
+                            <>
+                              (after {getValues(`mails.${ind}.gapCount`)}{' '}
+                              {getValues(`mails.${ind}.gapType`)})
+                            </>
+                          ) : (
+                            <>
+                              (at{' '}
+                              {getValues(`mails.${ind}.sendAt`)
+                                ? moment(
+                                    getValues(`mails.${ind}.sendAt`)
+                                  ).format('DD/MM/YYYY')
+                                : ''}
+                              )
+                            </>
+                          )}
+                        </>
+                      </span>
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+          </div>
+          <div className="flex gap-3 items-start mb-5">
+            <Image
+              src="/images/user-group.svg"
+              height={18}
+              width={18}
+              alt="summery"
+            />
+            <div>
+              <p
+                className={`text-sm ${isDarkMode ? 'text-[#FFF]' : 'text-[#111827]'}`}
+              >
+                Prospects
+              </p>
+              <div className="mt-2 flex flex-wrap gap-3">
+                {csvData.map((c, ind) => {
+                  return (
+                    <Chip
+                      variant="outlined"
+                      label={c.EMAIL as string}
+                      key={ind}
+                    />
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+          <div>
+            <div className="flex justify-between">
+              <div></div>
+              {isExisting ? (
+                <div className="flex gap-2">
+                  <button
+                    className="bg-gray-400 text-white max-sm:p-[6px] max-sm:text-xs py-2 px-5 rounded-lg font-semibold transition duration-300"
+                    disabled={updateLoading}
+                    onClick={handleSubmit(onUpdate)}
+                  >
+                    {updateLoading ? <SpinnerLoader /> : 'Update Draft'}
+                  </button>
+
+                  <button
+                    className="bg-[#6950e9] text-white py-2 px-5 max-sm:p-[6px] max-sm:text-xs rounded-lg font-semibold transition duration-300"
+                    disabled={updateLoading}
+                    onClick={handleSubmit(onUpdateAndStart)}
+                  >
+                    {updateLoading ? <SpinnerLoader /> : 'Update And Start'}
+                  </button>
+                </div>
+              ) : (
+                <div className="flex gap-2">
+                  <button
+                    className="bg-gray-400 text-white max-sm:p-[6px] max-sm:text-xs py-2 px-5 rounded-lg font-semibold transition duration-300"
+                    disabled={isLoading}
+                    onClick={handleSubmit(onSave)}
+                  >
+                    {isLoading ? <SpinnerLoader /> : 'Save as Draft'}
+                  </button>
+
+                  <button
+                    className="bg-[#6950e9] text-white max-sm:p-[6px] max-sm:text-xs py-2 px-5 rounded-lg font-semibold transition duration-300"
+                    disabled={isLoading}
+                    onClick={handleSubmit(onSaveAndStart)}
+                  >
+                    {isLoading ? <SpinnerLoader /> : 'Save And Start'}
+                  </button>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       )}

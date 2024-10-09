@@ -50,9 +50,9 @@ const CheckoutForm = ({
         </button>
       </div>
 
-      <div className="flex justify-between mt-10 p-10">
+      <div className="flex sm:justify-between mt-10 p-3 sm:p-10 max-sm:flex-col max-sm:space-y-4">
         {/* Plan Summary */}
-        <div className="w-1/3 bg-white shadow-md rounded-lg p-5">
+        <div className="sm:w-1/3 bg-white shadow-md rounded-lg p-5">
           <h3 className="text-lg font-semibold mb-4">Order Summary</h3>
           <div className="flex justify-between mb-6">
             <span>Subtotal</span>
@@ -71,7 +71,7 @@ const CheckoutForm = ({
         </div>
 
         {/* Payment Form */}
-        <div className="w-1/2 bg-white shadow-md rounded-lg p-5">
+        <div className="sm:w-1/2 bg-white shadow-md rounded-lg p-5">
           <div className="flex gap-3 items-center mb-4">
             <Image
               src="/images/credit-card.png"

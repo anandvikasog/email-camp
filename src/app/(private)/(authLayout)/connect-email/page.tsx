@@ -29,7 +29,7 @@ const Page = () => {
   }, [getEmailIds]);
   return (
     <div
-      className={`p-5 rounded-lg overflow-auto ${isDarkMode ? 'bg-[#202938] border-[#121929] text-white' : 'bg-white text-gray-900'}`}
+      className={`p-5 rounded-lg overflow-auto min-h-screen ${isDarkMode ? 'bg-[#202938] border-[#121929] text-white' : 'bg-white text-gray-900'}`}
     >
       <div className="w-[100%] flex justify-between mb-5">
         <div className="flex gap-2 items-center">

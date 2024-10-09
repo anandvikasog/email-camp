@@ -84,7 +84,7 @@ export function ChangePasswordForm() {
       <div
         className={`flex items-center justify-center  h-screen ${isDarkMode ? 'bg-[#202938] text-white' : 'bg-white text-black'}`}
       >
-        <div className="flex flex-col items-center justify-center space-y-6 w-[30vw] p-4">
+        <div className="flex flex-col items-center justify-center space-y-6 max-sm:w-[60vw] w-[30vw] max-sm:p-1 p-4">
           <Image
             src="/images/lock-icon.svg"
             alt="Lock Icon"

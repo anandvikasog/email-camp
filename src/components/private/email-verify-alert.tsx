@@ -7,6 +7,7 @@ import { useSelector } from 'react-redux';
 import { ExclamationTriangleIcon, CheckIcon } from '@heroicons/react/20/solid';
 import { useResendVerifyEmailMutation } from '@/store/Features/auth/authApiSlice';
 import SpinnerLoader from '../common/spinner-loader';
+import Image from 'next/image';
 
 const skippedPaths = ['/payment'];
 
@@ -42,33 +43,33 @@ const EmailVerifyAlert = () => {
     <div id="alert-box">
       {showAlert ? (
         <div className="py-2 px-5">
-          <div className="bg-yellow-100 border border-yellow-500 text-yellow-800 px-4 py-3 rounded-lg relative  mx-auto">
+          <div className="bg-[#eeecfd] border border-[#6950e8] text-[#6950E8] px-4 py-3 rounded-lg relative  mx-auto font-sans text-xs font-semibold leading-normal h-12">
             <div className="flex items-start">
-              <div className="flex-1">
-                <strong className="font-bold flex gap-1">
-                  <ExclamationTriangleIcon
-                    aria-hidden="true"
-                    className="h-6 w-5  "
-                  />
-                  Verify Your Email
-                </strong>
-                <p className="text-sm mt-1">
+              <div className="flex gap-2">
+                <Image
+                  src="/images/Info.svg"
+                  alt="Lock Icon"
+                  height={16}
+                  width={16}
+                />
+                <p className="text-sm flex">
                   A verification email has been sent to your inbox. Please
                   verify your email.
-                  <div className="mb-5" />
                   {linkResent ? (
-                    <span className="font-bold italic flex gap-1">
+                    <span className="font-bold italic flex gap-1 pl-1">
                       <CheckIcon aria-hidden="true" className="h-6 w-5  " />{' '}
                       Link Resent
                     </span>
                   ) : (
                     <>
                       {isLoading ? (
-                        <SpinnerLoader color="brown" />
+                        <span className="h-4 w-4">
+                          <SpinnerLoader color="#6950e8" />
+                        </span>
                       ) : (
                         <>
                           <span
-                            className="underline cursor-pointer hover:text-blue-500"
+                            className="underline cursor-pointer hover:text-blue-500 px-1"
                             onClick={onClickResend}
                           >
                             Click here
@@ -83,9 +84,14 @@ const EmailVerifyAlert = () => {
             </div>
             <span
               onClick={() => setShowAlert(false)}
-              className="absolute top-2 right-2 cursor-pointer text-blue-500 hover:text-blue-700"
+              className="absolute top-3 right-3 cursor-pointer text-blue-500 hover:text-blue-700"
             >
-              &times;
+              <Image
+                src="/images/Close.svg"
+                alt="Lock Icon"
+                height={16}
+                width={16}
+              />
             </span>
           </div>
         </div>

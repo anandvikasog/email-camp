@@ -39,7 +39,7 @@ export default function Home() {
             </>
           ) : activeTab === 'password' ? (
             <div
-              className={`p-6 rounded-lg shadow-lg  ${
+              className={`max-sm:p-2 p-6 rounded-lg shadow-lg  ${
                 isDarkMode ? 'bg-[#202938] text-white' : 'bg-white text-black'
               }`}
             >

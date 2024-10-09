@@ -23,7 +23,7 @@ export default function Page(): React.JSX.Element {
 
   return (
     <div className="flex justify-center pt-5 min-h-[calc(100vh-5rem)]">
-      <div className="flex flex-col gap-y-4 w-[500px]">
+      {/* <div className="flex flex-col gap-y-4 w-[500px]">
         <div>Dashboard</div>
         <Link
           className="w-full py-2 px-4 bg-[blue] text-white rounded text-center"
@@ -38,7 +38,8 @@ export default function Page(): React.JSX.Element {
         >
           Logout
         </button>
-      </div>
+      </div> */}
+      Comming Soon...
     </div>
   );
 }

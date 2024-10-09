@@ -25,7 +25,7 @@ const RichTextEditor = ({
     }
   };
   return (
-    <div className="flex justify-between gap-5 items-start">
+    <div className="flex justify-between gap-5 items-start max-sm:flex-col">
       <Controller
         name={`mails.${index}.body`}
         control={control}

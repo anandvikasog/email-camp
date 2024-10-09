@@ -193,7 +193,7 @@ export function SignUpForm(): JSX.Element {
                               />
                             ) : (
                               <Image
-                                src="/images/defaultImage.png" // Use the correct path to the image here
+                                src="/images/user.svg" // Use the correct path to the image here
                                 alt="Default Profile"
                                 className="h-14 w-14 rounded-full"
                                 width={56} // Adjust width as needed
