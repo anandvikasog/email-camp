@@ -1,6 +1,7 @@
 import { CheckIcon, XMarkIcon } from '@heroicons/react/20/solid';
 import React, { ReactNode } from 'react';
 import { PlanType } from '~/models/plan';
+import { useDarkMode } from '../../contexts/DarkModeContext';
 
 const PlanCard = ({
   plan,
@@ -9,6 +10,7 @@ const PlanCard = ({
   plan: PlanType;
   children?: ReactNode;
 }) => {
+  const { isDarkMode } = useDarkMode();
   return (
     <div
       key={plan._id}
@@ -24,7 +26,11 @@ const PlanCard = ({
       </div>
       <p className="mt-4 text-sm leading-6 text-gray-600">{plan.description}</p>
       <p className="mt-6 flex items-baseline gap-x-1">
-        <span className="text-4xl font-bold tracking-tight text-gray-900">
+        <span
+          className={`text-4xl font-bold tracking-tight text-gray-900 ${
+            isDarkMode ? ' text-white' : 'text-gray-900'
+          }`}
+        >
           ${plan.amount}/
         </span>
         <span className="text-sm font-semibold leading-6 text-gray-600">

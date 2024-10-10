@@ -45,21 +45,21 @@ const navigation = [
     name: 'Dashboard',
     id: 'dashboard',
     href: paths.private.dashboard,
-    icon: HomeIcon,
+    icon: '/images/dashboard.svg',
     current: true,
   },
   {
     name: 'Connected Emails',
     id: 'connectedEmails',
     href: paths.private.connectedEmails,
-    icon: UsersIcon,
+    icon: '/images/campaign.svg',
     current: false,
   },
   {
     name: 'Campaign',
     id: 'campaign',
     href: paths.private.campaign,
-    icon: FolderIcon,
+    icon: '/images/calender.svg',
     current: false,
   },
 ];
@@ -148,16 +148,18 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
                                 activeTab === item.id
                                   ? 'text-[#6950e9]'
                                   : 'text-gray-500',
-                                'group flex gap-x-3 rounded-md p-2 text-sm font-medium leading-6 hover:text-[#6950e9]'
+                                'group flex gap-x-3 rounded-md p-2 text-sm font-medium leading-6 hover:text-[#6950e9] items-center'
                               )}
                               onClick={() => {
                                 setActiveTab(item.id);
                               }}
                             >
-                              <item.icon
-                                aria-hidden="true"
-                                className="h-6 w-6 shrink-0"
+                              <img
+                                src={item.icon}
+                                alt={`${item.name} icon`}
+                                className="h-4 w-4 shrink-0"
                               />
+
                               {item.name}
                             </Link>
                           </li>
@@ -200,16 +202,18 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
                             activeTab === item.id
                               ? ' text-[#6950e9]'
                               : 'text-gray-500',
-                            'group flex gap-x-3 rounded-md p-2 text-sm font-medium leading-6 hover:text-[#6950e9]'
+                            'group flex gap-x-3 rounded-md p-2 text-sm font-medium leading-6 hover:text-[#6950e9] items-center'
                           )}
                           onClick={() => {
                             setActiveTab(item.id);
                           }}
                         >
-                          <item.icon
-                            aria-hidden="true"
-                            className="h-6 w-6 shrink-0"
+                          <img
+                            src={item.icon}
+                            alt={`${item.name} icon`}
+                            className="h-4 w-4 shrink-0"
                           />
+
                           {item.name}
                         </Link>
                       </li>
@@ -300,7 +304,9 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
               isDarkMode ? 'bg-[#111828] text-white' : 'bg-white text-black'
             }`}
           >
-            <div className="px-4 sm:px-3 lg:px-4">{children}</div>
+            <div className="max-[400px]:px-1 px-4 sm:px-3 lg:px-4">
+              {children}
+            </div>
           </main>
         </div>
       </div>

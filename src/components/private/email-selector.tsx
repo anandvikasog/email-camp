@@ -21,10 +21,10 @@ const EmailSelector = ({
   const { isDarkMode, toggleDarkMode } = useDarkMode();
 
   useEffect(() => {
-    if (verifiedMails.length === 0) {
+    if (data.length === 0) {
       getEmails({});
     }
-  }, [verifiedMails]);
+  }, []);
 
   useEffect(() => {
     if (connectedEmails) {

@@ -400,14 +400,31 @@ export default function CampaignForm({
                 Add step
               </button>
             )}
-            {csvData.length > 0 && fields.length > 0 && (
-              <div>
+            {csvData.length > 0 && fields.length > 0 && !summeryVisible && (
+              <div className="flex gap-2">
                 <button
-                  className="bg-[#6950e9] text-white py-2 px-5 max-sm:p-[6px] max-sm:text-xs rounded-lg font-semibold transition duration-300"
+                  className="bg-gray-400 text-white max-sm:p-[6px] max-sm:text-xs py-2 px-5 rounded-lg font-semibold transition duration-300"
                   onClick={handleSubmit(onViewSummery)}
                 >
                   Summery
                 </button>
+                {isExisting ? (
+                  <button
+                    className="bg-[#6950e9] text-white py-2 px-5 max-sm:p-[6px] max-sm:text-xs rounded-lg font-semibold transition duration-300"
+                    disabled={updateLoading}
+                    onClick={handleSubmit(onUpdateAndStart)}
+                  >
+                    {updateLoading ? <SpinnerLoader /> : 'Update And Run'}
+                  </button>
+                ) : (
+                  <button
+                    className="bg-[#6950e9] text-white max-sm:p-[6px] max-sm:text-xs py-2 px-5 rounded-lg font-semibold transition duration-300"
+                    disabled={isLoading}
+                    onClick={handleSubmit(onSaveAndStart)}
+                  >
+                    {isLoading ? <SpinnerLoader /> : 'Run'}
+                  </button>
+                )}
               </div>
             )}
           </div>
@@ -531,7 +548,7 @@ export default function CampaignForm({
                     disabled={updateLoading}
                     onClick={handleSubmit(onUpdateAndStart)}
                   >
-                    {updateLoading ? <SpinnerLoader /> : 'Update And Start'}
+                    {updateLoading ? <SpinnerLoader /> : 'Update And Run'}
                   </button>
                 </div>
               ) : (
@@ -549,7 +566,7 @@ export default function CampaignForm({
                     disabled={isLoading}
                     onClick={handleSubmit(onSaveAndStart)}
                   >
-                    {isLoading ? <SpinnerLoader /> : 'Save And Start'}
+                    {isLoading ? <SpinnerLoader /> : 'Run'}
                   </button>
                 </div>
               )}

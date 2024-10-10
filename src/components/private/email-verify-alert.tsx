@@ -42,8 +42,8 @@ const EmailVerifyAlert = () => {
   return (
     <div id="alert-box">
       {showAlert ? (
-        <div className="py-2 px-5">
-          <div className="bg-[#eeecfd] border border-[#6950e8] text-[#6950E8] px-4 py-3 rounded-lg relative  mx-auto font-sans text-xs font-semibold leading-normal h-12">
+        <div className="max-sm:p-0 py-2 px-5">
+          <div className="bg-[#eeecfd] border border-[#6950e8] text-[#6950E8] max-sm:p-1 px-4 py-3 rounded-lg relative  mx-auto font-sans text-xs font-semibold leading-normal h-12 max-sm:h-20">
             <div className="flex items-start">
               <div className="flex gap-2">
                 <Image
@@ -52,7 +52,7 @@ const EmailVerifyAlert = () => {
                   height={16}
                   width={16}
                 />
-                <p className="text-sm flex">
+                <p className="max-sm:text-xs text-sm flex max-sm:flex-col">
                   A verification email has been sent to your inbox. Please
                   verify your email.
                   {linkResent ? (
@@ -69,7 +69,7 @@ const EmailVerifyAlert = () => {
                       ) : (
                         <>
                           <span
-                            className="underline cursor-pointer hover:text-blue-500 px-1"
+                            className="underline cursor-pointer hover:text-blue-500 px-1 max-sm:pt-1"
                             onClick={onClickResend}
                           >
                             Click here
@@ -84,7 +84,7 @@ const EmailVerifyAlert = () => {
             </div>
             <span
               onClick={() => setShowAlert(false)}
-              className="absolute top-3 right-3 cursor-pointer text-blue-500 hover:text-blue-700"
+              className="absolute top-3 right-3 max-sm:right-1 cursor-pointer text-blue-500 hover:text-blue-700"
             >
               <Image
                 src="/images/Close.svg"
