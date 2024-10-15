@@ -17,7 +17,7 @@ const bgDarkMap = {
   success: '#11B886',
   warning: '#FEBF06',
   danger: '#EF4770',
-  secondary: '#E5E7EB',
+  secondary: '#9CA3AF',
   primary: '#6950E8',
 
   default: '#6B7280',

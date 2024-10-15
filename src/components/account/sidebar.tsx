@@ -12,6 +12,7 @@ import { paths } from '@/paths';
 import FullscreenLoader from '@/components/common/fullscreen-loader';
 
 import { useDarkMode } from '../../contexts/DarkModeContext';
+import Image from 'next/image';
 
 const Sidebar = ({
   activeTab,
@@ -36,9 +37,9 @@ const Sidebar = ({
   }
 
   const menuItems = [
-    { name: 'Basic Information', icon: <FiUser />, id: 'basic-info' },
+    { name: 'Basic Information', icon: '/images/user.svg', id: 'basic-info' },
 
-    { name: 'Password', icon: <FiLock />, id: 'password' },
+    { name: 'Password', icon: '/images/password.svg', id: 'password' },
     // { name: 'Billing', icon: <RiMoneyDollarCircleLine />, id: 'billing' },
     // {
     //   name: 'Log out',
@@ -51,7 +52,7 @@ const Sidebar = ({
   return (
     <aside
       className={`w-full md:w-1/5 py-4 shadow-xl rounded-2xl max-md:hidden ${
-        isDarkMode ? 'bg-[#202938] text-white' : 'bg-white text-black'
+        isDarkMode ? 'bg-[#202938] text-gray-500' : 'bg-white text-gray-500'
       }`}
     >
       <ul className="space-y-2">
@@ -71,7 +72,13 @@ const Sidebar = ({
               // }
             }}
           >
-            <span className="mr-2 text-lg">{item.icon}</span>
+            <Image
+              src={item.icon}
+              width={16}
+              height={16}
+              alt={`${item.name} icon`}
+              className="h-4 w-4 shrink-0 mr-2"
+            />
             {item.name}
           </li>
         ))}

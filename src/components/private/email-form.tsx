@@ -10,6 +10,10 @@ import { TrashIcon } from '@heroicons/react/20/solid';
 import dynamic from 'next/dynamic';
 import { CampaignValues } from './campaign-form';
 import { useDarkMode } from '../../contexts/DarkModeContext';
+import DatePicker from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css';
+import DateTimePicker from '../common/date-time-picker';
+
 const RichTextEditor = dynamic(() => import('./rich-text-editor'), {
   ssr: false,
 });
@@ -104,14 +108,20 @@ const EmailForm = ({
       </div>
       <div>
         {startType === 'absolute' ? (
-          <div>
+          <div className="">
             <label>Start Date</label>
             <br />
-            <Controller
+            <DateTimePicker
+              control={control}
+              type="date-time"
+              name={`mails.${index}.sendAt`}
+              label="Select date"
+            />
+            {/* <Controller
               name={`mails.${index}.sendAt`}
               control={control}
               render={({ field }) => (
-                <input
+                <DatePicker
                   type="datetime-local"
                   {...field}
                   placeholder="Start At"
@@ -123,7 +133,7 @@ const EmailForm = ({
                   min={new Date().toISOString().slice(0, 16)}
                 />
               )}
-            />
+            /> */}
             {errors?.sendAt && (
               <div className="text-sm text-red-500">
                 {errors?.sendAt?.message}
@@ -131,6 +141,33 @@ const EmailForm = ({
             )}
           </div>
         ) : (
+          //           <div className='bg-green-900'>
+          //   <label>Start Date</label>
+          //   <br />
+          //   <Controller
+          //     name={`mails.${index}.sendAt`}
+          //     control={control}
+          //     render={({ field }) => (
+          //       <DatePicker
+          //         selected={field.value}
+          //         onChange={(date) => field.onChange(date)}
+          //         showMonthYearDropdown
+          //         dateFormat="MMMM yyyy"
+          //         minDate={new Date()}
+          //         className={`p-2 border rounded ${
+          //           isDarkMode ? 'text-white bg-[#202938]' : 'bg-white text-gray-900'
+          //         }`}
+          //         placeholderText="Select Start Date"
+          //       />
+          //     )}
+          //   />
+          //   {errors?.sendAt && (
+          //     <div className="text-sm text-red-500">
+          //       {errors?.sendAt?.message}
+          //     </div>
+          //   )}
+          // </div>
+
           <div>
             <label>Gap</label>
             <br />

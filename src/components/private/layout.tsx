@@ -128,12 +128,13 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
                   isDarkMode ? 'bg-[#111828] text-white' : 'bg-white text-black'
                 }`}
               >
-                <div className="flex h-16 shrink-0 items-center">
+                <div className="flex h-16 shrink-0 items-center justify-center relative">
                   <Image
                     alt="Your Company"
-                    src="/images/mirror-logo.png"
-                    height={40}
-                    width={40}
+                    src="/images/mirror-logos.png"
+                    height={150}
+                    width={150}
+                    className="cursor-pointer absolute left-[-28px]"
                   />
                 </div>
                 <nav className="flex flex-1 flex-col">
@@ -181,13 +182,13 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
         >
           {/* Sidebar component, swap this element with another sidebar if you like */}
           <div className="flex grow flex-col gap-y-5 overflow-y-auto px-6 pb-4 border-r-2 border-gray-200">
-            <div className="flex h-16 shrink-0 items-center">
+            <div className="flex h-16 shrink-0 items-center justify-center relative">
               <Image
                 alt="Your Company"
-                src="/images/mirror-logo.svg"
-                height={30}
-                width={30}
-                className="cursor-pointer"
+                src="/images/mirror-logos.png"
+                height={150}
+                width={150}
+                className="cursor-pointer absolute left-[-28px]"
               />
             </div>
             <nav className="flex flex-1 flex-col">
@@ -244,7 +245,18 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
             <div aria-hidden="true" className="h-6  lg:hidden" />
 
             <div className="flex flex-1 gap-x-4 self-stretch lg:gap-x-6 relative items-center justify-center">
-              <div className="absolute right-20 bottom-14">
+              <div className="absolute right-24 bottom-6">
+                <Link href={paths.private.dashboard}>
+                  <Image
+                    width={16}
+                    height={16}
+                    src={'/images/dashboard.svg'}
+                    alt={`Dashboard icon`}
+                    className="h-4 w-4 shrink-0"
+                  />
+                </Link>
+              </div>
+              <div className="absolute right-32 bottom-14 ">
                 <ToggleButton
                   isChecked={isDarkMode}
                   onChange={toggleDarkMode}

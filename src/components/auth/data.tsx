@@ -1,9 +1,9 @@
 export const signUpCardData = {
   head: '/images/onionLogo.svg',
-  title: 'Technology is best when it brings people together.',
-  description: 'You are in good company',
-  product:
-    'A product is something a brand is something that is bought by the customer.',
+  title: 'Reach out to B2B Decision Makers',
+  description:
+    'Close More Deals and Grow Revenue with our Remote Sales Platform.',
+  product: 'We helped our Clients Connect with:',
   logos: [
     '/images/amazon.svg',
     '/images/godaddy.svg',
