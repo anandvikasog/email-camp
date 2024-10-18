@@ -99,10 +99,79 @@ export const changePasswordSchema = zod
 
 export const connectEmailSchema = zod.object({
   email: emailValidation,
-  domainType: zod.enum(['gmail', 'outlook', 'custom'], {
-    errorMap: () => ({ message: 'Please provide a valid domain.' }),
-  }),
+  smtpHost: zod.string().min(1, 'SMTP host is required'),
+  smtpPort: zod.string().min(1, 'SMTP port is required'),
+  smtpUsername: zod.string().min(1, 'SMTP username is required'),
+  smtpPassword: zod.string().min(1, 'SMTP password is required'),
+  imapHost: zod.string().min(1, 'IMAP host is required'),
+  imapPort: zod.string().min(1, 'IMAP port is required'),
+  imapUsername: zod.string().min(1, 'IMAP username is required'),
+  imapPassword: zod.string().min(1, 'IMAP password is required'),
 });
+
+// export const connectEmailSchema = zod
+//   .object({
+//     email: emailValidation,
+//     smtpServer: zod.string().optional(),
+//     smtpPort: zod.string().optional(),
+//     smtpPassword: zod.string().optional(),
+//     imapServer: zod.string().optional(),
+//     imapPort: zod.string().optional(),
+//     imapPassword: zod.string().optional(),
+//     domainType: zod.enum(['gmail', 'outlook', 'custom'], {
+//       errorMap: () => ({ message: 'Please provide a valid domain.' }),
+//     }),
+//   })
+//   .superRefine((data, ctx) => {
+//     // Only perform additional checks if the domainType is 'custom'
+//     if (data.domainType === 'custom') {
+//       // Check if the custom SMTP/IMAP fields are filled
+//       if (!data.smtpServer || data.smtpServer.trim() === '') {
+//         ctx.addIssue({
+//           code: zod.ZodIssueCode.custom,
+//           message: 'SMTP Server is required for custom email providers.',
+//           path: ['smtpServer'],
+//         });
+//       }
+//       if (!data.smtpPort) {
+//         ctx.addIssue({
+//           code: zod.ZodIssueCode.custom,
+//           message: 'SMTP Port is required for custom email providers.',
+//           path: ['smtpPort'],
+//         });
+//       }
+//       if (!data.smtpPassword) {
+//         ctx.addIssue({
+//           code: zod.ZodIssueCode.custom,
+//           message: 'SMTP Password is required for custom email providers.',
+//           path: ['smtpPassword'],
+//         });
+//       }
+//       if (!data.imapServer) {
+//         ctx.addIssue({
+//           code: zod.ZodIssueCode.custom,
+//           message: 'IMAP Server is required for custom email providers.',
+//           path: ['imapServer'],
+//         });
+//       }
+//       if (!data.imapPort) {
+//         ctx.addIssue({
+//           code: zod.ZodIssueCode.custom,
+//           message: 'IMAP Port is required for custom email providers.',
+//           path: ['imapPort'],
+//         });
+//       }
+//       if (!data.imapPassword) {
+//         ctx.addIssue({
+//           code: zod.ZodIssueCode.custom,
+//           message: 'IMAP Password is required for custom email providers.',
+//           path: ['imapPassword'],
+//         });
+//       }
+//     }
+//   });
+
+// Conditional validations for SMTP/IMAP settings if domainType is 'custom'
 
 export const updateEmailSchema = zod.object({
   signature: zod

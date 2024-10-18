@@ -82,16 +82,10 @@ export async function GET(req: NextRequest) {
     // Get all connected emails for this user
     const connectedEmails = await ConnectedEmail.find({ userId: user._id });
 
-    // Extract the email list
-    const emailList = connectedEmails.map((emailObj) => emailObj.emailId);
-
-    // Check the verification status of the email list in AWS SES
-    const emailStatuses = await checkEmailListVerificationStatus(emailList);
-
     return NextResponse.json(
       {
         status: true,
-        data: emailStatuses,
+        data: connectedEmails,
       },
       { status: 200 }
     );
@@ -118,45 +112,9 @@ export async function PUT(req: NextRequest) {
     const data = await req.json();
     const { id, signature } = data;
 
-    // Check if the connected email exists for the user by id
-    let connectedEmail = await ConnectedEmail.findOne({
-      _id: id,
-      userId: user._id,
+    await ConnectedEmail.findByIdAndUpdate(id, {
+      signature,
     });
-    if (!connectedEmail) {
-      return NextResponse.json(
-        {
-          status: false,
-          message: 'Connected email not found.',
-        },
-        { status: 404 }
-      );
-    }
-
-    const emailList = [connectedEmail.emailId];
-    // Check the verification status of the email list in AWS SES
-    await checkEmailListVerificationStatus(emailList);
-
-    // Refetch the connected email to ensure it's updated
-    connectedEmail = await ConnectedEmail.findOne({
-      _id: id,
-      userId: user._id,
-    });
-
-    // Check if the email is verified
-    if (!connectedEmail.verified) {
-      return NextResponse.json(
-        {
-          status: false,
-          message: 'Email is not verified. Cannot update the signature.',
-        },
-        { status: 403 } // Forbidden status code
-      );
-    }
-
-    // Update the signature
-    connectedEmail.signature = signature;
-    await connectedEmail.save();
 
     return NextResponse.json(
       {

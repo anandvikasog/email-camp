@@ -5,6 +5,7 @@ import { decode } from 'next-auth/jwt';
 import User from '~/models/user';
 import { paths } from '@/paths';
 import { redirect } from 'next/navigation';
+import { google } from 'googleapis';
 
 // this will return session cookie name as per dev/prod mode
 export const getSessionCookieName = () => {
@@ -84,3 +85,36 @@ export const validateUser = async () => {
 
   return isValid;
 };
+
+// send email using gmail
+export async function sendEmailUsingGmail(
+  accessToken: string,
+  recipient: string,
+  subject: string,
+  message: string
+) {
+  const oauth2Client = new google.auth.OAuth2();
+  oauth2Client.setCredentials({ access_token: accessToken });
+
+  const gmail = google.gmail({ version: 'v1', auth: oauth2Client });
+
+  const encodedMessage = Buffer.from(
+    `To: ${recipient}\r\n` + `Subject: ${subject}\r\n\r\n` + `${message}`
+  )
+    .toString('base64')
+    .replace(/\+/g, '-')
+    .replace(/\//g, '_')
+    .replace(/=+$/, '');
+
+  try {
+    await gmail.users.messages.send({
+      userId: 'me',
+      requestBody: {
+        raw: encodedMessage,
+      },
+    });
+    console.log('Email sent successfully!');
+  } catch (error) {
+    console.error('Error sending email:', error);
+  }
+}

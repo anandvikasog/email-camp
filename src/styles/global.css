@@ -6,6 +6,19 @@
   --background: #ffffff;
   --foreground: #171717;
 }
+.css-1y6l765-MuiPickersLayout-root .MuiPickersLayout-actionBar {
+  display: none;
+}
+
+.css-15kkzqw-MuiPickersLayout-root .MuiPickersLayout-actionBar {
+  display: none;
+}
+
+.css-1n0lrk4-MuiTimeClock-root {
+  /* transform: scale(0.8); */
+
+  width: 100% !important;
+}
 
 @media (prefers-color-scheme: dark) {
   :root {

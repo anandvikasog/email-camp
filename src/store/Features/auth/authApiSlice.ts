@@ -157,6 +157,37 @@ export const authApiSlice = apiSlice.injectEndpoints({
         body: payload,
       }),
     }),
+    connectGoogle: builder.mutation({
+      query: (payload: { token: string }) => ({
+        url: apiPaths.email.connectGoogle,
+        method: 'POST',
+        body: payload,
+      }),
+    }),
+    connectMicrosoft: builder.mutation({
+      query: (payload: { token: string }) => ({
+        url: apiPaths.email.connectMicrosoft,
+        method: 'POST',
+        body: payload,
+      }),
+    }),
+    connectCustom: builder.mutation({
+      query: (payload: {
+        email: string;
+        smtpHost: string;
+        smtpPort: string;
+        smtpUsername: string;
+        imapHost: string;
+        imapPort: string;
+        imapUsername: string;
+        smtpPassword: string;
+        imapPassword: string;
+      }) => ({
+        url: apiPaths.email.connectCustom,
+        method: 'POST',
+        body: payload,
+      }),
+    }),
   }),
 });
 
@@ -180,4 +211,7 @@ export const {
   useGetCampaignByIdQuery,
   useUpdateCampaignMutation,
   useUpdateConnectedEmailMutation,
+  useConnectGoogleMutation,
+  useConnectMicrosoftMutation,
+  useConnectCustomMutation,
 } = authApiSlice;

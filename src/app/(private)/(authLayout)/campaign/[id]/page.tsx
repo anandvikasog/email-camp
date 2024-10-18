@@ -23,14 +23,11 @@ export default async function Page({ params }: { params: { id: string } }) {
 
   const connected = await getConnectedEmailS();
   const connectedEmails = JSON.parse(connected);
-  const verifiedMails = (connectedEmails.data || []).filter(
-    (e: ConnectedEmailType) => e.verified === true
-  );
 
   return (
     <CampaignForm
       campaignData={formatedData}
-      formData={{ connectedEmails: verifiedMails }}
+      formData={{ connectedEmails: connectedEmails }}
     />
   );
 }

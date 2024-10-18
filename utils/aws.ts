@@ -6,6 +6,7 @@ import { Prospect } from '@/app/api/campaign/route';
 import CampaignMail from '~/models/campaignMail';
 import { awsEmailVerificationTemplate } from './emailHandler/emailTemplates/verifyAwsEmail';
 import { paths } from '@/paths';
+import transporter from './transporter';
 
 // Config AWS
 AWS.config.update({
@@ -249,27 +250,52 @@ export const sendCampaignEmails = async (
   }
 };
 
+// export const sendSingleEmail = async (
+//   fromEmail: string = process.env.OFFICIAL_FROM_MAIL || 'info@mirrorteams.com',
+// recipient: string,
+// subject: string,
+// body: string
+// ) => {
+//   const params = {
+//     Source: fromEmail,
+//     Destination: {
+//       ToAddresses: [recipient],
+//     },
+//     Message: {
+//       Body: {
+//         Html: { Data: body },
+//       },
+//       Subject: { Data: subject },
+//     },
+//   };
+
+//   try {
+//     const result = await ses.sendEmail(params).promise();
+//     console.log('Email sent successfully:', result);
+//     return result;
+//   } catch (error) {
+//     console.error('Error sending email:', error);
+//     throw error;
+//   }
+// };
+
 export const sendSingleEmail = async (
-  fromEmail: string = process.env.OFFICIAL_FROM_MAIL || 'info@mirrorteams.com',
+  fromEmail = process.env.OFFICIAL_FROM_MAIL || 'info@mirrorteams.com',
   recipient: string,
   subject: string,
   body: string
 ) => {
-  const params = {
-    Source: fromEmail,
-    Destination: {
-      ToAddresses: [recipient],
-    },
-    Message: {
-      Body: {
-        Html: { Data: body },
-      },
-      Subject: { Data: subject },
-    },
+  // Set email options
+  const mailOptions = {
+    from: fromEmail,
+    to: recipient,
+    subject: subject,
+    html: body,
   };
 
   try {
-    const result = await ses.sendEmail(params).promise();
+    // Send the email
+    const result = await transporter.sendMail(mailOptions);
     console.log('Email sent successfully:', result);
     return result;
   } catch (error) {

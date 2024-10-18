@@ -46,6 +46,9 @@ export const apiPaths = {
   },
   email: {
     connectEmail: '/connect-email',
+    connectGoogle: '/connect-email/google',
+    connectMicrosoft: '/connect-email/microsoft',
+    connectCustom: '/connect-email/custom',
   },
   campaign: {
     create: '/campaign',

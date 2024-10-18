@@ -28,14 +28,9 @@ const EmailSelector = ({
 
   useEffect(() => {
     if (connectedEmails) {
-      setVerifiedMails(
-        connectedEmails.data.filter(
-          (e: ConnectedEmailType) => e.verified === true
-        )
-      );
+      setVerifiedMails(connectedEmails.data);
     }
   }, [connectedEmails]);
-  console.log('rendering----------');
   return (
     <>
       <label htmlFor="subject">Sender Email</label>

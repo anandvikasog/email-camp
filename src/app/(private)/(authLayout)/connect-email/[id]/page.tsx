@@ -1,4 +1,5 @@
 'use client';
+import dynamic from 'next/dynamic';
 import SpinnerLoader from '@/components/common/spinner-loader';
 import { updateEmailSchema } from '@/lib/validationSchema';
 import { paths } from '@/paths';
@@ -11,6 +12,9 @@ import { useForm } from 'react-hook-form';
 import { toast } from 'react-toastify';
 import { z as zod } from 'zod';
 import { useDarkMode } from '../../../../../contexts/DarkModeContext';
+import 'react-quill/dist/quill.snow.css';
+
+const RichTextEditor = dynamic(() => import('react-quill'), { ssr: false });
 
 type Values = zod.infer<typeof updateEmailSchema>;
 
@@ -56,7 +60,6 @@ const Page = () => {
     };
 
     try {
-      console.log(payload, 'payload');
       await updateConnectedEmail(payload).unwrap();
     } catch (error) {
       console.error('Failed to update signature:', error);
@@ -76,7 +79,7 @@ const Page = () => {
   }, [isSuccess, isError, data, router]);
 
   return (
-    <div className="p-10 min-h-[calc(100vh-6rem)]">
+    <div className="p-10 min-h-[calc(100vh-5rem)]">
       <div className="pb-10">
         <button
           className="flex items-center gap-2 text-indigo-600 hover:underline"
@@ -91,13 +94,11 @@ const Page = () => {
 
       <div className="flex flex-col gap-5 max-w-[500px]">
         {/* Textarea for the signature or additional details */}
-        <textarea
-          {...register('signature')}
-          placeholder="Signature text"
-          className={`p-2 border rounded ${
-            isDarkMode ? 'bg-[#202938] border-[#121929]' : 'bg-white'
-          }`}
-          rows={5}
+        <RichTextEditor
+          theme="snow"
+          value={watch('signature')}
+          onChange={(value) => setValue('signature', value)}
+          className={`rounded ${isDarkMode ? 'bg-[#202938]' : 'bg-white'}`}
         />
         {errors['signature'] && (
           <span className="text-xs text-red-600">

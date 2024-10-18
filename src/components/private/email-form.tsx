@@ -12,7 +12,16 @@ import { CampaignValues } from './campaign-form';
 import { useDarkMode } from '../../contexts/DarkModeContext';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
-import DateTimePicker from '../common/date-time-picker';
+
+import { TextField, IconButton, InputAdornment, Box } from '@mui/material';
+import AccessTimeIcon from '@mui/icons-material/AccessTime';
+import dayjs from 'dayjs';
+import { DemoContainer } from '@mui/x-date-pickers/internals/demo';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { renderTimeViewClock } from '@mui/x-date-pickers/timeViewRenderers';
+import { TimePicker } from '@mui/x-date-pickers/TimePicker';
+import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
 
 const RichTextEditor = dynamic(() => import('./rich-text-editor'), {
   ssr: false,
@@ -111,29 +120,68 @@ const EmailForm = ({
           <div className="">
             <label>Start Date</label>
             <br />
-            <DateTimePicker
+
+            {/* <DateTimePicker
               control={control}
               type="date-time"
               name={`mails.${index}.sendAt`}
               label="Select date"
-            />
-            {/* <Controller
+            /> */}
+            <Controller
               name={`mails.${index}.sendAt`}
               control={control}
               render={({ field }) => (
-                <DatePicker
-                  type="datetime-local"
-                  {...field}
-                  placeholder="Start At"
-                  className={`p-2 border rounded ${
-                    isDarkMode
-                      ? 'text-white bg-[#202938]'
-                      : 'bg-white text-gray-900'
-                  }`}
-                  min={new Date().toISOString().slice(0, 16)}
-                />
+                // <input
+                //   type="datetime-local"
+                //   {...field}
+                //   placeholder="Start At"
+                //   className={`p-2 border rounded ${
+                //     isDarkMode
+                //       ? 'text-white bg-[#202938]'
+                //       : 'bg-white text-gray-900'
+                //   }`}
+                //   min={new Date().toISOString().slice(0, 16)}
+                // />
+                <LocalizationProvider dateAdapter={AdapterDayjs}>
+                  <DateTimePicker
+                    value={field.value ? dayjs(field.value, 'HH:mm') : null}
+                    onChange={(date) => {
+                      field.onChange(date ? dayjs(date).format('HH:mm') : '');
+                    }}
+                    viewRenderers={{
+                      hours: renderTimeViewClock,
+                      minutes: renderTimeViewClock,
+                      seconds: renderTimeViewClock,
+                    }}
+                    slotProps={{
+                      popper: {
+                        sx: {
+                          '& .MuiPaper-root': {
+                            width: '100%', // Ensure the clock fits the width of the popper
+                            '& .MuiClock-pin': {
+                              backgroundColor: '#6950e9',
+                            },
+                            '& .Mui-selected': {
+                              backgroundColor: '#6950e9',
+                            },
+                            '& .MuiClockPointer-root': {
+                              backgroundColor: '#6950e9',
+                            },
+                            '& .MuiPickersArrowSwitcher-root': {
+                              right: 0,
+                              top: 0,
+                            },
+                            '& .MuiClockPointer-thumb': {
+                              borderColor: '#6950e9',
+                            },
+                          },
+                        },
+                      },
+                    }}
+                  />
+                </LocalizationProvider>
               )}
-            /> */}
+            />
             {errors?.sendAt && (
               <div className="text-sm text-red-500">
                 {errors?.sendAt?.message}
@@ -141,33 +189,6 @@ const EmailForm = ({
             )}
           </div>
         ) : (
-          //           <div className='bg-green-900'>
-          //   <label>Start Date</label>
-          //   <br />
-          //   <Controller
-          //     name={`mails.${index}.sendAt`}
-          //     control={control}
-          //     render={({ field }) => (
-          //       <DatePicker
-          //         selected={field.value}
-          //         onChange={(date) => field.onChange(date)}
-          //         showMonthYearDropdown
-          //         dateFormat="MMMM yyyy"
-          //         minDate={new Date()}
-          //         className={`p-2 border rounded ${
-          //           isDarkMode ? 'text-white bg-[#202938]' : 'bg-white text-gray-900'
-          //         }`}
-          //         placeholderText="Select Start Date"
-          //       />
-          //     )}
-          //   />
-          //   {errors?.sendAt && (
-          //     <div className="text-sm text-red-500">
-          //       {errors?.sendAt?.message}
-          //     </div>
-          //   )}
-          // </div>
-
           <div>
             <label>Gap</label>
             <br />
@@ -328,7 +349,7 @@ const WeeklyScadule = ({
 
   return (
     <div className="py-1">
-      <div className="text-sm flex gap-3">
+      <div className="text-sm flex gap-3 max-[400px]:flex-col pl-1">
         <div className={`w-[120px] cursor-pointer `}>
           <Controller
             name={`mails.${mailIndex}.timing.${day}.checked`}
@@ -355,30 +376,175 @@ const WeeklyScadule = ({
           <label htmlFor={`check-${day}`}> {daysNameMap[day]}</label>{' '}
         </div>
         {enabled && (
-          <div>
+          <div className="">
             <Controller
               name={`mails.${mailIndex}.timing.${day}.intervals.${0}.start`}
-              control={control}
+              control={control} // The control object from useForm
               render={({ field }) => (
-                <input
-                  {...field}
-                  placeholder="Subject"
-                  className={`border px-1  ${isDarkMode ? 'bg-[#202938] border-[#121929]' : 'bg-white'}`}
-                  type="time"
-                />
+                <LocalizationProvider dateAdapter={AdapterDayjs}>
+                  <TimePicker
+                    value={field.value ? dayjs(field.value, 'HH:mm') : null}
+                    onChange={(date) => {
+                      field.onChange(date ? dayjs(date).format('HH:mm') : '');
+                    }}
+                    viewRenderers={{
+                      hours: renderTimeViewClock,
+                      minutes: renderTimeViewClock,
+                      seconds: renderTimeViewClock,
+                    }} // Render clock picker for all views
+                    slotProps={{
+                      textField: {
+                        size: 'small',
+                        sx: {
+                          minWidth: 100,
+                          backgroundColor: isDarkMode ? '#202938' : 'white', // Conditional background color
+
+                          '& .MuiInputBase-input': {
+                            padding: '4px', // Reduce input padding
+                          },
+                        },
+                        InputProps: {
+                          sx: {
+                            color: isDarkMode ? 'white' : 'black',
+                            '& .MuiSvgIcon-root': {
+                              fontSize: '16px', // Keep the clock icon size
+                            },
+                          },
+                        },
+                      },
+                      popper: {
+                        modifiers: [
+                          {
+                            name: 'flip',
+                            enabled: true,
+                          },
+                          {
+                            name: 'preventOverflow',
+                            enabled: true,
+                            options: {
+                              boundary: 'viewport', // Ensure the popper is inside the viewport
+                            },
+                          },
+                          {
+                            name: 'sameWidth',
+                            enabled: true,
+                            phase: 'beforeWrite',
+                            requires: ['computeStyles'],
+                            fn: ({ state }) => {
+                              state.styles.popper.width = `${state.rects.reference.width}px`;
+                            },
+                          },
+                        ],
+                        sx: {
+                          '& .MuiPaper-root': {
+                            width: '100%', // Ensure the clock fits the width of the popper
+                            '& .MuiClock-pin': {
+                              backgroundColor: '#6950e9',
+                            },
+                            '& .Mui-selected': {
+                              backgroundColor: '#6950e9',
+                            },
+                            '& .MuiClockPointer-root': {
+                              backgroundColor: '#6950e9',
+                            },
+                            '& .MuiPickersArrowSwitcher-root': {
+                              right: 0,
+                              top: 0,
+                            },
+                            '& .MuiClockPointer-thumb': {
+                              borderColor: '#6950e9',
+                            },
+                          },
+                        },
+                      },
+                    }}
+                  />
+                </LocalizationProvider>
               )}
             />{' '}
             -{' '}
             <Controller
               name={`mails.${mailIndex}.timing.${day}.intervals.${0}.end`}
-              control={control}
-              render={(data) => (
-                <input
-                  {...data.field}
-                  placeholder="Subject"
-                  className={`border px-1  ${isDarkMode ? 'bg-[#202938] border-[#121929]' : 'bg-white'}`}
-                  type="time"
-                />
+              control={control} // The control object from useForm
+              render={({ field }) => (
+                <LocalizationProvider dateAdapter={AdapterDayjs}>
+                  <TimePicker
+                    value={field.value ? dayjs(field.value, 'HH:mm') : null}
+                    onChange={(date) => {
+                      field.onChange(date ? dayjs(date).format('HH:mm') : '');
+                    }}
+                    viewRenderers={{
+                      hours: renderTimeViewClock,
+                      minutes: renderTimeViewClock,
+                      seconds: renderTimeViewClock,
+                    }} // Render clock picker for all views
+                    slotProps={{
+                      textField: {
+                        size: 'small',
+                        sx: {
+                          minWidth: 100,
+                          backgroundColor: isDarkMode ? '#202938' : 'white', // Conditional background color
+                          '& .MuiInputBase-input': {
+                            padding: '4px', // Reduce input padding
+                          },
+                        },
+                        InputProps: {
+                          sx: {
+                            color: isDarkMode ? 'white' : 'black',
+                            '& .MuiSvgIcon-root': {
+                              fontSize: '16px', // Keep the clock icon size
+                            },
+                          },
+                        },
+                      },
+                      popper: {
+                        modifiers: [
+                          {
+                            name: 'flip',
+                            enabled: true,
+                          },
+                          {
+                            name: 'preventOverflow',
+                            enabled: true,
+                            options: {
+                              boundary: 'viewport', // Ensure the popper is inside the viewport
+                            },
+                          },
+                          {
+                            name: 'sameWidth',
+                            enabled: true,
+                            phase: 'beforeWrite',
+                            requires: ['computeStyles'],
+                            fn: ({ state }) => {
+                              state.styles.popper.width = `${state.rects.reference.width}px`;
+                            },
+                          },
+                        ],
+                        sx: {
+                          '& .MuiPaper-root': {
+                            width: '100%', // Ensure the clock fits the width of the popper
+                            '& .MuiClock-pin': {
+                              backgroundColor: '#6950e9',
+                            },
+                            '& .Mui-selected': {
+                              backgroundColor: '#6950e9',
+                            },
+                            '& .MuiClockPointer-root': {
+                              backgroundColor: '#6950e9',
+                            },
+                            '& .MuiPickersArrowSwitcher-root': {
+                              right: 0,
+                              top: 0,
+                            },
+                            '& .MuiClockPointer-thumb': {
+                              borderColor: '#6950e9',
+                            },
+                          },
+                        },
+                      },
+                    }}
+                  />
+                </LocalizationProvider>
               )}
             />
           </div>

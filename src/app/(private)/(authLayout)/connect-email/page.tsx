@@ -14,8 +14,7 @@ import Button from '@/components/common/button';
 export interface ConnectedEmailType {
   _id: string;
   emailId: string;
-  verified: boolean;
-  domain: string;
+  type: string;
   userId: string;
   signature: string;
 }
@@ -66,13 +65,7 @@ const Page = () => {
                 scope="col"
                 className={`py-3.5 pl-4 pr-3 ${isDarkMode ? 'text-[#9CA3AF]' : 'text-[#6B7280]'}  text-left text-sm  sm:pl-0`}
               >
-                Domain
-              </th>
-              <th
-                scope="col"
-                className={`py-3.5 pl-4 pr-3 ${isDarkMode ? 'text-[#9CA3AF]' : 'text-[#6B7280]'}  text-left text-sm  sm:pl-0`}
-              >
-                Status
+                Type
               </th>
               <th
                 scope="col"
@@ -96,13 +89,7 @@ const Page = () => {
                 <td
                   className={`whitespace-nowrap px-3 py-5 ${isDarkMode ? 'text-[#9CA3AF]' : 'text-[#6B7280]'} text-sm`}
                 >
-                  <div className="">{elem.domain}</div>
-                </td>
-                <td>
-                  <Chip
-                    label={elem.verified ? 'Verified' : 'Not Verified'}
-                    color={elem.verified ? 'success' : 'danger'}
-                  />
+                  <div className="">{elem.type}</div>
                 </td>
                 <td className="whitespace-nowrap px-6 py-5 text-sm text-gray-500">
                   <span

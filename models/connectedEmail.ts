@@ -14,13 +14,40 @@ const connectedEmailSchema: any = new Schema(
     signature: {
       type: String,
     },
-    domain: {
+    type: {
       type: String,
+      enum: ['gmail', 'outlook', 'custom'],
       required: true,
     },
-    verified: {
-      type: Boolean,
-      default: false,
+    gmailToken: {
+      type: String,
+    },
+    outlookToken: {
+      type: String,
+    },
+    smtpHost: {
+      type: String,
+    },
+    smtpPort: {
+      type: String,
+    },
+    smtpUsername: {
+      type: String,
+    },
+    imapHost: {
+      type: String,
+    },
+    imapPort: {
+      type: String,
+    },
+    imapUsername: {
+      type: String,
+    },
+    smtpPassword: {
+      type: String,
+    },
+    imapPassword: {
+      type: String,
     },
   },
   { timestamps: true }
