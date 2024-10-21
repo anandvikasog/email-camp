@@ -1,4 +1,4 @@
-import mongoose from 'mongoose';
+import mongoose, { InferSchemaType } from 'mongoose';
 const { Schema } = mongoose;
 
 const connectedEmailSchema: any = new Schema(
@@ -52,6 +52,9 @@ const connectedEmailSchema: any = new Schema(
   },
   { timestamps: true }
 );
+
+export type ConnectedEmailType = InferSchemaType<typeof connectedEmailSchema>;
+
 const ConnectedEmail =
   mongoose.models.ConnectedEmail ||
   mongoose.model('ConnectedEmail', connectedEmailSchema);

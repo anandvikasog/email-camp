@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { validateUser } from '~/utils/helper';
 import ConnectedEmail from '~/models/connectedEmail';
+import nodemailer from 'nodemailer';
 import axios from 'axios';
 
 export async function POST(req: NextRequest) {
@@ -16,6 +17,7 @@ export async function POST(req: NextRequest) {
       );
     }
     const data = await req.json();
+
     const {
       email,
       smtpHost,
@@ -41,6 +43,26 @@ export async function POST(req: NextRequest) {
     ) {
       return NextResponse.json(
         { status: false, message: 'Something went wrong.' },
+        { status: 400 }
+      );
+    }
+
+    // Validate SMTP credentials by sending a test email
+    const testEmailResult = await sendTestEmail({
+      smtpHost,
+      smtpPort,
+      smtpUsername,
+      smtpPassword,
+      fromEmail: email, // Use user's email as the sender address to test validity
+      toEmail: 'ram.agarwal@ongraph.com', // Test email sent to a hardcoded test email address
+    });
+
+    if (!testEmailResult.success) {
+      return NextResponse.json(
+        {
+          status: false,
+          message: 'Invalid SMTP credentials: ' + testEmailResult.message,
+        },
         { status: 400 }
       );
     }
@@ -101,5 +123,50 @@ export async function POST(req: NextRequest) {
       { status: false, message: 'Something went wrong.' },
       { status: 500 }
     );
+  }
+}
+
+// Helper function to send a test email to validate SMTP credentials
+async function sendTestEmail({
+  smtpHost,
+  smtpPort,
+  smtpUsername,
+  smtpPassword,
+  fromEmail,
+  toEmail,
+}: {
+  smtpHost: string;
+  smtpPort: number;
+  smtpUsername: string;
+  smtpPassword: string;
+  fromEmail: string; // This is the user's provided email
+  toEmail: string; // Sending to test email (e.g., 'test@yopmail.com')
+}): Promise<{ success: boolean; message?: string }> {
+  try {
+    // Create a Nodemailer transporter with the user's SMTP credentials
+    const transporter = nodemailer.createTransport({
+      host: smtpHost,
+      port: smtpPort,
+      secure: smtpPort === 465, // true for 465, false for other ports
+      auth: {
+        user: smtpUsername,
+        pass: smtpPassword,
+      },
+      connectionTimeout: 10000, // optional: increase the connection timeout
+      socketTimeout: 10000, // optional: increase the socket timeout
+    });
+
+    // Send a test email to check if the SMTP connection works
+    await transporter.sendMail({
+      from: fromEmail, // Sender address (user's email)
+      to: toEmail, // Receiver's address (test email like yopmail)
+      subject: 'SMTP Test Email', // Subject line
+      text: 'This is a test email to verify your SMTP credentials.', // Plain text body
+    });
+
+    return { success: true };
+  } catch (error: any) {
+    console.error('Error sending test email:', error);
+    return { success: false, message: error.message };
   }
 }

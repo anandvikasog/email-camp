@@ -26,7 +26,7 @@ const Page = () => {
         </h1>
         <div className="flex flex-wrap gap-5 pt-5">
           <div
-            className={`flex justify-center items-center gap-3 font-thin py-3 rounded-lg border p-10 cursor-pointer border-gray-500 text-[#111827]`}
+            className={`flex justify-center items-center gap-3 font-thin py-3 rounded-lg border p-10 cursor-pointer border-gray-500 `}
             onClick={() =>
               router.push(`${paths.private.connectNewEmails}/gmail`)
             }
@@ -40,7 +40,7 @@ const Page = () => {
             Google/Gmail
           </div>
           <div
-            className={`flex justify-center items-center gap-3 font-thin py-3 rounded-lg border p-10 cursor-pointer border-gray-500 text-[#111827]`}
+            className={`flex justify-center items-center gap-3 font-thin py-3 rounded-lg border p-10 cursor-pointer border-gray-500 `}
             onClick={() =>
               router.push(`${paths.private.connectNewEmails}/outlook`)
             }
@@ -54,7 +54,7 @@ const Page = () => {
             Microsoft/Outlook
           </div>
           <div
-            className={`flex justify-center items-center gap-3 font-thin py-3 rounded-lg border p-10 cursor-pointer border-gray-500 text-[#111827]`}
+            className={`flex justify-center items-center gap-3 font-thin py-3 rounded-lg border p-10 cursor-pointer border-gray-500 `}
             onClick={() =>
               router.push(`${paths.private.connectNewEmails}/custom`)
             }

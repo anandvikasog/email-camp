@@ -45,8 +45,8 @@ const EmailSelector = ({
           >
             <option value="">{isLoading ? 'Loading...' : 'Select'}</option>
             {verifiedMails.map((elem) => (
-              <option key={elem._id} value={elem._id}>
-                {elem.emailId}
+              <option key={elem._id} value={`${elem._id}`}>
+                {elem.emailId} ({elem.type})
               </option>
             ))}
           </select>

@@ -110,6 +110,23 @@ export const authApiSlice = apiSlice.injectEndpoints({
         body: payload,
       }),
     }),
+    // New sendOtp mutation to request OTP
+    sendOtp: builder.mutation({
+      query: (payload: { email: string }) => ({
+        url: apiPaths.email.connectCustomSendOtp, // Assuming sendOtp endpoint exists in apiPaths
+        method: 'POST',
+        body: payload,
+      }),
+    }),
+
+    // New verifyOtp mutation to verify the OTP
+    verifyOtp: builder.mutation({
+      query: (payload: { email: string; otp: string }) => ({
+        url: apiPaths.email.connectCustomVerifyOtp, // Assuming verifyOtp endpoint exists in apiPaths
+        method: 'POST',
+        body: payload,
+      }),
+    }),
 
     // PUT request for updating signature
     updateConnectedEmail: builder.mutation({
@@ -214,4 +231,6 @@ export const {
   useConnectGoogleMutation,
   useConnectMicrosoftMutation,
   useConnectCustomMutation,
+  useSendOtpMutation, // Added for sending OTP
+  useVerifyOtpMutation,
 } = authApiSlice;

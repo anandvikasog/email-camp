@@ -110,6 +110,7 @@ const EmailForm = ({
   trigger: UseFormTrigger<CampaignValues>;
 }) => {
   const { isDarkMode } = useDarkMode();
+
   return (
     <div>
       <div className="py-10 px-5 mb-5 mt-5 ml-2 border-l-2 border-dashed border-[#6950e9] text-[#6950e9] italic text-sm">
@@ -146,7 +147,10 @@ const EmailForm = ({
                   <DateTimePicker
                     value={field.value ? dayjs(field.value, 'HH:mm') : null}
                     onChange={(date) => {
-                      field.onChange(date ? dayjs(date).format('HH:mm') : '');
+                      const formattedDate = date
+                        ? dayjs(date).format('YYYY-MM-DD HH:mm')
+                        : '';
+                      field.onChange(formattedDate);
                     }}
                     viewRenderers={{
                       hours: renderTimeViewClock,
@@ -173,6 +177,18 @@ const EmailForm = ({
                             },
                             '& .MuiClockPointer-thumb': {
                               borderColor: '#6950e9',
+                            },
+                          },
+                        },
+                      },
+                      textField: {
+                        sx: {
+                          '& .MuiInputBase-input': {
+                            color: isDarkMode ? 'white' : 'black',
+                          },
+                          '& .MuiOutlinedInput-root': {
+                            '& fieldset': {
+                              borderColor: isDarkMode ? '#6950e9' : 'black', // Outline border color
                             },
                           },
                         },

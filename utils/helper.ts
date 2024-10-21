@@ -6,6 +6,8 @@ import User from '~/models/user';
 import { paths } from '@/paths';
 import { redirect } from 'next/navigation';
 import { google } from 'googleapis';
+import axios from 'axios';
+import nodemailer from 'nodemailer';
 
 // this will return session cookie name as per dev/prod mode
 export const getSessionCookieName = () => {
@@ -91,30 +93,98 @@ export async function sendEmailUsingGmail(
   accessToken: string,
   recipient: string,
   subject: string,
-  message: string
+  htmlMessage: string
 ) {
+  // Initialize the OAuth2 client
   const oauth2Client = new google.auth.OAuth2();
   oauth2Client.setCredentials({ access_token: accessToken });
 
+  // Initialize the Gmail API
   const gmail = google.gmail({ version: 'v1', auth: oauth2Client });
 
+  // Create the email message with HTML content
   const encodedMessage = Buffer.from(
-    `To: ${recipient}\r\n` + `Subject: ${subject}\r\n\r\n` + `${message}`
+    `To: ${recipient}\r\n` +
+      `Subject: ${subject}\r\n` +
+      `Content-Type: text/html; charset="UTF-8"\r\n` +
+      `\r\n` +
+      htmlMessage
   )
     .toString('base64')
     .replace(/\+/g, '-')
     .replace(/\//g, '_')
     .replace(/=+$/, '');
 
-  try {
-    await gmail.users.messages.send({
-      userId: 'me',
-      requestBody: {
-        raw: encodedMessage,
+  // Send the email
+  const res = await gmail.users.messages.send({
+    userId: 'me',
+    requestBody: {
+      raw: encodedMessage,
+    },
+  });
+
+  return true;
+}
+
+export async function sendEmailUsingOutlook(
+  accessToken: string,
+  recipient: string,
+  subject: string,
+  htmlMessage: string
+) {
+  const emailData = {
+    message: {
+      subject: subject,
+      body: {
+        contentType: 'HTML',
+        content: htmlMessage,
       },
-    });
-    console.log('Email sent successfully!');
-  } catch (error) {
-    console.error('Error sending email:', error);
-  }
+      toRecipients: [
+        {
+          emailAddress: {
+            address: recipient,
+          },
+        },
+      ],
+    },
+  };
+
+  const response = await axios.post(
+    'https://graph.microsoft.com/v1.0/me/sendMail',
+    emailData,
+    {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        'Content-Type': 'application/json',
+      },
+    }
+  );
+
+  return true;
+}
+
+export async function sendEmailUsingCustomSmtp(
+  smtpData: any,
+  recipient: string,
+  subject: string,
+  htmlMessage: string
+) {
+  const { smtpHost, smtpPort, smtpUsername, smtpPassword, emailId } = smtpData;
+  const transporter = nodemailer.createTransport({
+    host: smtpHost,
+    port: smtpPort,
+    secure: smtpPort === 465,
+    auth: {
+      user: smtpUsername,
+      pass: smtpPassword,
+    },
+  });
+
+  const res = await transporter.sendMail({
+    from: emailId,
+    to: recipient,
+    subject: subject,
+    html: htmlMessage,
+  });
+  return true;
 }

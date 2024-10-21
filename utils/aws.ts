@@ -2,11 +2,11 @@ import AWS from 'aws-sdk';
 import ConnectedEmail from '~/models/connectedEmail';
 import Campaign from '~/models/campaign';
 import { Types } from 'mongoose';
-import { Prospect } from '@/app/api/campaign/route';
 import CampaignMail from '~/models/campaignMail';
 import { awsEmailVerificationTemplate } from './emailHandler/emailTemplates/verifyAwsEmail';
 import { paths } from '@/paths';
 import transporter from './transporter';
+import { Prospect } from './campaign';
 
 // Config AWS
 AWS.config.update({

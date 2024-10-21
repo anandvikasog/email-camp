@@ -6,10 +6,14 @@ import { paths } from '@/paths';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { connectEmailSchema } from '@/lib/validationSchema';
 import SpinnerLoader from '@/components/common/spinner-loader';
-import { useConnectCustomMutation } from '@/store/Features/auth/authApiSlice';
+import {
+  useConnectCustomMutation,
+  useSendOtpMutation,
+  useVerifyOtpMutation,
+} from '@/store/Features/auth/authApiSlice';
 import { toast } from 'react-toastify';
 import { useRouter } from 'next/navigation';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useDarkMode } from '../../../../../../contexts/DarkModeContext';
 
 type Values = zod.infer<typeof connectEmailSchema>;
@@ -29,11 +33,41 @@ const defaultValues = {
 const CustomEmailForm = () => {
   const router = useRouter();
   const [connectCustom, { data, isLoading }] = useConnectCustomMutation<any>();
+  const [sendOtpMutation, { isLoading: isSendingOtp }] = useSendOtpMutation(); // API to send OTP
+  const [verifyOtpMutation, { isLoading: isVerifyingOtp }] =
+    useVerifyOtpMutation(); // API to verify OTP
+  const [otpSent, setOtpSent] = useState(false);
+  const [otpVerified, setOtpVerified] = useState(false);
+  const [otp, setOtp] = useState('');
   const { isDarkMode } = useDarkMode();
+
+  // Step 1: Handle sending OTP
+  const sendOtp = async (email: string) => {
+    try {
+      await sendOtpMutation({ email }).unwrap();
+      setOtpSent(true);
+      toast.success('OTP sent to your email.');
+    } catch (err) {
+      toast.error('Failed to send OTP.');
+    }
+  };
+
+  // Step 2: Verify OTP
+  const verifyOtp = async (otp: string, email: string) => {
+    try {
+      await verifyOtpMutation({ email, otp }).unwrap();
+      setOtpVerified(true);
+      toast.success('OTP verified successfully.');
+    } catch (error: any) {
+      toast.error(error?.data?.message || 'Error verifying OTP.');
+    }
+  };
 
   const {
     handleSubmit,
     register,
+    setValue,
+    getValues,
     setError,
     formState: { errors },
   } = useForm<Values>({
@@ -42,6 +76,10 @@ const CustomEmailForm = () => {
   });
 
   const onSubmit = (data: Values) => {
+    if (!otpVerified) {
+      toast.error('Please verify OTP before proceeding.');
+      return;
+    }
     const {
       email,
       smtpHost,
@@ -70,7 +108,8 @@ const CustomEmailForm = () => {
   useEffect(() => {
     if (data) {
       toast.success(data.message);
-      router.push(paths.private.editConnectedEmail(data.ConnectedEmail));
+
+      router.push(paths.private.editConnectedEmail(data.data._id));
     }
   }, [data, router]);
 
@@ -78,7 +117,7 @@ const CustomEmailForm = () => {
     <div className="p-2 min-h-screen">
       <div className="pb-2">
         <button
-          className="flex items-center gap-2 text-indigo-600 hover:underline"
+          className="flex items-center gap-2 text-[#6950e9] hover:underline"
           onClick={() => router.push(paths.private.connectNewEmails)}
         >
           <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
@@ -99,6 +138,42 @@ const CustomEmailForm = () => {
             <span className="text-xs text-red-600">
               {errors['email']?.message}
             </span>
+          )}
+          {otpSent && !otpVerified && (
+            <div className="flex flex-col">
+              <input
+                type="text"
+                placeholder="Enter OTP"
+                value={otp}
+                className={`p-2 border rounded ${isDarkMode ? 'bg-[#202938] border-[#121929]' : 'bg-white'}`}
+                onChange={(e) => setOtp(e.target.value)}
+              />
+              <button
+                type="button"
+                onClick={() => verifyOtp(otp, getValues('email'))}
+                disabled={isVerifyingOtp}
+                className="mt-2 bg-[#6950e9] text-white py-2 px-4 rounded"
+              >
+                {isVerifyingOtp ? <SpinnerLoader /> : 'Verify OTP'}
+              </button>
+            </div>
+          )}
+
+          {otpVerified && ( // Display verification success message
+            <div className="text-[#6950e9] font-semibold">
+              OTP Verified Successfully!
+            </div>
+          )}
+
+          {!otpSent && !otpVerified && (
+            <button
+              type="button"
+              onClick={() => sendOtp(getValues('email'))}
+              disabled={isSendingOtp}
+              className="bg-[#6950e9] text-white py-2 px-4 rounded"
+            >
+              {isSendingOtp ? <SpinnerLoader /> : 'Send OTP'}
+            </button>
           )}
 
           <div className="border p-5 rounded-lg shadow-md">
