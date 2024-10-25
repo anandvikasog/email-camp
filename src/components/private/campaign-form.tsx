@@ -5,7 +5,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import React, { useEffect, useRef, useState } from 'react';
 import { Controller, useFieldArray, useForm } from 'react-hook-form';
 import { z as zod } from 'zod';
-import useProspectUpload from '@/hooks/use-prospect-upload';
+import useProspectUpload, { CsvRow } from '@/hooks/use-prospect-upload';
 import { timezones } from '~/utils/timezones';
 import 'react-quill/dist/quill.snow.css';
 import EmailForm, {
@@ -55,13 +55,14 @@ export default function CampaignForm({
   const [isExisting] = useState(!!campaignData);
   const [summeryVisible, setSummeryVisible] = useState(false);
   const {
-    csvData,
+    csvData: parsedCsvData,
     csvError,
     onChangeHandler,
     variables,
     handleDownloadSample,
     populateData,
   } = useProspectUpload();
+  const [csvData, setCsvData] = useState<CsvRow[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { isDarkMode } = useDarkMode();
   const [createCampaign, { data: createData, isLoading }] =
@@ -81,6 +82,10 @@ export default function CampaignForm({
     defaultValues,
     resolver: zodResolver(createCampeignSchema),
   });
+
+  useEffect(() => {
+    setCsvData(parsedCsvData);
+  }, [parsedCsvData]);
 
   const { fields, append, remove } = useFieldArray({
     control,
@@ -344,6 +349,16 @@ export default function CampaignForm({
                         </th>
                       );
                     })}
+                    <th className="text-left py-1  font-semibold text-sm  whitespace-nowrap">
+                      <button
+                        className="text-[#6950e9] min-w-32  flex justify-center"
+                        onClick={() => {
+                          setCsvData([]);
+                        }}
+                      >
+                        Delete All
+                      </button>
+                    </th>
                   </tr>
                 </thead>
                 <tbody>
@@ -362,6 +377,31 @@ export default function CampaignForm({
                           </td>
                         );
                       })}
+                      <td>
+                        <div className="flex justify-center">
+                          <svg
+                            onClick={() => {
+                              setCsvData((prev) => {
+                                return prev.filter(
+                                  (row, index) => index != ind
+                                );
+                              });
+                            }}
+                            aria-hidden="true"
+                            className="h-4 w-3 flex-none text-red-600 cursor-pointer"
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="12"
+                            height="14"
+                            viewBox="0 0 12 14"
+                            fill="none"
+                          >
+                            <path
+                              d="M3.62143 0.483984L3.42857 0.875H0.857143C0.383036 0.875 0 1.26602 0 1.75C0 2.23398 0.383036 2.625 0.857143 2.625H11.1429C11.617 2.625 12 2.23398 12 1.75C12 1.26602 11.617 0.875 11.1429 0.875H8.57143L8.37857 0.483984C8.23393 0.185938 7.93661 0 7.6125 0H4.3875C4.06339 0 3.76607 0.185938 3.62143 0.483984ZM11.1429 3.5H0.857143L1.425 12.7695C1.46786 13.4613 2.03036 14 2.70804 14H9.29196C9.96964 14 10.5321 13.4613 10.575 12.7695L11.1429 3.5Z"
+                              fill="#DC2626"
+                            />
+                          </svg>
+                        </div>
+                      </td>
                     </tr>
                   ))}
                 </tbody>

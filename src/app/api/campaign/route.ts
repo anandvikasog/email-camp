@@ -117,6 +117,7 @@ export async function GET(req: NextRequest) {
     await dbConnect();
 
     // If campaignId exists, fetch a specific campaign by ID
+
     if (campaignId) {
       const campaign = await Campaign.aggregate([
         {
@@ -187,6 +188,14 @@ export async function GET(req: NextRequest) {
       {
         $addFields: {
           fromEmail: '$fromEmail.emailId',
+        },
+      },
+      {
+        $lookup: {
+          from: 'campaignmails',
+          localField: 'mails',
+          foreignField: '_id',
+          as: 'mails',
         },
       },
     ]);

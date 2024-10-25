@@ -9,6 +9,7 @@ import {
   sendEmailUsingOutlook,
 } from './helper';
 const moment = require('moment-timezone');
+import schedule from 'node-schedule';
 
 export type WeekDays = 'sun' | 'mon' | 'tue' | 'wed' | 'thu' | 'fri' | 'sat';
 
@@ -17,6 +18,7 @@ export interface Prospect {
   isDelivered?: boolean;
   isBounced?: boolean;
   isRejected?: boolean;
+  _id: string;
 }
 
 export interface TimeInterval {
@@ -90,19 +92,22 @@ export const getTimezoneOffset = (tz: string): TimezoneOffset => {
   };
 };
 
-export const getStartTimeAsPerTimezone = (time: Date, tz: string) => {
-  return time;
+export const getStartTimeAsPerTimezone = (time: string | Date, tz: string) => {
+  // return time;
 
-  // FOR PRODUCTION ---
-  //   const off = getTimezoneOffset(tz);
-  //   if (off.polarity === 'positive') {
-  //     return moment(time).add(off.offset, 'seconds').toISOString();
-  //   } else {
-  //     return moment(time).subtract(off.offset, 'seconds').toISOString();
-  //   }
+  // // FOR PRODUCTION ---
+  // const off = getTimezoneOffset(tz);
+  // if (off.polarity === 'positive') {
+  //   return moment(time).add(off.offset, 'seconds');
+  // } else {
+  //   return moment(time).subtract(off.offset, 'seconds');
+  // }
+  // Directly convert time to the specified timezone using moment.tz
+  return moment.tz(time, tz);
 };
 
 // export const scheduleFollowUps = async (campaign: CampaignDocument) => {
+//   console.log('campaign', JSON.stringify(campaign));
 //   // Fetch the connected email from the database
 //   const emailDoc = await ConnectedEmail.findById(campaign.fromEmail);
 //   if (!emailDoc || !emailDoc.emailId) {
@@ -137,7 +142,6 @@ export const scheduleFollowUps = async (
   // Fetch the connected email from the database
   const emailDoc = await ConnectedEmail.findById(campaign.fromEmail);
   if (!emailDoc || !emailDoc.emailId) {
-    console.error(`Email not found for user ID: ${campaign.fromEmail}`);
     return;
   }
 
@@ -151,7 +155,7 @@ export const scheduleFollowUps = async (
     const { sendAt, timezone, timing } = mail;
 
     // Convert sendAt to the user's timezone
-    const userSendTime = moment.tz(sendAt, timezone);
+    const userSendTime = getStartTimeAsPerTimezone(sendAt, timezone);
     const weekday = userSendTime.day(); // Get weekday from sendAt time
     const currentDay: WeekDays = getWeekDayFromIndex(weekday);
     const daySchedule = timing[currentDay];
@@ -178,12 +182,12 @@ export const scheduleFollowUps = async (
             .startOf('day')
             .add(i, 'days');
 
-          const startInterval = moment.tz(
+          const startInterval = getStartTimeAsPerTimezone(
             `${intervalDate.format('YYYY-MM-DD')} ${interval.start}`,
             timezone
           );
 
-          const endInterval = moment.tz(
+          const endInterval = getStartTimeAsPerTimezone(
             `${intervalDate.format('YYYY-MM-DD')} ${interval.end}`,
             timezone
           );
@@ -211,11 +215,11 @@ export const scheduleFollowUps = async (
 
     // Check the current day's schedule
     if (daySchedule && daySchedule.checked) {
-      const firstIntervalStart = moment.tz(
+      const firstIntervalStart = getStartTimeAsPerTimezone(
         `${userSendTime.format('YYYY-MM-DD')} ${daySchedule.intervals[0].start}`,
         timezone
       );
-      const lastIntervalEnd = moment.tz(
+      const lastIntervalEnd = getStartTimeAsPerTimezone(
         `${userSendTime.format('YYYY-MM-DD')} ${daySchedule.intervals[daySchedule.intervals.length - 1].end}`,
         timezone
       );
@@ -241,11 +245,33 @@ export const scheduleFollowUps = async (
     if (scheduledTime) {
       let delay = 0; // Start with no delay
 
+      // Update status to 'In Progress' when scheduling follow-ups
+      await Campaign.findByIdAndUpdate(campaign._id, {
+        status: 'Pending',
+      });
+
       for (const prospect of mail.prospects) {
         delay += 60000; // 60 seconds interval
 
+        // console.log('Current time', moment().format('DD/MM/YYYY hh:mm:ss a z'));
+        // console.log(
+        //   'Scheduled time',
+        //   moment(scheduledTime.clone().add(delay, 'ms').toDate()).format(
+        //     'DD/MM/YYYY hh:mm:ss a z'
+        //   )
+        // );
+        // const jobName = `${campaign._id}`; // Simplified to just the campaign ID
+        const jobName = `${campaign._id}-${mail._id}-${prospect._id}`;
+
+        // Check if the job already exists
+        const existingJob = schedule.scheduledJobs[jobName];
+        if (existingJob) {
+          existingJob.cancel(); // Cancel the existing job before scheduling a new one
+        }
         // Schedule email sending for each prospect
+
         scheduleJob(
+          jobName,
           scheduledTime.clone().add(delay, 'ms').toDate(),
           async () => {
             try {
@@ -274,6 +300,7 @@ export const scheduleFollowUps = async (
             }
           }
         );
+        console.log('Scheduling job:', jobName, 'at', scheduledTime.format());
       }
     }
   }
@@ -337,7 +364,7 @@ export const sendCampaignEmails = async (
         }
       } catch (error) {
         console.log(`Error in sending mail at: ${recipantData.EMAIL} ---`);
-        console.log(error);
+
         mailDeliveryStatus.push({ EMAIL: recipantData.EMAIL, status: false });
         updatedProspects.push({
           ...prospect,
@@ -360,3 +387,16 @@ export const sendCampaignEmails = async (
     throw error;
   }
 };
+
+export async function cancelExistingSchedules(
+  campaignId: string
+): Promise<void> {
+  const job = schedule.scheduledJobs[campaignId];
+
+  if (job) {
+    job.cancel();
+    console.log(`Canceled job: ${campaignId}`);
+  } else {
+    console.log(`No job found for campaign ${campaignId}`);
+  }
+}

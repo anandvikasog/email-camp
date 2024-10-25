@@ -40,16 +40,16 @@ export interface ITiming {
     intervals: IInterval[];
   };
 }
-const weekDays: WeekDay[] = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'];
+const weekDays: WeekDay[] = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
 
 const daysNameMap = {
+  sun: 'Sunday',
   mon: 'Monday',
   tue: 'Tuesday',
   wed: 'Wednesday',
   thu: 'Thursday',
   fri: 'Friday',
   sat: 'Saturday',
-  sun: 'Sunday',
 };
 
 export const defaultInterval: IInterval = {
@@ -122,81 +122,102 @@ const EmailForm = ({
             <label>Start Date</label>
             <br />
 
-            {/* <DateTimePicker
-              control={control}
-              type="date-time"
-              name={`mails.${index}.sendAt`}
-              label="Select date"
-            /> */}
             <Controller
               name={`mails.${index}.sendAt`}
               control={control}
-              render={({ field }) => (
-                // <input
-                //   type="datetime-local"
-                //   {...field}
-                //   placeholder="Start At"
-                //   className={`p-2 border rounded ${
-                //     isDarkMode
-                //       ? 'text-white bg-[#202938]'
-                //       : 'bg-white text-gray-900'
-                //   }`}
-                //   min={new Date().toISOString().slice(0, 16)}
-                // />
-                <LocalizationProvider dateAdapter={AdapterDayjs}>
-                  <DateTimePicker
-                    value={field.value ? dayjs(field.value, 'HH:mm') : null}
-                    onChange={(date) => {
-                      const formattedDate = date
-                        ? dayjs(date).format('YYYY-MM-DD HH:mm')
-                        : '';
-                      field.onChange(formattedDate);
-                    }}
-                    viewRenderers={{
-                      hours: renderTimeViewClock,
-                      minutes: renderTimeViewClock,
-                      seconds: renderTimeViewClock,
-                    }}
-                    slotProps={{
-                      popper: {
-                        sx: {
-                          '& .MuiPaper-root': {
-                            width: '100%', // Ensure the clock fits the width of the popper
-                            '& .MuiClock-pin': {
-                              backgroundColor: '#6950e9',
+              render={({ field }) => {
+                return (
+                  <LocalizationProvider dateAdapter={AdapterDayjs}>
+                    <DateTimePicker
+                      value={field.value ? dayjs(field.value) : null}
+                      onChange={(date) => {
+                        const formattedDate = date
+                          ? dayjs(date).format('YYYY-MM-DD HH:mm')
+                          : '';
+                        field.onChange(formattedDate);
+                      }}
+                      viewRenderers={{
+                        hours: renderTimeViewClock,
+                        minutes: renderTimeViewClock,
+                        seconds: renderTimeViewClock,
+                      }}
+                      slotProps={{
+                        popper: {
+                          sx: {
+                            '& .MuiPickersYear-yearButton': {
+                              color: isDarkMode ? 'white' : '',
                             },
-                            '& .Mui-selected': {
-                              backgroundColor: '#6950e9',
-                            },
-                            '& .MuiClockPointer-root': {
-                              backgroundColor: '#6950e9',
-                            },
-                            '& .MuiPickersArrowSwitcher-root': {
-                              right: 0,
-                              top: 0,
-                            },
-                            '& .MuiClockPointer-thumb': {
-                              borderColor: '#6950e9',
+                            '& .MuiPaper-root': {
+                              backgroundColor: isDarkMode ? '#202938' : '',
+
+                              width: '100%', // Ensure the clock fits the width of the popper
+                              '& .MuiPickersCalendarHeader-root': {
+                                color: isDarkMode ? 'white' : '', // Header (Month, Year) text color
+                              },
+                              '& .MuiPickersDay-dayWithMargin': {
+                                color: isDarkMode ? 'white' : '', // All dates color
+                              },
+                              '& .MuiDayCalendar-weekContainer .MuiPickersDay-root':
+                                {
+                                  color: isDarkMode ? 'white' : '', // Dates text color
+                                },
+                              '& .MuiClock-root .MuiClockNumber-root': {
+                                color: isDarkMode ? 'white' : '', // Clock time number text color
+                              },
+                              '& .MuiClock-pin': {
+                                backgroundColor: '#6950e9',
+                              },
+                              '& .Mui-selected': {
+                                backgroundColor: '#6950e9',
+                              },
+                              '& .MuiDayCalendar-weekDayLabel, & .MuiClock-meridiemText':
+                                {
+                                  color: isDarkMode ? 'white' : '', // Weekdays color
+                                },
+                              // Change arrow buttons color (< >)
+                              '& .MuiPickersArrowSwitcher-button': {
+                                color: isDarkMode ? 'white' : '', // Arrow color
+                              },
+                              // Change AM/PM selector text color
+                              '& .MuiPickersTimePickerToolbar-ampmSelection': {
+                                color: isDarkMode ? 'white' : '', // AM/PM color
+                              },
+                              '& .MuiPickersTimePickerToolbar-ampmLabel': {
+                                color: isDarkMode ? 'white' : '', // AM/PM label color
+                              },
+                              '& .MuiClockPointer-root': {
+                                backgroundColor: '#6950e9',
+                              },
+                              '& .MuiPickersArrowSwitcher-root': {
+                                right: 0,
+                                top: 0,
+                              },
+                              '& .MuiClockPointer-thumb': {
+                                borderColor: '#6950e9',
+                              },
                             },
                           },
                         },
-                      },
-                      textField: {
-                        sx: {
-                          '& .MuiInputBase-input': {
-                            color: isDarkMode ? 'white' : 'black',
-                          },
-                          '& .MuiOutlinedInput-root': {
-                            '& fieldset': {
-                              borderColor: isDarkMode ? '#6950e9' : 'black', // Outline border color
+                        textField: {
+                          sx: {
+                            '& .MuiIconButton-root': {
+                              color: isDarkMode ? 'grey' : '',
+                            },
+                            '& .MuiInputBase-input': {
+                              color: isDarkMode ? 'white' : 'black',
+                            },
+                            '& .MuiOutlinedInput-root': {
+                              '& fieldset': {
+                                borderColor: isDarkMode ? '#6950e9' : 'black', // Outline border color
+                              },
                             },
                           },
                         },
-                      },
-                    }}
-                  />
-                </LocalizationProvider>
-              )}
+                      }}
+                    />
+                  </LocalizationProvider>
+                );
+              }}
             />
             {errors?.sendAt && (
               <div className="text-sm text-red-500">
@@ -418,6 +439,9 @@ const WeeklyScadule = ({
                           '& .MuiInputBase-input': {
                             padding: '4px', // Reduce input padding
                           },
+                          '& .MuiIconButton-root': {
+                            color: isDarkMode ? 'grey' : '',
+                          },
                         },
                         InputProps: {
                           sx: {
@@ -454,8 +478,12 @@ const WeeklyScadule = ({
                         sx: {
                           '& .MuiPaper-root': {
                             width: '100%', // Ensure the clock fits the width of the popper
+                            backgroundColor: isDarkMode ? '#202938' : '',
                             '& .MuiClock-pin': {
                               backgroundColor: '#6950e9',
+                            },
+                            '& .MuiClock-root .MuiClockNumber-root': {
+                              color: isDarkMode ? 'white' : '', // Clock time number text color
                             },
                             '& .Mui-selected': {
                               backgroundColor: '#6950e9',
@@ -469,6 +497,13 @@ const WeeklyScadule = ({
                             },
                             '& .MuiClockPointer-thumb': {
                               borderColor: '#6950e9',
+                            },
+                            '& .MuiDayCalendar-weekDayLabel, & .MuiClock-meridiemText':
+                              {
+                                color: isDarkMode ? 'white' : '', // Weekdays color
+                              },
+                            '& .MuiPickersArrowSwitcher-button ': {
+                              color: isDarkMode ? 'white' : '', // Arrow color
                             },
                           },
                         },
@@ -503,6 +538,9 @@ const WeeklyScadule = ({
                           '& .MuiInputBase-input': {
                             padding: '4px', // Reduce input padding
                           },
+                          '& .MuiIconButton-root': {
+                            color: isDarkMode ? 'grey' : '',
+                          },
                         },
                         InputProps: {
                           sx: {
@@ -539,8 +577,12 @@ const WeeklyScadule = ({
                         sx: {
                           '& .MuiPaper-root': {
                             width: '100%', // Ensure the clock fits the width of the popper
+                            backgroundColor: isDarkMode ? '#202938' : '',
                             '& .MuiClock-pin': {
                               backgroundColor: '#6950e9',
+                            },
+                            '& .MuiClock-root .MuiClockNumber-root': {
+                              color: isDarkMode ? 'white' : '', // Clock time number text color
                             },
                             '& .Mui-selected': {
                               backgroundColor: '#6950e9',
@@ -554,6 +596,13 @@ const WeeklyScadule = ({
                             },
                             '& .MuiClockPointer-thumb': {
                               borderColor: '#6950e9',
+                            },
+                            '& .MuiDayCalendar-weekDayLabel, & .MuiClock-meridiemText':
+                              {
+                                color: isDarkMode ? 'white' : '', // Weekdays color
+                              },
+                            '& .MuiPickersArrowSwitcher-button ': {
+                              color: isDarkMode ? 'white' : '', // Arrow color
                             },
                           },
                         },

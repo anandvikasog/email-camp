@@ -8,6 +8,8 @@ import { scheduleJob } from 'node-schedule'; // Node-schedule for scheduling fol
 import moment from 'moment-timezone';
 import { validateUser } from '~/utils/helper';
 import CampaignMail from '~/models/campaignMail';
+import { scheduleFollowUps } from '~/utils/campaign';
+import schedule from 'node-schedule';
 
 interface Params {
   id: string; // Define the type for params
@@ -129,15 +131,12 @@ export async function GET(req: NextRequest, { params }: { params: Params }) {
 
 // Function to update a campaign
 export async function PUT(req: NextRequest, { params }: { params: Params }) {
-  console.log('hii');
   try {
     const body = await req.json();
     const { name, fromEmail, mails, savedAsDraft } = body;
 
     // Connect to the database
     await dbConnect();
-
-    console.log(JSON.stringify(body));
 
     // Validate user authentication
     const user = await validateUser();
@@ -212,6 +211,7 @@ export async function PUT(req: NextRequest, { params }: { params: Params }) {
     // If the campaign is not a draft, schedule follow-ups
     if (!savedAsDraft) {
       // Schedule each follow-up mail based on its sendAt date
+      // await cancelExistingSchedules(existingCampaign._id);
       scheduleFollowUps({
         ...existingCampaign.toObject(),
         mails: campaignMailsArray,
@@ -240,49 +240,3 @@ export async function PUT(req: NextRequest, { params }: { params: Params }) {
     );
   }
 }
-
-// Function to schedule follow-up emails
-const scheduleFollowUps = async (campaign: CampaignDocument): Promise<void> => {
-  let sentCount = 0; // Counter for sent emails
-
-  // Extract the email address from connecteamails db
-  const emailDoc = await ConnectedEmail.findById(campaign.fromEmail);
-
-  // Check if the email was found
-  if (!emailDoc || !emailDoc?.emailId) {
-    console.error(`Email not found for user ID: ${campaign.fromEmail}`);
-    return; // Exit the function or handle as needed
-  }
-
-  for (const mail of campaign.mails) {
-    // If a timezone is provided, convert the sendAt time to the specified timezone
-    const sendTime = mail.timezone
-      ? moment.tz(mail.sendAt, mail.timezone).toDate() // Convert to Date object using moment-timezone
-      : new Date(mail.sendAt); // Default to the sendAt time as is if no timezone is specified
-
-    // Schedule job for each follow-up email
-    scheduleJob(sendTime, async function () {
-      try {
-        await sendCampaignEmails(
-          emailDoc.emailId,
-          mail.prospects,
-          mail.subject,
-          mail.body,
-          campaign._id as Types.ObjectId, // Pass campaignId
-          mail._id as Types.ObjectId
-        );
-
-        sentCount++; // Increment sent email count
-
-        // If this is the last email sent, update status to 'Completed'
-        if (sentCount === campaign.mails.length) {
-          await Campaign.findByIdAndUpdate(campaign._id, {
-            status: 'Completed',
-          });
-        }
-      } catch (error) {
-        console.error(`Error sending follow-up ${campaign.name}:`, error);
-      }
-    });
-  }
-};

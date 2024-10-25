@@ -15,8 +15,10 @@ const EmailSelector = ({
 }) => {
   const [getEmails, { data: connectedEmails, isLoading }] =
     useGetConnectedEmailMutation<any>({});
-  const [verifiedMails, setVerifiedMails] =
-    useState<ConnectedEmailType[]>(data);
+
+  const [verifiedMails, setVerifiedMails] = useState<{
+    data: ConnectedEmailType[];
+  }>(data as any);
 
   const { isDarkMode, toggleDarkMode } = useDarkMode();
 
@@ -28,9 +30,10 @@ const EmailSelector = ({
 
   useEffect(() => {
     if (connectedEmails) {
-      setVerifiedMails(connectedEmails.data);
+      setVerifiedMails(connectedEmails);
     }
   }, [connectedEmails]);
+
   return (
     <>
       <label htmlFor="subject">Sender Email</label>
@@ -44,11 +47,12 @@ const EmailSelector = ({
             className={`w-full p-2 border rounded ${isDarkMode ? 'bg-[#202938] border-[#121929]' : 'bg-white'}`}
           >
             <option value="">{isLoading ? 'Loading...' : 'Select'}</option>
-            {verifiedMails.map((elem) => (
-              <option key={elem._id} value={`${elem._id}`}>
-                {elem.emailId} ({elem.type})
-              </option>
-            ))}
+            {verifiedMails &&
+              verifiedMails?.data?.map((elem) => (
+                <option key={elem._id} value={`${elem._id}`}>
+                  {elem.emailId} ({elem.type})
+                </option>
+              ))}
           </select>
         )}
       />

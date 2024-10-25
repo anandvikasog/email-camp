@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import Papa, { ParseResult } from 'papaparse';
 
-interface CsvRow {
+export interface CsvRow {
   [key: string]: string | number;
 }
 
@@ -43,6 +43,7 @@ const useProspectUpload = () => {
         },
       });
     }
+    event.target.value = '';
   };
 
   return {

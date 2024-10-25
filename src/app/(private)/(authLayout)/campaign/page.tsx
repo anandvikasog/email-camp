@@ -2,7 +2,7 @@
 import { paths } from '@/paths';
 import { useGetCampaignQuery } from '@/store/Features/auth/authApiSlice';
 import Link from 'next/link';
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import SpinnerLoader from '../../../../components/common/spinner-loader';
 import moment from 'moment';
 import { ToggleButton } from '../../../../components/common/toggle-button';
@@ -10,6 +10,7 @@ import { useDarkMode } from '../../../../contexts/DarkModeContext';
 import Image from 'next/image';
 import Chip from '@/components/common/chip';
 import Button from '@/components/common/button';
+import { calculateStat } from '@/lib/calculateStat';
 
 interface ICampaign {
   _id: string;
@@ -18,7 +19,7 @@ interface ICampaign {
   fromEmail: string;
   status: string;
   createdAt: string;
-
+  mails: any;
   savedAsDraft: Boolean;
 }
 
@@ -90,6 +91,12 @@ const Page = () => {
                         scope="col"
                         className={`px-3 py-3.5 text-left text-sm font-semibold ${isDarkMode ? 'text-[#9CA3AF]' : 'text-[#6B7280]'}`}
                       >
+                        Delivery Status
+                      </th>
+                      <th
+                        scope="col"
+                        className={`px-3 py-3.5 text-left text-sm font-semibold ${isDarkMode ? 'text-[#9CA3AF]' : 'text-[#6B7280]'}`}
+                      >
                         Created At
                       </th>
                       <th
@@ -132,6 +139,21 @@ const Page = () => {
                         <td
                           className={`whitespace-nowrap px-3 py-5 text-sm ${isDarkMode ? 'text-[#9CA3AF]' : 'text-[#6B7280]'}`}
                         >
+                          {(() => {
+                            let stat = calculateStat(elem.mails);
+                            return (
+                              <div className="text-[12px]">
+                                <div>Total: {stat?.total}</div>
+                                <div>Delivered: {stat?.delivered}</div>
+                                <div>Rejected: {stat?.rejected}</div>
+                                <div>Bounced: {stat?.bounced}</div>
+                              </div>
+                            );
+                          })()}
+                        </td>
+                        <td
+                          className={`whitespace-nowrap px-3 py-5 text-sm ${isDarkMode ? 'text-[#9CA3AF]' : 'text-[#6B7280]'}`}
+                        >
                           <div className="">
                             {elem?.createdAt
                               ? moment(elem.createdAt).format('DD/MM/YYYY')
@@ -139,19 +161,19 @@ const Page = () => {
                           </div>
                         </td>
                         <td className="whitespace-nowrap px-3 py-5 text-sm ">
-                          {elem.savedAsDraft === true ? (
-                            <Link
-                              href={paths.private.editCampaign(elem._id)}
-                              className="text-indigo-600 hover:text-indigo-900"
-                            >
-                              <Image
-                                src="/images/pencil.svg"
-                                height={18}
-                                width={18}
-                                alt="edit"
-                              />
-                            </Link>
-                          ) : null}
+                          {/* {elem.savedAsDraft === true ? ( */}
+                          <Link
+                            href={paths.private.editCampaign(elem._id)}
+                            className="text-indigo-600 hover:text-indigo-900"
+                          >
+                            <Image
+                              src="/images/pencil.svg"
+                              height={18}
+                              width={18}
+                              alt="edit"
+                            />
+                          </Link>
+                          {/* ) : null} */}
                         </td>
                       </tr>
                     ))}

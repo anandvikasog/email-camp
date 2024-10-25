@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import CampaignForm from '@/components/private/campaign-form';
 import type { Metadata } from 'next';
 import { config } from '@/config';
@@ -12,10 +12,13 @@ export const metadata = {
   title: `Edit Campaign | ${config.site.name}`,
 } satisfies Metadata;
 
+export const revalidate = 0;
+
 export default async function Page({ params }: { params: { id: string } }) {
   const campaign = await getOneCampaign(params.id);
 
   const data = JSON.parse(campaign);
+
   if (!data.status) {
     redirect(paths.private.campaign);
   }

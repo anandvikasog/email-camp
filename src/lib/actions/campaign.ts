@@ -10,6 +10,7 @@ export const getOneCampaign = async (id: string) => {
       headers: {
         Cookie: getClientCookies(),
       },
+      cache: 'no-store', // Disable cache
     });
 
     return JSON.stringify(res.data);
@@ -23,6 +24,7 @@ export const getConnectedEmailS = async () => {
       headers: {
         Cookie: getClientCookies(),
       },
+      cache: 'no-store', // Disable cache
     });
 
     return JSON.stringify(res.data);
