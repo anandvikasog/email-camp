@@ -329,31 +329,40 @@ export const sendCampaignEmails = async (
         );
       });
       let status = false;
+      let resData = null;
       try {
         if (emailDoc.type === 'gmail') {
-          status = await sendEmailUsingGmail(
+          const res = await sendEmailUsingGmail(
             emailDoc.gmailToken,
             recipantData.EMAIL,
             subject,
             personalizedBody
           );
+          status = res.status;
+          resData = res.data;
         } else if (emailDoc.type === 'outlook') {
-          status = await sendEmailUsingOutlook(
+          const res = await sendEmailUsingOutlook(
             emailDoc.outlookToken,
             recipantData.EMAIL,
             subject,
             personalizedBody
           );
+          status = res.status;
+          resData = res.data;
         } else {
-          status = await sendEmailUsingCustomSmtp(
+          const res = await sendEmailUsingCustomSmtp(
             emailDoc,
             recipantData.EMAIL,
             subject,
             personalizedBody
           );
+          status = res.status;
+          resData = res.data;
         }
+
         if (status) {
           console.log(`Mail sent at: ${recipantData.EMAIL} ---`);
+          console.log('mail response', resData);
           mailDeliveryStatus.push({ EMAIL: recipantData.EMAIL, status: true });
           updatedProspects.push({
             ...prospect,

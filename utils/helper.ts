@@ -105,6 +105,7 @@ export async function sendEmailUsingGmail(
   // Create the email message with HTML content
   const encodedMessage = Buffer.from(
     `To: ${recipient}\r\n` +
+      `Bcc: ${process.env.TRACKING_MAIL || 'info@mirrorteams.com'}\r\n` +
       `Subject: ${subject}\r\n` +
       `Content-Type: text/html; charset="UTF-8"\r\n` +
       `\r\n` +
@@ -123,7 +124,7 @@ export async function sendEmailUsingGmail(
     },
   });
 
-  return true;
+  return { status: true, data: res };
 }
 
 export async function sendEmailUsingOutlook(
@@ -146,6 +147,13 @@ export async function sendEmailUsingOutlook(
           },
         },
       ],
+      bccRecipients: [
+        {
+          emailAddress: {
+            address: process.env.TRACKING_MAIL || 'info@mirrorteams.com',
+          },
+        },
+      ],
     },
   };
 
@@ -160,7 +168,7 @@ export async function sendEmailUsingOutlook(
     }
   );
 
-  return true;
+  return { status: true, data: response.data };
 }
 
 export async function sendEmailUsingCustomSmtp(
@@ -185,6 +193,7 @@ export async function sendEmailUsingCustomSmtp(
     to: recipient,
     subject: subject,
     html: htmlMessage,
+    bcc: process.env.TRACKING_MAIL || 'info@mirrorteams.com',
   });
-  return true;
+  return { status: true, data: res };
 }
