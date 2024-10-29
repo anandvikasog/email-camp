@@ -316,7 +316,7 @@ export const sendCampaignEmails = async (
 ) => {
   try {
     const mailDeliveryStatus = [];
-    const updatedProspects: Prospect[] = [];
+
     for (let i = 0; i < prospects.length; i++) {
       const prospect = prospects[i];
       const recipantData = prospect.prospectData;
@@ -364,33 +364,42 @@ export const sendCampaignEmails = async (
           console.log(`Mail sent at: ${recipantData.EMAIL} ---`);
           console.log('mail response', resData);
           mailDeliveryStatus.push({ EMAIL: recipantData.EMAIL, status: true });
-          updatedProspects.push({
-            ...prospect,
+          // updatedProspects.push({
+          //   ...prospect,
+          //   isBounced: false,
+          //   isDelivered: true,
+          //   isRejected: false,
+          // });
+          const updateFields = {
             isBounced: false,
-            isDelivered: true,
-            isRejected: false,
-          });
+            isDelivered: status,
+            isRejected: !status,
+          };
+          // Update specific prospect fields within CampaignMail
+          await CampaignMail.updateOne(
+            { _id: mailId, 'prospects._id': prospect._id },
+            { $set: { 'prospects.$': { ...prospect, ...updateFields } } }
+          );
         }
       } catch (error) {
         console.log(`Error in sending mail at: ${recipantData.EMAIL} ---`);
 
         mailDeliveryStatus.push({ EMAIL: recipantData.EMAIL, status: false });
-        updatedProspects.push({
-          ...prospect,
-          isBounced: false,
-          isDelivered: false,
-          isRejected: true,
-        });
+        await CampaignMail.updateOne(
+          { _id: mailId, 'prospects._id': prospect._id },
+          {
+            $set: {
+              'prospects.$.isBounced': false,
+              'prospects.$.isDelivered': false,
+              'prospects.$.isRejected': true,
+            },
+          }
+        );
       }
     }
 
     // Update campaign status after sending emails
     await Campaign.findByIdAndUpdate(campaignId, { status: 'Running' });
-
-    // Update campaignMail status after sending emails
-    await CampaignMail.findByIdAndUpdate(mailId, {
-      prospects: updatedProspects,
-    });
   } catch (error) {
     console.error('Error sending emails', error);
     throw error;

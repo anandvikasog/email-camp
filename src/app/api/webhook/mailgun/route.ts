@@ -6,6 +6,8 @@ export async function POST(req: NextRequest) {
     await dbConnect();
     const eventData = await req.json();
 
+    console.log('eventData', eventData);
+
     if (eventData['event-data']) {
       const eventType = eventData['event-data'].event;
       const emailId = eventData['event-data'].message.headers['message-id'];
